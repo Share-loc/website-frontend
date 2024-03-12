@@ -1,6 +1,12 @@
+import AppBar from '../components/AppBar'
+
 const HomePage = () => {
   return (
-    <div className="bg-blue text-black">HomePage</div>
+    <div>
+        <AppBar />
+        <h1>Home Page</h1>
+        <p>Welcome to the home page!</p>
+    </div>
   )
 }
 

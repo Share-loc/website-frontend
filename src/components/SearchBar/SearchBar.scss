@@ -1,0 +1,16 @@
+.wrapper {
+    position:relative;
+  }
+  
+  .icon {
+    padding: 4px;
+    position: absolute;
+    box-sizing:border-box;
+    top:50%;
+    right:10px;
+    transform: translateY(-50%);
+  }
+  
+  .input {
+    box-sizing:border-box;
+  }
