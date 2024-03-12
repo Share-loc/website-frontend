@@ -1,30 +1,44 @@
-# React + TypeScript + Vite
+# Share'Loc - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## What is Share'Loc ?
 
-Currently, two official plugins are available:
+Share'Loc is a dynamic student venture facilitating peer-to-peer sharing of resources through a user-friendly platform. It revolutionizes CtoC (Consumer-to-Consumer) interactions by enabling individuals to rent out or borrow items within their community. From tools to textbooks, Share'Loc fosters a collaborative economy, promoting sustainability and cost-effectiveness while forging connections among users.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Frontend repository
 
-## Expanding the ESLint configuration
+This repository is the frontend side of Share'Loc.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Tech Stack of frontend
 
-- Configure the top-level `parserOptions` property like this:
+- ViteJs
+- React with Typescript
+- Sass with tailwindcss
+- React Icons
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
+### How to get started ?
 
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+1. Clone this repository:
+
+`git clone https://github.com/Share-loc/website-frontend.git`
+
+2. Open it:
+
+`cd website-frontend`
+
+3. Download dependencies:
+
+`npm install`
+
+4. Start vite server:
+
+`npm run dev`
+
+5. Congratulation ! You can start to test the frontend side of Share'Loc
+
+### If you want to contribute
+
+Please, create your own branch to contribute. 
+
+Use these prefix for your commits and pull requests.
+
+You can review other pull requests if you want.
