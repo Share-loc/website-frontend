@@ -20,6 +20,7 @@ const ProductPage = () => {
 
     const [user, setUser] = useState({
         id: 1,
+        name: 'User name',
         type: 'Particulier',
         phone: '06 00 00 00 00',
         location: 'user location'
@@ -43,15 +44,15 @@ const ProductPage = () => {
                 <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>Information utiles</h2>
                 <div className='grid grid-cols-2 text-black'>
                     <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
-                        <FaPhone />
+                        <FaPhone className='text-blue'/>
                         <p>{user.phone}</p>
                     </div>
                     <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
-                        <FaLocationDot />
+                        <FaLocationDot className='text-blue'/>
                         <p>{user.location}</p>
                     </div>
                     <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
-                        <MdAccountCircle />
+                        <MdAccountCircle className='text-blue'/>
                         <p>{user.type}</p>
                     </div>
                 </div>
@@ -67,6 +68,18 @@ const ProductPage = () => {
                             </div>
                         ))
                     }
+                </div>
+            </div>
+            <div>
+                <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>Profil du membre</h2>
+                <div className='w-fit p-5 rounded-lg shadow flex justify-center items-center flex-col border-[.5px] border-gray'>
+                    <div className='flex flex-row items-center justify-between py-3 px-24 w-fit gap-3 mb-5'>
+                        <MdAccountCircle className='text-blue w-6 h-6'/>
+                        <p>{user.name}</p>
+                    </div>
+                    <button className='w-fit px-7 py-3 bg-blue text-white font-medium rounded-lg hover:bg-blue/90 ease-out duration-300'>
+                        Contacter {user.name}
+                    </button>
                 </div>
             </div>
         </>
