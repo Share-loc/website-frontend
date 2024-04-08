@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import Image from '../components/Image'
+import SectionTitle from '../components/SectionTitle'
+import TextIcon from '../components/TextIcon';
 import { FaPhone } from "react-icons/fa6";
 import { MdAccountCircle } from "react-icons/md";
 import { FaLocationDot } from "react-icons/fa6";
@@ -13,7 +15,7 @@ const ProductPage = () => {
         name: 'Product name',
         category: 'Product category',
         price: 10000,
-        description: 'lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+        description: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. At harum voluptatibus ipsum, placeat totam magnam neque eum natus fugiat non praesentium. Nobis distinctio laboriosam natus ipsum illum minus. Quaerat consectetur recusandae sed nostrum corporis enim sequi mollitia expedita debitis doloribus, placeat repudiandae, ipsa sint libero praesentium hic nesciunt est? Vitae.',
         image: 'product image',
         canPayWith: ['Visa', 'Mastercard', 'Paypal']
     })
@@ -33,45 +35,47 @@ const ProductPage = () => {
 
     return (
         <>
-            <Image src={product.image} alt={product.name} width='100%' height='300px' />
+            <Image src={'/renault.jpeg'} alt={product.name} />
             <div>
-                <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>{product.name}</h2>
+                <SectionTitle>{product.name}</SectionTitle>
                 <p className='mb-5 text-xl font-semibold text-blue'>{formatPrice(product.price)} par jour</p>
                 <p className='text-lg font-medium text-black'>{product.description}</p>
                 <h3 className='my-3 text-lg font-normal text-black'>Catégorie: {product.category}</h3>
             </div>
             <div>
-                <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>Information utiles</h2>
+                <SectionTitle>Informations utiles</SectionTitle>
                 <div className='grid grid-cols-2 text-black'>
-                    <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
+                    <TextIcon>
                         <FaPhone className='text-blue'/>
                         <p>{user.phone}</p>
-                    </div>
-                    <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
+                    </TextIcon>
+                    <TextIcon>
                         <FaLocationDot className='text-blue'/>
                         <p>{user.location}</p>
-                    </div>
-                    <div className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
+                    </TextIcon>
+                    <TextIcon>
                         <MdAccountCircle className='text-blue'/>
                         <p>{user.type}</p>
-                    </div>
+                    </TextIcon>
                 </div>
             </div>
             <div>
-                <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>Moyens de paiement acceptés</h2>
+                <SectionTitle>Moyens de paiement acceptés</SectionTitle>
                 <div className='grid grid-cols-2 text-black'>
                     {
                         product.canPayWith.map((payMethod, index) => (
-                            <div key={index} className='flex flex-row items-center justify-between p-3 w-fit gap-3'>
-                                <FaCheck className='text-blue'/>
-                                <p>{payMethod}</p>
+                            <div key={index}>
+                                <TextIcon>
+                                    <FaCheck className='text-blue'/>
+                                    <p>{payMethod}</p>
+                                </TextIcon>
                             </div>
                         ))
                     }
                 </div>
             </div>
             <div>
-                <h2 className='mt-10 mb-3 text-3xl font-bold text-black'>Profil du membre</h2>
+                <SectionTitle>Profil du membre</SectionTitle>
                 <div className='w-fit p-5 rounded-lg shadow flex justify-center items-center flex-col border-[.5px] border-gray'>
                     <div className='flex flex-row items-center justify-between py-3 px-24 w-fit gap-3 mb-5'>
                         <MdAccountCircle className='text-blue w-6 h-6'/>
