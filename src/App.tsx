@@ -4,6 +4,7 @@ import ContentLayout from './components/layouts/ContentLayout'
 import HomePage from './pages/HomePage'
 import AdPage from './pages/AdPage'
 import ProductPage from './pages/ProductPage'
+import RegisterPage from './pages/RegisterPage'
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path='/adpage' element={<AdPage />} />
+          <Route path='/register' element={<RegisterPage />} />
           <Route path='/product/:id' element={<ProductPage />} />
         </Routes>
       </ContentLayout>
