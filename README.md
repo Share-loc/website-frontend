@@ -8,6 +8,10 @@ Share'Loc is a dynamic student venture facilitating peer-to-peer sharing of reso
 
 This repository is the frontend side of Share'Loc.
 
+### Requirements
+
+- [Node Js](https://nodejs.org/en/download)
+
 ### Tech Stack of frontend
 
 - ViteJs
