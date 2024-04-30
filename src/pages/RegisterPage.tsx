@@ -1,3 +1,5 @@
+import Input from '../components/Input'
+
 const RegisterPage = () => {
   return (
     <div className="flex flex-col justify-center items-center">
@@ -10,89 +12,47 @@ const RegisterPage = () => {
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <form className="space-y-6" action="#" method="POST">
-          <div>
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                Prénom
-              </label>
-              <div className="mt-2">
-                <input
-                  id="firstname"
-                  name="firstname"
-                  type="text"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-black placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-blue sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            <Input 
+              label='Prénom'
+              id='firstname'
+              name='firstname'
+              type='text'
+              required
+            />
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                Nom de famille
-              </label>
-              <div className="mt-2">
-                <input
-                  id="lastname"
-                  name="lastname"
-                  type="text"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-black placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-blue sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            <Input 
+              label='Nom'
+              id='lastname'
+              name='lastname'
+              type='text'
+              required
+            />
 
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
-                Nom d'utilisateur
-              </label>
-              <div className="mt-2">
-                <input
-                  id="username"
-                  name="username"
-                  type="text"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-black placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-blue sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            <Input 
+              label="Nom d' utilisateur"
+              id='username'
+              name='username'
+              type='text'
+              required
+            />
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
-                Adresse email
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-black placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-blue sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            <Input 
+              label='Adresse email'
+              id='email'
+              name='email'
+              type='email'
+              autoComplete='email'
+              required
+            />
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
-                  Mot de passe
-                </label>
-                {/* <div className="text-sm">
-                  <a href="#" className="font-semibold text-orange-100 hover:text-orange-200 duration-300 ease-out">
-                    Mot de passe oublié ?
-                  </a>
-                </div> */}
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-black shadow-sm ring-1 ring-inset ring-black placeholder:text-black focus:ring-2 focus:ring-inset focus:ring-blue sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+            <Input
+              label='Mot de passe'
+              id='password'
+              name='password'
+              type='password'
+              autoComplete='current-password'
+              required
+            />
 
             <div>
               <button
