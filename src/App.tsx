@@ -23,6 +23,13 @@ function App() {
         username: "DEVMODE",
       }
     }
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      return {
+        isLogged: true,
+        username: 'user',
+      }
+    }
     return {
       isLogged: false,
       username: "",
