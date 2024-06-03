@@ -13,7 +13,9 @@ import ProfilePage from './pages/ProfilePage'
 function App() {
 
   // Check if we are in development mode
-  const devMode = (import.meta.env.VITE_DEVELOPPEMENT_MODE === "development");
+  const devMode = (import.meta.env.VITE_DEVELOPEMENT_MODE === "development");
+  console.log("Development mode: ", devMode);
+  
   // Initialize user state
   const [userState, setUserState] = useState(() => {
     if (devMode) {

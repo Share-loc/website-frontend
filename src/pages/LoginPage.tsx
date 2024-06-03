@@ -22,7 +22,7 @@ const LoginPage = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault()
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/login_check`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -32,12 +32,15 @@ const LoginPage = () => {
             if (response.ok) {
                 const data = await response.json();
                 setResponseMessage('Login successful!');
-                // TODO: Stocker le token JWT dans le contexte d'authentification
+                // Update the user state
                 setUserState({
                     isLogged: true,
                     username: data.username,
                 })
-
+                // Save the token in the local storage
+                localStorage.setItem('token', data.token);
+                // Rediriger l'utilisateur vers la page de profil
+                // window.location.href = '/profile';
                 console.log('Success:', data);
             } else {
                 const errorData = await response.json();
