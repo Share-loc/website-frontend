@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import AuthContext from '../components/context/AuthContext'
 import Input from '../components/Input'
 
 const LoginPage = () => {
+
+    const { setUserState } = useContext(AuthContext)
 
     const [formData, setFormData] = useState({
         email: '',
@@ -30,6 +33,10 @@ const LoginPage = () => {
                 const data = await response.json();
                 setResponseMessage('Login successful!');
                 // TODO: Stocker le token JWT dans le contexte d'authentification
+                setUserState({
+                    isLogged: true,
+                    username: data.username,
+                })
 
                 console.log('Success:', data);
             } else {
