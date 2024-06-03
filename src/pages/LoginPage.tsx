@@ -35,12 +35,10 @@ const LoginPage = () => {
                 // Update the user state
                 setUserState({
                     isLogged: true,
-                    username: data.username,
+                    username: 'user',
                 })
                 // Save the token in the local storage
                 localStorage.setItem('token', data.token);
-                // Rediriger l'utilisateur vers la page de profil
-                // window.location.href = '/profile';
                 console.log('Success:', data);
             } else {
                 const errorData = await response.json();
@@ -63,7 +61,6 @@ const LoginPage = () => {
                 </div>
 
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    {/* TODO: Lien vers la route api de connection */}
                     <form className="space-y-6" onSubmit={handleSubmit} method="POST">
 
                         <Input 
@@ -87,7 +84,6 @@ const LoginPage = () => {
                             autoComplete='current-password'
                             required
                         >
-                            {/* TODO: Integrer le bouton mot de passe oublié */}
                         </Input>
 
                         <div>
@@ -95,7 +91,7 @@ const LoginPage = () => {
                                 type="submit"
                                 className="flex w-full justify-center rounded-md bg-orange-100 px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black duration-300 ease-out"
                             >
-                                Finaliser inscription
+                                Se connecter
                             </button>
                         </div>
                         <div>
