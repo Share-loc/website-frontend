@@ -1,6 +1,48 @@
+import { useState } from 'react'
 import Input from '../components/Input'
 
 const RegisterPage = () => {
+
+  const [formData, setFormData] = useState({
+    email: '',
+    firstname: '',
+    lastname: '',
+    username: '',
+    password: ''
+  })
+  const [responseMessage, setResponseMessage] = useState('')
+
+  const handleChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault()
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
+      if (response.ok) {
+        setResponseMessage('Registration successful!');
+      } else {
+        const errorData = await response.json();
+        setResponseMessage('Registration failed: ' + errorData.message);
+        console.error('Error:', errorData);
+      }
+    } catch (error) {
+      setResponseMessage('An error occurred: ' + error);
+      console.error('Error:', error);
+    }
+  }
+
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="flex min-h-full flex-1 flex-col justify-center items-center py-12 lg:px-8 w-full">
@@ -11,12 +53,14 @@ const RegisterPage = () => {
         </div>
 
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" action="#" method="POST">
+          <form className="space-y-6" onSubmit={handleSubmit} method="POST">
             <Input 
               label='Prénom'
               id='firstname'
               name='firstname'
               type='text'
+              value={formData.firstname}
+              onChange={handleChange}
               required
             />
 
@@ -25,6 +69,8 @@ const RegisterPage = () => {
               id='lastname'
               name='lastname'
               type='text'
+              value={formData.lastname}
+              onChange={handleChange}
               required
             />
 
@@ -33,6 +79,8 @@ const RegisterPage = () => {
               id='username'
               name='username'
               type='text'
+              value={formData.username}
+              onChange={handleChange}
               required
             />
 
@@ -41,6 +89,8 @@ const RegisterPage = () => {
               id='email'
               name='email'
               type='email'
+              value={formData.email}
+              onChange={handleChange}
               autoComplete='email'
               required
             />
@@ -50,6 +100,8 @@ const RegisterPage = () => {
               id='password'
               name='password'
               type='password'
+              value={formData.password}
+              onChange={handleChange}
               autoComplete='current-password'
               required
             />
@@ -63,6 +115,11 @@ const RegisterPage = () => {
               </button>
             </div>
           </form>
+          {responseMessage && (
+            <div className="mt-4 text-center text-sm text-red-600">
+              {responseMessage}
+            </div>
+          )}
         </div>
       </div>
     </div>
