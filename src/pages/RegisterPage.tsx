@@ -31,9 +31,7 @@ const RegisterPage = () => {
         body: JSON.stringify(formData),
       })
       if (response.ok) {
-        const data = await response.json();
         setResponseMessage('Registration successful!');
-        console.log('Success:', data);
       } else {
         const errorData = await response.json();
         setResponseMessage('Registration failed: ' + errorData.message);

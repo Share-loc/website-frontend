@@ -14,7 +14,6 @@ function App() {
 
   // Check if we are in development mode
   const devMode = (import.meta.env.VITE_DEVELOPEMENT_MODE === "development");
-  console.log("Development mode: ", devMode);
   
   // Initialize user state
   const [userState, setUserState] = useState(() => {
