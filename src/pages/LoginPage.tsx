@@ -1,6 +1,48 @@
+import { useState } from 'react'
 import Input from '../components/Input'
 
 const LoginPage = () => {
+
+    const [formData, setFormData] = useState({
+        email: '',
+        password: ''
+    })
+    const [responseMessage, setResponseMessage] = useState('')
+
+    const handleChange = (e: any) => {
+        const { name, value } = e.target;
+        setFormData((prevData) => ({
+            ...prevData,
+            [name]: value,
+        }));
+    }
+    const handleSubmit = async (e: any) => {
+        e.preventDefault()
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+            if (response.ok) {
+                const data = await response.json();
+                setResponseMessage('Login successful!');
+                // TODO: Stocker le token JWT dans le contexte d'authentification
+
+                console.log('Success:', data);
+            } else {
+                const errorData = await response.json();
+                setResponseMessage('Login failed: ' + errorData.message);
+                console.error('Error:', errorData);
+            }
+        } catch (error) {
+            setResponseMessage('An error occurred: ' + error);
+            console.error('Error:', error);
+        }
+    }
+
     return (
         <div className="flex flex-col justify-center items-center">
             <div className="flex min-h-full flex-1 flex-col justify-center items-center py-12 lg:px-8 w-full">
@@ -12,13 +54,15 @@ const LoginPage = () => {
 
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                     {/* TODO: Lien vers la route api de connection */}
-                    <form className="space-y-6" action="#" method="POST">
+                    <form className="space-y-6" onSubmit={handleSubmit} method="POST">
 
                         <Input 
                             label='Adresse email'
                             id='email'
                             name='email'
                             type='email'
+                            value={formData.email}
+                            onChange={handleChange}
                             autoComplete='email'
                             required
                         />
@@ -28,6 +72,8 @@ const LoginPage = () => {
                             id='password'
                             name='password'
                             type='password'
+                            value={formData.password}
+                            onChange={handleChange}
                             autoComplete='current-password'
                             required
                         >
@@ -41,6 +87,9 @@ const LoginPage = () => {
                             >
                                 Finaliser inscription
                             </button>
+                        </div>
+                        <div>
+                            <p className="text-red-500 text-xs italic">{responseMessage}</p>
                         </div>
                     </form>
                 </div>
