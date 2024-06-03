@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import { useState } from 'react'
+import AuthContext from './components/context/AuthContext'
 import AppBarLayout from './components/layouts/AppBarLayout'
 import ContentLayout from './components/layouts/ContentLayout'
 import HomePage from './pages/HomePage'
@@ -11,30 +12,43 @@ import ProfilePage from './pages/ProfilePage'
 
 function App() {
 
-  const [userAuth, setUserAuth] = useState({
-    isLogged: false,
-    username: '',
+  // Check if we are in development mode
+  const devMode = (import.meta.env.VITE_DEVELOPPEMENT_MODE === "development");
+  // Initialize user state
+  const [userState, setUserState] = useState(() => {
+    if (devMode) {
+      return {
+        isLogged: true,
+        username: "DEVMODE",
+      }
+    }
+    return {
+      isLogged: false,
+      username: "",
+    }
   })
 
   return (
-    <AppBarLayout>
-      <ContentLayout>
-        <Routes>
-          {/* Unprotected routes */}
-          <Route path="/" element={<HomePage />} />
-          <Route path='/adpage' element={<AdPage />} />
-          <Route path='/register' element={<RegisterPage />} />
-          <Route path='/login' element={<LoginPage />} />
-          <Route path='/product/:id' element={<ProductPage />} />
-          {/* Protected routes */}
-          {userAuth.isLogged ? (
-            <Route path='/profile' element={<ProfilePage />} />
-          ) : (
-            <Route path='/profile' element={<LoginPage />} />
-          )}
-        </Routes>
-      </ContentLayout>
-    </AppBarLayout>
+    <AuthContext.Provider value={{ userState, setUserState }}>
+      <AppBarLayout>
+        <ContentLayout>
+          <Routes>
+            {/* Unprotected routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path='/adpage' element={<AdPage />} />
+            <Route path='/register' element={<RegisterPage />} />
+            <Route path='/login' element={<LoginPage />} />
+            <Route path='/product/:id' element={<ProductPage />} />
+            {/* Protected routes */}
+            {userState.isLogged ? (
+              <Route path='/profile' element={<ProfilePage />} />
+            ) : (
+              <Route path='/profile' element={<LoginPage />} />
+            )}
+          </Routes>
+        </ContentLayout>
+      </AppBarLayout>
+    </AuthContext.Provider>
   )
 }
 
