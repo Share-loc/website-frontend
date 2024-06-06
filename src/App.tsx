@@ -1,5 +1,5 @@
 import { Routes, Route } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import AuthContext from './components/context/AuthContext'
 import AppBarLayout from './components/layouts/AppBarLayout'
 import ContentLayout from './components/layouts/ContentLayout'
@@ -9,6 +9,8 @@ import ProductPage from './pages/ProductPage'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import axios from 'axios'
+import { getToken, getUserid } from './const/func.ts'
 
 function App() {
 
@@ -23,8 +25,8 @@ function App() {
         userid: "DEVMODE",
       }
     }
-    const storedToken = localStorage.getItem('token');
-    const storedUserid = localStorage.getItem('userid');
+    const storedToken = getToken();
+    const storedUserid = getUserid();
     if (storedToken && storedUserid) {
       return {
         isLogged: true,
@@ -36,6 +38,46 @@ function App() {
       userid: null,
     }
   })
+
+  // Check if token is valid
+  useEffect(() => {
+    const token = getToken();
+    if (!token || devMode) {
+      // set user state to logged out
+      setUserState(
+        {
+          isLogged: false,
+          userid: null
+        }
+      )
+      return;
+    }
+    axios.get(`${import.meta.env.VITE_API_URL}/token/validate`, {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    .then(response => {
+      if (response.status === 200) {
+        // set user state to logged in
+        const userid = response.data.user_id;
+        setUserState(
+          {
+            isLogged: true,
+            userid: userid
+          }
+        )
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      // set user state to logged out
+      setUserState(
+        {
+          isLogged: false,
+          userid: null
+        }
+      )
+    })
+  }, [])
 
   return (
     <AuthContext.Provider value={{ userState, setUserState }}>
