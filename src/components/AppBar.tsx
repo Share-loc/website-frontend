@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { useContext } from "react"
 import AuthContext from "./context/AuthContext"
 import AddAdButton from "./AddAdButton"
@@ -27,9 +28,9 @@ const AppBar = () => {
 
   return (
     <header className="bg-white flex justify-around items-center h-16 shadow-lg">
-        <a href="/">
+        <Link to="/">
             <img src={Logo} alt="logo" className="lg:h-10 h-7" />
-        </a>
+        </Link>
         <AddAdButton />
         <SearchBar />
         <nav className="">
