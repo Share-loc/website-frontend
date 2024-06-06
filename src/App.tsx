@@ -20,19 +20,20 @@ function App() {
     if (devMode) {
       return {
         isLogged: true,
-        username: "DEVMODE",
+        userid: "DEVMODE",
       }
     }
     const storedToken = localStorage.getItem('token');
-    if (storedToken) {
+    const storedUserid = localStorage.getItem('userid');
+    if (storedToken && storedUserid) {
       return {
         isLogged: true,
-        username: 'user',
+        userid: storedUserid,
       }
     }
     return {
       isLogged: false,
-      username: "",
+      userid: null,
     }
   })
 

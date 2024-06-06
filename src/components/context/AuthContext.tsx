@@ -3,12 +3,12 @@ import { createContext } from "react";
 type AuthContextType = {
   userState: {
     isLogged: boolean;
-    username: string;
+    userid: string | null;
   };
   setUserState: React.Dispatch<
     React.SetStateAction<{
       isLogged: boolean;
-      username: string;
+      userid: string | null;
     }>
   >;
 };
@@ -16,7 +16,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType>({
   userState: {
     isLogged: false,
-    username: "",
+    userid: null,
   },
   setUserState: () => {},
 });

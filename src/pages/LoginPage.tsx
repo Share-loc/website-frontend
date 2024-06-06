@@ -35,10 +35,11 @@ const LoginPage = () => {
                 // Update the user state
                 setUserState({
                     isLogged: true,
-                    username: 'user',
+                    userid: data.id,
                 })
                 // Save the token in the local storage
                 localStorage.setItem('token', data.token);
+                localStorage.setItem('userid', data.user_id);
             } else {
                 const errorData = await response.json();
                 setResponseMessage('Login failed: ' + errorData.message);
