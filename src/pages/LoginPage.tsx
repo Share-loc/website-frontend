@@ -39,7 +39,7 @@ const LoginPage = () => {
                 })
                 // Save the token in the local storage
                 localStorage.setItem('token', data.token);
-                localStorage.setItem('userid', data.id);
+                localStorage.setItem('userid', data.user_id);
             } else {
                 const errorData = await response.json();
                 setResponseMessage('Login failed: ' + errorData.message);

@@ -17,11 +17,12 @@ const AppBar = () => {
     setUserState(
       {
         isLogged: false,
-        username: ""
+        userid: null
       }
     )
     // delete token from local storage
     localStorage.removeItem("token")
+    localStorage.removeItem("userid")
   }
 
   return (
@@ -38,7 +39,7 @@ const AppBar = () => {
                     <MdOutlineLogout />
                   </ActionButton>
                   :
-                  <NavButton href="/login" text="connexion">
+                  <NavButton href="/profile" text="connexion">
                     <FaUser />
                   </NavButton>
                 }
