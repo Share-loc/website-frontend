@@ -5,10 +5,10 @@ const RegisterPage = () => {
 
   const [formData, setFormData] = useState({
     email: '',
-    firstname: '',
-    lastname: '',
+    plainPassword: '',
     username: '',
-    password: ''
+    first_name: '',
+    last_name: '',
   })
   const [responseMessage, setResponseMessage] = useState('')
 
@@ -56,20 +56,20 @@ const RegisterPage = () => {
           <form className="space-y-6" onSubmit={handleSubmit} method="POST">
             <Input 
               label='Prénom'
-              id='firstname'
-              name='firstname'
+              id='first_name'
+              name='first_name'
               type='text'
-              value={formData.firstname}
+              value={formData.first_name}
               onChange={handleChange}
               required
             />
 
             <Input 
               label='Nom'
-              id='lastname'
-              name='lastname'
+              id='last_name'
+              name='last_name'
               type='text'
-              value={formData.lastname}
+              value={formData.last_name}
               onChange={handleChange}
               required
             />
@@ -97,10 +97,10 @@ const RegisterPage = () => {
 
             <Input
               label='Mot de passe'
-              id='password'
-              name='password'
+              id='plainPassword'
+              name='plainPassword'
               type='password'
-              value={formData.password}
+              value={formData.plainPassword}
               onChange={handleChange}
               autoComplete='current-password'
               required
