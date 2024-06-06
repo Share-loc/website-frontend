@@ -1,5 +1,6 @@
 import Logo from "/logo.svg"
 import Separator from "./Separator"
+import { Link } from "react-router-dom"
 
 const Footer = () => {
   return (
@@ -19,16 +20,16 @@ const Footer = () => {
                     <h3 className="text-blue underline underline-offset-8 mb-3">Informations générales</h3>
                     <ul className="flex flex-col gap-2">
                         <li>
-                            <a href="/about">Qui sommes-nous ?</a>
+                            <Link to="/about">Qui sommes-nous ?</Link>
                         </li>
                         <li>
-                            <a href="/cgu">Conditions générales d'utilisation</a>
+                            <Link to="/cgu">Conditions générales d'utilisation</Link>
                         </li>
                         <li>
-                            <a href="/cgv">Conditions générales de vente</a>
+                            <Link to="/cgv">Conditions générales de vente</Link>
                         </li>
                         <li>
-                            <a href="/gdpr">RGPD et gestion des cookies</a>
+                            <Link to="/gdpr">RGPD et gestion des cookies</Link>
                         </li>
                     </ul>
                 </div>
@@ -36,16 +37,16 @@ const Footer = () => {
                     <h3 className="text-blue underline underline-offset-8 mb-3">Des questions ?</h3>
                     <ul className="flex flex-col gap-2">
                         <li>
-                            <a href="/help">Aides</a>
+                            <Link to="/help">Aides</Link>
                         </li>
                         <li>
-                            <a href="/stripe">Le service de paiement</a>
+                            <Link to="/stripe">Le service de paiement</Link>
                         </li>
                         <li>
-                            <a href="/security">Connexion et sécurité</a>
+                            <Link to="/security">Connexion et sécurité</Link>
                         </li>
                         <li>
-                            <a href="/reservation">Le service de réservation</a>
+                            <Link to="/reservation">Le service de réservation</Link>
                         </li>
                     </ul>
                 </div>
