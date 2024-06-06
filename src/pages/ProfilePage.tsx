@@ -25,11 +25,16 @@ const ProfilePage = () => {
 
   // handle show inputs take input name as argument and return the showInputs state with the input name set to opposite of current value
   const handleShowInputs = (input: string) => {
-    console.log(showInputs);
     setShowInputs({
       ...showInputs,
       [input]: !showInputs[input]
     })
+  }
+
+  // fetch user data on component mount
+  const handleSubmit = () => {
+    // TODO: fetch to update user data
+    console.log('submit');
   }
 
   useEffect(() => {
@@ -67,6 +72,7 @@ const ProfilePage = () => {
             {user.username}
           </p>
           <input type="text" className={`border-b-2 border-blue ${showInputs.username ? 'block' : 'hidden'}`} />
+          <button onClick={handleSubmit} className={`text-blue ${showInputs.username ? 'block' : 'hidden'}`}>Submit</button>
           <button onClick={() => handleShowInputs('username')} className="text-blue">
             {showInputs.username ? 'Annuler' : 'Modifier'}
           </button>
@@ -77,6 +83,7 @@ const ProfilePage = () => {
             {user.email}
           </p>
           <input type="text" className={`border-b-2 border-blue ${showInputs.email ? 'block' : 'hidden'}`} />
+          <button onClick={handleSubmit} className={`text-blue ${showInputs.username ? 'block' : 'hidden'}`}>Submit</button>
           <button onClick={() => handleShowInputs('email')} className="text-blue">
             {showInputs.email ? 'Annuler' : 'Modifier'}
           </button>

@@ -52,7 +52,7 @@ function App() {
   useEffect(() => {
     const token = getToken();
     if (!token || devMode) {
-      // set user state to logged out
+      // set user state to logged out$
       setUserState(
         {
           isLogged: false,
@@ -61,6 +61,7 @@ function App() {
       )
       return;
     }
+    // check if token is valid with backend and catch if expired
     axios.get(`${import.meta.env.VITE_API_URL}/token/validate`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -77,8 +78,13 @@ function App() {
       }
     })
     .catch(error => {
-      console.error(error);
-      // set user state to logged out
+      if (error.response.status === 401) {
+        // delete token from local storage
+        localStorage.removeItem("token")
+        localStorage.removeItem("userid")
+      } else {
+        console.error(error);
+      }
       setUserState(
         {
           isLogged: false,
