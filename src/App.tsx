@@ -84,14 +84,22 @@ function App() {
       <AppBarLayout>
         <ContentLayout>
           <Routes>
+
             {/* Unprotected routes */}
             <Route path="/" element={<HomePage />} />
-            <Route path='/adpage' element={<AdPage />} />
             <Route path='/register' element={<RegisterPage />} />
+            <Route path='/product/:id' element={<ProductPage />} />
+
+            {/* Protected routes */}
             <Route path='/profile' element={
               userState.isLogged ? <ProfilePage /> : <LoginPage />
             } />
-            <Route path='/product/:id' element={<ProductPage />} />
+            <Route path='/adpage' element={
+              userState.isLogged ? <AdPage /> : <LoginPage />
+            } />
+
+            {/* ADMIN routes */}
+
           </Routes>
         </ContentLayout>
       </AppBarLayout>
