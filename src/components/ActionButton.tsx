@@ -6,7 +6,7 @@ interface ActionButtonProps {
 
 const ActionButton = ({ text, onClick, children }: ActionButtonProps) => {
   return (
-    <li className="text-blue hover:text-blue-500 cursor-pointer transition-colors duration-300 ease-in-out" >
+    <li className="text-blue hover:text-blue/70 cursor-pointer transition-colors duration-300 ease-out" >
         <button 
         onClick={onClick}
         className="flex items-center gap-2 lg:mx-0 sm:mx-5 mx-1"
