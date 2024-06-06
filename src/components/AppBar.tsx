@@ -35,9 +35,14 @@ const AppBar = () => {
         <nav className="">
             <ul className="flex gap-4 text-blue">
                 { userState.isLogged ? 
-                  <ActionButton onClick={handleLogout} text="deconnexion">
-                    <MdOutlineLogout />
-                  </ActionButton>
+                  <div className="flex md:gap-10 gap-0">
+                    <NavButton href="/profile" text="profil">
+                      <FaUser />
+                    </NavButton>
+                    <ActionButton onClick={handleLogout} text="deconnexion">
+                      <MdOutlineLogout />
+                    </ActionButton>
+                  </div>
                   :
                   <NavButton href="/profile" text="connexion">
                     <FaUser />
