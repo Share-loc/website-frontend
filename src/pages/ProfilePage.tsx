@@ -11,7 +11,7 @@ interface User {
 
 const ProfilePage = () => {
 
-  const [user, setUser] = useState({
+  const [user, setUser] = useState<User>({
     email: '',
     username: '',
     avatar: null,
