@@ -9,6 +9,15 @@ import ProductPage from './pages/ProductPage'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
+import AboutUsPage from './pages/AboutUsPage.tsx'
+import CGUPage from './pages/CGUPage.tsx'
+import CGVPage from './pages/CGVPage.tsx'
+import GDPRPage from './pages/GDPRPage.tsx'
+import HelpPage from './pages/HelpPage.tsx'
+import StripePage from './pages/StripePage.tsx'
+import SecurityPage from './pages/SecurityPage.tsx'
+import ReservationPage from './pages/ReservationPage.tsx'
+import NotFoundPage from './pages/NotFoundPage.tsx'
 import axios from 'axios'
 import { getToken, getUserid } from './const/func.ts'
 
@@ -88,6 +97,14 @@ function App() {
             {/* Unprotected routes */}
             <Route path="/" element={<HomePage />} />
             <Route path='/register' element={<RegisterPage />} />
+            <Route path='/about' element={<AboutUsPage />} />
+            <Route path='/cgu' element={<CGUPage />} />
+            <Route path='/cgv' element={<CGVPage />} />
+            <Route path='/gdpr' element={<GDPRPage />} />
+            <Route path='/help' element={<HelpPage />} />
+            <Route path='/stripe' element={<StripePage />} />
+            <Route path='/security' element={<SecurityPage />} />
+            <Route path='/reservation' element={<ReservationPage />} />
             <Route path='/product/:id' element={<ProductPage />} />
 
             {/* Protected routes */}
@@ -99,6 +116,9 @@ function App() {
             } />
 
             {/* ADMIN routes */}
+
+            {/* 404 route */}
+            <Route path="*" element={<NotFoundPage />} />
 
           </Routes>
         </ContentLayout>
