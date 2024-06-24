@@ -160,7 +160,11 @@ const AdPage = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleChange}
-                className="mt-1 block w-full"
+                className="my-2 block w-full border border-black shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue focus:ring-blue disabled:opacity-50 disabled:pointer-events-none
+                file:bg-white file:border-0
+                file:me-4
+                file:py-3 file:px-4
+                cursor-pointer"
               />
               <input 
                 id="image2"
@@ -168,7 +172,11 @@ const AdPage = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleChange}
-                className="mt-1 block w-full"
+                className="my-2 block w-full border border-black shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue focus:ring-blue disabled:opacity-50 disabled:pointer-events-none
+                file:bg-white file:border-0
+                file:me-4
+                file:py-3 file:px-4
+                cursor-pointer"
               />
               <input 
                 id="image3"
@@ -176,7 +184,11 @@ const AdPage = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleChange}
-                className="mt-1 block w-full"
+                className="my-2 block w-full border border-black shadow-sm rounded-lg text-sm focus:z-10 focus:border-blue focus:ring-blue disabled:opacity-50 disabled:pointer-events-none
+                file:bg-white file:border-0
+                file:me-4
+                file:py-3 file:px-4
+                cursor-pointer"
               />
             </div>
             <div>
