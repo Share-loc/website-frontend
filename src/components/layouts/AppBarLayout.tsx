@@ -1,15 +1,15 @@
-import React from 'react'
 import AppBar from '../AppBar'
 import Footer from '../Footer'
+import { Outlet } from 'react-router-dom'
 
-const AppBarLayout = ({children}: {children: React.ReactNode}) => {
+const AppBarLayout = () => {
   return (
     <>
         <AppBar />
-        {children}
+        <Outlet />
         <Footer />
     </>
-  )
+  );
 }
 
 export default AppBarLayout
