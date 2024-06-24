@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import Input from '../components/Input'
 import { getToken } from '../const/func'
+import { useNavigate } from 'react-router-dom'
 
 const AdPage = () => {
+
+  const navigate = useNavigate()
 
   /**
    * The formData state is used to store the form data.
@@ -44,6 +47,9 @@ const AdPage = () => {
     // Convert price and category_id to numbers
 
     try {
+      /**
+       * The fetch function is used to send a request to the server.
+       */
       const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
         method: 'POST',
         headers: {
@@ -58,7 +64,9 @@ const AdPage = () => {
       if (response.ok) {
         const data = await response.json();
 
-        // Upload images if there are any
+        /**
+         * If images are selected, they are uploaded to the server.
+         */
         if (images.length > 0) {
           const formData = new FormData();
           images.forEach((image, _) => {
@@ -82,6 +90,7 @@ const AdPage = () => {
           }
         }
         console.log(data)
+        navigate('/')
       } else {
         const errorData = await response.json();
         console.log('An error occurred: ' + errorData.message);
