@@ -22,7 +22,7 @@ const AdPage = () => {
     const { name, value, files } = e.target;
     if (name === 'images') {
       setImages(Array.from(files));
-    } if (name === 'price' || name === 'category_id') {
+    } else if (name === 'price' || name === 'category_id') {
       setFormData((prevData) => ({
         ...prevData,
         [name]: Number(value),
@@ -57,24 +57,30 @@ const AdPage = () => {
       })
       if (response.ok) {
         const data = await response.json();
-        images.forEach((image, _) => {
-          /**
-           * Upload the image to the server.
-           */
+
+        // Upload images if there are any
+        if (images.length > 0) {
           const formData = new FormData();
-          formData.append('image', image);
-          fetch(`${import.meta.env.VITE_API_URL}/items/${data.id}/upload-pictures`, {
+          images.forEach((image, _) => {
+            formData.append('pictures[]', image);
+          });
+
+          const imageUploadResponse = await fetch(`${import.meta.env.VITE_API_URL}/items/${data.id}/upload-pictures`, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
-              /**
-               * The Authorization header is used to authenticate the user.
-               */
               'Authorization': `Bearer ${getToken()}`
             },
             body: formData,
-          })
-        })
+          });
+
+          if (imageUploadResponse.ok) {
+            const imageData = await imageUploadResponse.json();
+            console.log(imageData);
+          } else {
+            const errorImageData = await imageUploadResponse.json();
+            console.log('An error occurred during image upload: ' + errorImageData.message);
+          }
+        }
         console.log(data)
       } else {
         const errorData = await response.json();
