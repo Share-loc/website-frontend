@@ -22,7 +22,13 @@ const AdPage = () => {
     const { name, value, files } = e.target;
     if (name === 'images') {
       setImages(Array.from(files));
-    } else {
+    } if (name === 'price' || name === 'category_id') {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: Number(value),
+      }));
+    }
+    else {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
@@ -36,13 +42,6 @@ const AdPage = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     // Convert price and category_id to numbers
-    const dataToSubmit = new FormData();
-    dataToSubmit.append('title', formData.title);
-    dataToSubmit.append('body', formData.body);
-    dataToSubmit.append('price', formData.price.toString());
-    dataToSubmit.append('location', formData.location);
-    dataToSubmit.append('phone_number', formData.phone_number);
-    dataToSubmit.append('category_id', formData.category_id.toString());
 
     try {
       const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
@@ -54,7 +53,7 @@ const AdPage = () => {
            */
           'Authorization': `Bearer ${getToken()}`
         },
-        body: JSON.stringify(dataToSubmit),
+        body: JSON.stringify(formData),
       })
       if (response.ok) {
         const data = await response.json();
