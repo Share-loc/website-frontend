@@ -31,11 +31,13 @@ const AdminMenu = () => {
       <div className="hidden md:flex md:w-64 md:flex-col">
         <div className="flex flex-col flex-grow pt-5 overflow-y-auto bg-white">
           <div className="flex items-center justify-center flex-shrink-0 px-4">
-            <img
-              className="w-auto h-8"
-              src={Logo}
-              alt="Share'Loc logo"
-            />
+            <a href="/">
+              <img
+                className="w-auto h-8"
+                src={Logo}
+                alt="Share'Loc logo"
+              />
+            </a>
           </div>
 
           <div className="px-4 mt-6">
