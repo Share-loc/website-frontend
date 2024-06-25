@@ -31,20 +31,16 @@ function App() {
     if (devMode) {
       return {
         isLogged: true,
-        userid: "DEVMODE",
       }
     }
     const storedToken = getToken();
-    const storedUserid = getUserid();
-    if (storedToken && storedUserid) {
+    if (storedToken) {
       return {
         isLogged: true,
-        userid: storedUserid,
       }
     }
     return {
       isLogged: false,
-      userid: null,
     }
   })
 
@@ -56,9 +52,8 @@ function App() {
       setUserState(
         {
           isLogged: false,
-          userid: null
         }
-      )
+      )      
       return;
     }
     axios.get(`${import.meta.env.VITE_API_URL}/token/validate`, {
@@ -67,11 +62,9 @@ function App() {
     .then(response => {
       if (response.status === 200) {
         // set user state to logged in
-        const userid = response.data.user_id;
         setUserState(
           {
             isLogged: true,
-            userid: userid
           }
         )
       }
@@ -82,7 +75,6 @@ function App() {
       setUserState(
         {
           isLogged: false,
-          userid: null
         }
       )
     })
