@@ -35,7 +35,6 @@ const LoginPage = () => {
                 // Update the user state
                 setUserState({
                     isLogged: true,
-                    userid: data.id,
                 })
                 // Save the token in the local storage
                 localStorage.setItem('token', data.token);
