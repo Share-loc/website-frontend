@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getToken } from '../const/func'
 import axios from 'axios'
+import { Link } from 'react-router-dom';
 
 interface User {
   id: number;
@@ -23,7 +24,6 @@ const ProfilePage = () => {
   })
 
   const [userItems, setUserItems] = useState<any>([])
-  
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -98,48 +98,63 @@ const ProfilePage = () => {
         <h2 className='text-3xl font-bold my-10'>
           Mes annonces
         </h2>
-        {Object.keys(userItems).length === 0 ? (
+        <div className='grid grid-cols-2'>
+          {Object.keys(userItems).length === 0 ? (
             <p>Vous n'avez pas encore d'annonces.</p>
           ) : (
             Object.keys(userItems).map(key => {
               const item = userItems[key];
               return (
-                <div key={item.id} className='shadow-lg rounded-lg p-5 m-3'>
-                  <div className="flex gap-5">
-                    <p className="text-lg font-bold">
-                      <span className='text-blue mr-10'>Title :</span>
-                      {item.title}
-                    </p>
+                <Link to={`/product/${item.id}`} key={item.id}>
+                  <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 flex flex-col gap-2'>
+                    <div className='self-center my-3'>
+                      { item.activeItemPictures.length === 0 ? 
+                        (
+                          <p>Pas d'image</p>
+                        )
+                        :
+                        (
+                          <img src={`${import.meta.env.VITE_IMAGE_URL}/${item.activeItemPictures[0].fullPath}`} className='w-24 h-24' />
+                        )
+                      }
+                    </div>
+                    <div className="flex gap-5">
+                      <p className="text-lg font-bold">
+                        <span className='text-blue mr-10'>Title :</span>
+                        {item.title}
+                      </p>
+                    </div>
+                    <div className="flex gap-5">
+                      <p className="text-lg font-bold">
+                        <span className='text-blue mr-10'>Mensualités :</span>
+                        {item.price} €
+                      </p>
+                    </div>
+                    <div className="flex gap-5">
+                      <p className="text-lg font-bold">
+                        <span className='text-blue mr-10'>Description :</span>
+                        {item.body}
+                      </p>
+                    </div>
+                    <div className="flex gap-5">
+                      <p className="text-lg font-bold">
+                        <span className='text-blue mr-10'>Lieu :</span>
+                        {item.location}
+                      </p>
+                    </div>
+                    <div className="flex gap-5">
+                      <p className="text-lg font-bold">
+                        <span className='text-blue mr-10'>Catégorie :</span>
+                        {item.category.name}
+                      </p>
+                    </div>
+                    
                   </div>
-                  <div className="flex gap-5">
-                    <p className="text-lg font-bold">
-                      <span className='text-blue mr-10'>Mensualités :</span>
-                      {item.price} €
-                    </p>
-                  </div>
-                  <div className="flex gap-5">
-                    <p className="text-lg font-bold">
-                      <span className='text-blue mr-10'>Description :</span>
-                      {item.body}
-                    </p>
-                  </div>
-                  <div className="flex gap-5">
-                    <p className="text-lg font-bold">
-                      <span className='text-blue mr-10'>Lieu :</span>
-                      {item.location}
-                    </p>
-                  </div>
-                  <div className="flex gap-5">
-                    <p className="text-lg font-bold">
-                      <span className='text-blue mr-10'>Catégorie :</span>
-                      {item.category.name}
-                    </p>
-                  </div>
-                  
-                </div>
+                </Link>
               );
             })
           )}
+        </div>
       </div>
     </>
   )
