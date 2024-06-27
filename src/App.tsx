@@ -19,7 +19,7 @@ import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import axios from 'axios'
-import { getToken, getUserid } from './const/func.ts'
+import { getToken } from './const/func.ts'
 
 function App() {
 
