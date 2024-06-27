@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { getToken } from '../const/func'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
+import { IoImageSharp } from "react-icons/io5";
 
 interface User {
   id: number;
@@ -98,19 +99,21 @@ const ProfilePage = () => {
         <h2 className='text-3xl font-bold my-10'>
           Mes annonces
         </h2>
-        <div className='grid grid-cols-2'>
+        <div className='grid grid-cols-3'>
           {Object.keys(userItems).length === 0 ? (
             <p>Vous n'avez pas encore d'annonces.</p>
           ) : (
             Object.keys(userItems).map(key => {
               const item = userItems[key];
               return (
-                <Link to={`/product/${item.id}`} key={item.id}>
-                  <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 flex flex-col gap-2'>
+                <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3'>
+                  <Link to={`/product/${item.id}`} key={item.id} className='flex flex-col gap-2'>
                     <div className='self-center my-3'>
                       { item.activeItemPictures.length === 0 ? 
                         (
-                          <p>Pas d'image</p>
+                          <div className='w-24 h-24 bg-gray rounded flex justify-center items-center'>
+                            <IoImageSharp className='w-12 h-12 text-blue' />
+                          </div>
                         )
                         :
                         (
@@ -148,9 +151,8 @@ const ProfilePage = () => {
                         {item.category.name}
                       </p>
                     </div>
-                    
-                  </div>
-                </Link>
+                  </Link> 
+                </div>
               );
             })
           )}
