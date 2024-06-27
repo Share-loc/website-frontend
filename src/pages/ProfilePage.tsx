@@ -3,6 +3,8 @@ import { getToken } from '../const/func'
 import axios from 'axios'
 import { Link } from 'react-router-dom';
 import { IoImageSharp } from "react-icons/io5";
+import { FaTrash } from "react-icons/fa";
+import { FaArrowRight } from "react-icons/fa";
 
 interface User {
   id: number;
@@ -25,6 +27,18 @@ const ProfilePage = () => {
   })
 
   const [userItems, setUserItems] = useState<any>([])
+
+  const handleDeleteItem = async (id: number) => {
+    try {
+      const token = getToken();
+      await axios.delete(`${import.meta.env.VITE_API_URL}/items/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserItems(userItems.filter((item: any) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -106,8 +120,7 @@ const ProfilePage = () => {
             Object.keys(userItems).map(key => {
               const item = userItems[key];
               return (
-                <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3'>
-                  <Link to={`/product/${item.id}`} key={item.id} className='flex flex-col gap-2'>
+                <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 hover:scale-105 duration-100 ease-out hover:border-blue'>
                     <div className='self-center my-3'>
                       { item.activeItemPictures.length === 0 ? 
                         (
@@ -130,7 +143,7 @@ const ProfilePage = () => {
                     <div className="flex gap-5">
                       <p className="text-lg font-bold">
                         <span className='text-blue mr-10'>Mensualités :</span>
-                        {item.price} €
+                        {item.price} € / mois
                       </p>
                     </div>
                     <div className="flex gap-5">
@@ -151,7 +164,19 @@ const ProfilePage = () => {
                         {item.category.name}
                       </p>
                     </div>
-                  </Link> 
+                    <div className='flex flex-col'>
+                      <Link to={`/product/${item.id}`} className='mt-3 flex bg-blue hover:bg-blue/70 text-white text-xs w-2/3 self-center justify-center py-1 rounded gap-3 items-center'>
+                        Voir l'annonce
+                        <FaArrowRight className='w-3 h-3' />
+                      </Link>
+                      <button 
+                        className='mt-3 flex bg-red-500 hover:bg-red-500/70 text-white text-xs w-2/3 self-center justify-center py-1 rounded gap-3 items-center'
+                        onClick={() => handleDeleteItem(item.id)}
+                      >
+                        Supprimer
+                        <FaTrash className='w-3 h-3' />
+                      </button>
+                    </div>
                 </div>
               );
             })
