@@ -113,15 +113,15 @@ const ProfilePage = () => {
         <h2 className='text-3xl font-bold my-10'>
           Mes annonces
         </h2>
-        <div className='grid grid-cols-3'>
+        <div className='grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1'>
           {Object.keys(userItems).length === 0 ? (
             <p>Vous n'avez pas encore d'annonces.</p>
           ) : (
             Object.keys(userItems).map(key => {
               const item = userItems[key];
               return (
-                <div key={item.id} className='shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 hover:scale-105 duration-100 ease-out hover:border-blue'>
-                    <div className='self-center my-3'>
+                <div key={item.id} className='flex flex-col shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 hover:scale-105 duration-100 ease-out hover:border-blue'>
+                    <div className='flex justify-center items-center my-3'>
                       { item.activeItemPictures.length === 0 ? 
                         (
                           <div className='w-24 h-24 bg-gray rounded flex justify-center items-center'>
