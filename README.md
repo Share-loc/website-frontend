@@ -37,7 +37,19 @@ This repository is the frontend side of Share'Loc.
 
 `npm run dev`
 
-5. Congratulation ! You can start to test the frontend side of Share'Loc
+5. Create a .env.local in root file.
+
+```
+# DEVMODE
+# VITE_DEVELOPEMENT_MODE = "development"
+VITE_PRODUCTION_MODE = "production"
+
+# API
+VITE_API_URL = "http://localhost:8000/api"
+VITE_IMAGE_URL = "http://localhost:8000"
+```
+
+6. Congratulation ! You can start to test the frontend side of Share'Loc
 
 ### If you want to contribute
 
