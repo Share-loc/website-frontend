@@ -18,6 +18,7 @@ import StripePage from './pages/StripePage.tsx'
 import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
+import ItemsPage from './pages/ItemsPage.tsx'
 import axios from 'axios'
 import { getToken } from './const/func.ts'
 
@@ -98,6 +99,7 @@ function App() {
             <Route path='/security' element={<SecurityPage />} />
             <Route path='/reservation' element={<ReservationPage />} />
             <Route path='/product/:id' element={<ProductPage />} />
+            <Route path='/annonces' element={<ItemsPage />} />
 
             {/* Protected routes */}
             <Route path='/profile' element={
