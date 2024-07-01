@@ -1,6 +1,12 @@
-import React from 'react';
+interface SearchMapProps {
+    selectedCity: string;
+    villeRecherche: string;
+    handleCitySearchChangeMap: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    suggestions: any;
+    selectSuggestion: (suggestion: any) => void;
+}
 
-const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, suggestions, selectSuggestion}) => {
+const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, suggestions, selectSuggestion}: SearchMapProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Localisation</p>
@@ -12,7 +18,7 @@ const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, su
             />
             {suggestions.length > 0 && (
               <ul className="z-10 max-h-60 overflow-auto bg-white border border-gray-200 rounded-md mt-1 w-full">
-                {suggestions.map((suggestion, index) => (
+                {suggestions.map((suggestion: any, index: number) => (
                   <li
                     key={index}
                     value={selectedCity}

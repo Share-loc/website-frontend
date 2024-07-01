@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import CardItems from "../components/ItemsComponents/cardItems";
 import AllCardsItems from "../components/ItemsComponents/allCardsItems";
 import FilterItems from "../components/ItemsComponents/filterItems";
 import SortItems from "../components/ItemsComponents/sortItems";
@@ -60,8 +59,8 @@ const ItemsPage = () => {
         );
         const data = await response.json();
         const filteredSuggestions = data.features
-          .filter((feature) => feature.properties.score >= 0.5) // Filtrer les résultats par score
-          .map((feature) => ({
+          .filter((feature: any) => feature.properties.score >= 0.5) // Filtrer les résultats par score
+          .map((feature: any) => ({
             label: `${feature.properties.city} (${feature.properties.postcode})`,
             city: feature.properties.city,
             postcode: feature.properties.postcode,
@@ -164,14 +163,30 @@ const ItemsPage = () => {
         handleTypeItem={handleTypeItem}
         fetchApiData={fetchApiData}
         selectedCity={selectedCity}
-              villeRecherche={villeRecherche}
-              resetInfo={resetInfo}
+        villeRecherche={villeRecherche}
+        resetInfo={resetInfo}
+        isDisplayed={false}
       />
       <div className="xl:w-[75%] lg:w-[75%] md:w-[75%] sm:w-[100%] xs:w-[100%]">
         <SortItems
           items={items}
           selectedOption={selectedOption}
           handleSelectChange={handleSelectChange}
+          handleTitleSearchChange={handleTitleSearchChange}
+          categorieSearch={categorieSearch}
+          handleSelectChangeCat={handleSelectChangeCat}
+          categories={categories}
+          handleCitySearchChangeMap={handleCitySearchChangeMap}
+          suggestions={suggestions}
+          selectSuggestion={selectSuggestion}
+          handlePriceMinimumChange={handlePriceMinimumChange}
+          handlePriceMaximumChange={handlePriceMaximumChange}
+          selectedType={selectedType}
+          handleTypeItem={handleTypeItem}
+          fetchApiData={fetchApiData}
+          selectedCity={selectedCity}
+          villeRecherche={villeRecherche}
+          resetInfo={resetInfo}
         />
         <AllCardsItems items={items} />
       </div>

@@ -1,15 +1,31 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Assurez-vous d'importer useNavigate
-import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
-const CardItems = ({ item }) => {
+interface CardItemsProps {
+  item: {
+    id: number;
+    title: string;
+    location: string;
+    price: number;
+    user: {
+      is_pro: boolean;
+    };
+    itemPictures: {
+      path: string;
+    }[];
+  }
+}
+
+const CardItems = ({ item }: CardItemsProps) => {
   const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Function to check if the item is in the user's favorites
   const FavorieItemsUser = async () => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -37,7 +53,7 @@ const CardItems = ({ item }) => {
         );
 
         const favorites = await responseFavorites.json();
-        const isFav = favorites.some((favItem) => favItem.id === item.id);
+        const isFav = favorites.some((favItem: any) => favItem.id === item.id);
         setIsFavorite(isFav);
       } catch (error) {
         console.error("Erreur lors de l'appel API:", error);
@@ -78,63 +94,6 @@ const CardItems = ({ item }) => {
       console.error("Erreur lors de l'appel API:", error);
     }
   };
-  // Fonction pour gérer l'ajout aux favoris
-  // const handleFavoriteAdd = () => {
-  //   setIsFavorite(!isFavorite); // Bascule l'état de favori
-  //   console.log("Ajouté aux favoris");
-  // };
-
-  // const AddFavorie = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       // Si le token n'existe pas, rediriger l'utilisateur vers la page de connexion
-  //       navigate("/profile"); // Remplacez '/login' par le chemin de votre page de connexion
-  //       return; // Arrête l'exécution de la fonction ici
-  //     }
-  //     handleFavoriteAdd();
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_API_URL}/favorites/${item.id}`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log(response);
-  //     const data = await response.json();
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'appel API:", error);
-  //   }
-  // };
-
-  // const RemoveFavorie = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       // Si le token n'existe pas, rediriger l'utilisateur vers la page de connexion
-  //       navigate("/profile"); // Remplacez '/login' par le chemin de votre page de connexion
-  //       return; // Arrête l'exécution de la fonction ici
-  //     }
-  //     handleFavoriteAdd();
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_API_URL}/favorites/${item.id}`,
-  //       {
-  //         method: "DELETE",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     console.log(response);
-  //     const data = await response.json();
-  //     console.log(data);
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'appel API:", error);
-  //   }
-  // };
 
   return (
     <>
@@ -149,7 +108,7 @@ const CardItems = ({ item }) => {
             }
         `}
       </style>
-      <div
+      <Link to={`/product/${item.id}`}
         className="rounded-2xl bg-white shadow-lg overflow-hidden cursor-pointer transition duration-300 transform hover:scale-[1.03] hover:shadow-xl"
         key={item.id}>
         <div className="px-2 pt-2 h-1/2 relative">
@@ -223,7 +182,7 @@ const CardItems = ({ item }) => {
             )}
           </div>
         </div>
-      </div>
+      </Link>
     </>
   );
 };

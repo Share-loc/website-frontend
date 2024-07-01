@@ -1,6 +1,9 @@
-import React from 'react';
+interface SearchTypeUserProps {
+    selectedType: string;
+    handleTypeItem: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+}
 
-const SearchTypeUser = ({selectedType, handleTypeItem}) => {
+const SearchTypeUser = ({selectedType, handleTypeItem}: SearchTypeUserProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-2 font-bold">Type de vendeur</p>

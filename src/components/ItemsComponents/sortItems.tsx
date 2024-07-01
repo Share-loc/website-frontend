@@ -1,12 +1,30 @@
-import React from 'react';
-import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import Popper from "@mui/material/Popper";
 import PopupState, { bindToggle, bindPopper } from "material-ui-popup-state";
 import Fade from "@mui/material/Fade";
 import Paper from "@mui/material/Paper";
+import FilterItems from "./filterItems";
 
-const SortItems = ({ items, selectedOption, handleSelectChange }) => {
+const SortItems = ({ 
+  items, 
+  selectedOption, 
+  handleSelectChange,
+  handleTitleSearchChange,
+  categorieSearch,
+  handleSelectChangeCat,
+  categories,
+  handleCitySearchChangeMap,
+  suggestions,
+  selectSuggestion,
+  handlePriceMinimumChange,
+  handlePriceMaximumChange,
+  selectedType,
+  handleTypeItem,
+  fetchApiData,
+  selectedCity,
+  villeRecherche,
+  resetInfo
+}: any) => {
     return (
         <div className="md:bg-white w-[100%] md:p-2 rounded-xl flex justify-between flex-col mb-5 md:mb-5 md:flex-row md:items-center">
           <p className="text-black text-sm xl:w-[50%] sm:w-[100%] mb-3 md:mb-0 xl:mb-0">
@@ -25,14 +43,31 @@ const SortItems = ({ items, selectedOption, handleSelectChange }) => {
                       variant="contained"
                       {...bindToggle(popupState)}
                       className="w-full text-xs p-1">
-                      filtre
+                      Ouvrir les filtres
                     </Button>
            
                   <Popper {...bindPopper(popupState)} transition>
                     {({ TransitionProps }) => (
                       <Fade {...TransitionProps} timeout={350}>
                         <Paper>
-                          <p>plop</p>
+                            <FilterItems
+                              handleTitleSearchChange={handleTitleSearchChange}
+                              categorieSearch={categorieSearch}
+                              handleSelectChangeCat={handleSelectChangeCat}
+                              categories={categories}
+                              handleCitySearchChangeMap={handleCitySearchChangeMap}
+                              suggestions={suggestions}
+                              selectSuggestion={selectSuggestion}
+                              handlePriceMinimumChange={handlePriceMinimumChange}
+                              handlePriceMaximumChange={handlePriceMaximumChange}
+                              selectedType={selectedType}
+                              handleTypeItem={handleTypeItem}
+                              fetchApiData={fetchApiData}
+                              selectedCity={selectedCity}
+                              villeRecherche={villeRecherche}
+                              resetInfo={resetInfo}
+                              isDisplayed={true}
+                            />
                         </Paper>
                       </Fade>
                     )}

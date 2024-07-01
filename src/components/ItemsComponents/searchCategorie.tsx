@@ -1,6 +1,10 @@
-import React from 'react';
+interface SearchCategorieProps {
+    categorieSearch: string;
+    handleSelectChangeCat: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    categories: any;
+}
 
-const SearchCategorie = ({ categorieSearch, handleSelectChangeCat, categories }) => {
+const SearchCategorie = ({ categorieSearch, handleSelectChangeCat, categories }: SearchCategorieProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Catégorie</p>

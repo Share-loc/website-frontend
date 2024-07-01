@@ -1,6 +1,8 @@
-import React from 'react';
+interface SearchBarProps {
+    handleCitySearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-const SearchBar = ({ handleCitySearchChange }) => {
+const SearchBar = ({ handleCitySearchChange }: SearchBarProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Recherche</p>

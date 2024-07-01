@@ -1,4 +1,3 @@
-import React from "react";
 import SearchBar from "./searchBar";
 import SearchCategorie from "./searchCategorie";
 import SearchPrice from "./searchPrice";
@@ -6,24 +5,25 @@ import SearchTypeUser from "./searchTypeUser";
 import SearchMap from "./searchMap";
 
 const FilterItems = ({
-    handleTitleSearchChange,
-    categorieSearch,
-    handleSelectChangeCat,
-    categories,
-    handleCitySearchChangeMap,
-      suggestions,
-      selectSuggestion,
-    handlePriceMinimumChange,
-    handlePriceMaximumChange,
-    selectedType,
-    handleTypeItem,
-    fetchApiData,
-    selectedCity,
+  handleTitleSearchChange,
+  categorieSearch,
+  handleSelectChangeCat,
+  categories,
+  handleCitySearchChangeMap,
+  suggestions,
+  selectSuggestion,
+  handlePriceMinimumChange,
+  handlePriceMaximumChange,
+  selectedType,
+  handleTypeItem,
+  fetchApiData,
+  selectedCity,
   villeRecherche,
-  resetInfo
-}) => {
+  resetInfo,
+  isDisplayed
+}: any) => {
   return (
-    <div className="hidden md:block rounded-xl bg-white w-[25%] h-full">
+    <div className={`${isDisplayed ? ('block w-full shadow-xl'):('hidden') } md:block rounded-xl bg-white w-[25%] h-full`}>
       <div className="py-7 px-5">
         <p className="text-center text-md font-bold">Filtrer les résultats</p>
         <SearchBar handleCitySearchChange={handleTitleSearchChange} />

@@ -1,6 +1,9 @@
-import React from 'react';
+interface SearchPriceProps {
+    handlePriceMinimumChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handlePriceMaximumChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}
 
-const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange }) => {
+const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange }: SearchPriceProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Prix</p>
