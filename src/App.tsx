@@ -19,6 +19,13 @@ import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import axios from 'axios'
+import AdminDashboardPage from './pages/Admin/AdminDashboardPage.tsx'
+import AdminLayout from './components/layouts/AdminLayout.tsx'
+import AdminUsersPape from './pages/Admin/AdminUsersPage.tsx'
+import AdminItemsPage from './pages/Admin/AdminItemsPages.tsx'
+import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.tsx'
+import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
+import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
 
 function App() {
@@ -82,9 +89,9 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ userState, setUserState }}>
-      <AppBarLayout>
-        <ContentLayout>
-          <Routes>
+      <Routes>
+        <Route element={<AppBarLayout />}>
+          <Route element={<ContentLayout />}>
 
             {/* Unprotected routes */}
             <Route path="/" element={<HomePage />} />
@@ -99,6 +106,9 @@ function App() {
             <Route path='/reservation' element={<ReservationPage />} />
             <Route path='/product/:id' element={<ProductPage />} />
 
+            {/* 404 route */}
+            <Route path="*" element={<NotFoundPage />} />
+
             {/* Protected routes */}
             <Route path='/profile' element={
               userState.isLogged ? <ProfilePage /> : <LoginPage />
@@ -106,15 +116,35 @@ function App() {
             <Route path='/adpage' element={
               userState.isLogged ? <AdPage /> : <LoginPage />
             } />
+          </Route>
+        </Route>
 
+        <Route element={<AdminLayout />}>
             {/* ADMIN routes */}
+            <Route path='/admin/dashboard' element={
+                userState.isLogged ? <AdminDashboardPage /> : <LoginPage />
+              } />
+            <Route path='/admin/users' element={
+                userState.isLogged ? <AdminUsersPape /> : <LoginPage />
+              } />
+            <Route path='/admin/items' element={
+                userState.isLogged ? <AdminItemsPage /> : <LoginPage />
+              } />
+            <Route path='/admin/categories' element={
+                userState.isLogged ? <AdminCategoriesPage /> : <LoginPage />
+              } />
+            <Route path='/admin/reviews' element={
+                userState.isLogged ? <AdminReviewsPage /> : <LoginPage />
+              } />
+            <Route path='/admin/reports' element={
+                userState.isLogged ? <AdminReportsPage /> : <LoginPage />
+              } />
+        </Route>
 
-            {/* 404 route */}
-            <Route path="*" element={<NotFoundPage />} />
+            {/* Login route */}
 
-          </Routes>
-        </ContentLayout>
-      </AppBarLayout>
+
+      </Routes>
     </AuthContext.Provider>
   )
 }

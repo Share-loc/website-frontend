@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar/SearchBar"
 import Logo from "/logo.svg"
 import NavButton from "./NavButton"
 import ActionButton from "./ActionButton"
-import { FaUser } from "react-icons/fa"
+import { FaLock, FaUser } from "react-icons/fa"
 import { MdOutlineLogout } from "react-icons/md";
 
 const AppBar = () => {
@@ -41,6 +41,9 @@ const AppBar = () => {
                     <ActionButton onClick={handleLogout} text="deconnexion">
                       <MdOutlineLogout />
                     </ActionButton>
+                    <NavButton href="/admin/dashboard" text="admin">
+                      <FaLock />
+                    </NavButton>
                   </div>
                   :
                   <NavButton href="/profile" text="connexion">
