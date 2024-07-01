@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import Popper from "@mui/material/Popper";
 import PopupState, { bindToggle, bindPopper } from "material-ui-popup-state";
@@ -25,6 +26,23 @@ const SortItems = ({
   villeRecherche,
   resetInfo
 }: any) => {
+
+    const [isPopperOpen, setIsPopperOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [clickCount, setClickCount] = useState(0);
+
+    const handleTogglePopper = (event: any) => {
+      setAnchorEl(event.currentTarget);
+      setIsPopperOpen((prev) => !prev);
+      setClickCount((prevCount) => prevCount + 1);
+    };
+
+    const buttonColor = clickCount % 2 === 0 ? "primary" : "secondary";
+    const buttonStyle = {
+      backgroundColor: buttonColor === "primary" ? "#22AFAF" : "#FEA634",
+      color: "white"
+    };
+
     return (
         <div className="md:bg-white w-[100%] md:p-2 rounded-xl flex justify-between flex-col mb-5 md:mb-5 md:flex-row md:items-center">
           <p className="text-black text-sm xl:w-[50%] sm:w-[100%] mb-3 md:mb-0 xl:mb-0">
@@ -42,11 +60,14 @@ const SortItems = ({
                     <Button
                       variant="contained"
                       {...bindToggle(popupState)}
-                      className="w-full text-xs p-1">
-                      Ouvrir les filtres
+                      className="w-full text-xs p-1"
+                      onClick={handleTogglePopper}
+                      style={buttonStyle}
+                      >
+                      {isPopperOpen ? "Fermer les filtres" : "Ouvrir les filtres"}
                     </Button>
            
-                  <Popper {...bindPopper(popupState)} transition>
+                  <Popper open={isPopperOpen} anchorEl={anchorEl} transition>
                     {({ TransitionProps }) => (
                       <Fade {...TransitionProps} timeout={350}>
                         <Paper>
