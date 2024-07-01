@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getToken } from "../../const/func";
-import { FaEye, FaTrash } from "react-icons/fa6";
+import { FaCheck, FaEye, FaTrash } from "react-icons/fa6";
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 
@@ -92,6 +92,38 @@ const AdminReportsPage = () => {
             .catch((error) => console.error('Erreur lors de la suppression du signalement : ', error));
     }
 
+    const handleReportValidation = (report: Report) => {
+            
+            const confirm = window.confirm('Voulez-vous vraiment valider ce signalement ?');
+            if (!confirm) {
+                return;
+            }
+    
+            fetch(`${import.meta.env.VITE_API_URL}/report/validate/${report.id}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${getToken()}`,
+                    }
+                }
+            )
+                .then((response) => {
+                    if (!response.ok) {
+                        console.error('Erreur lors de la validation du signalement : ', response.status);
+                    } else {
+                        setReports(reports.map((r) => {
+                            if (r.id === report.id) {
+                                r.status = 'reviewed';
+                            }
+                            return r;
+                        }));
+                    }
+                    return response;
+                })
+                .catch((error) => console.error('Erreur lors de la validation du signalement : ', error));
+        }
+
     const [infoModalState, setInfoModalState] = useState(false);
     const [selectedReport, setSelectedReport] = useState<Report | null>(null);
 
@@ -178,6 +210,13 @@ const AdminReportsPage = () => {
                             <button className="bg-gray hover:bg-gray-dark font-bold py-3 px-3 me-2 rounded-lg" onClick={() => openInfoModal(report)}>
                                 <FaEye />
                             </button>
+                            { 
+                                report.status === "waiting_to_be_reviewed" && (
+                                    <button className="bg-green-400 hover:bg-green-600 font-bold py-3 px-3 me-2 rounded-lg" onClick={() => handleReportValidation(report)}>
+                                        <FaCheck />
+                                    </button>
+                                )
+                            }
                             <button className="bg-red-500 hover:bg-red-800 duration-200 text-white font-bold py-3 px-3 rounded-lg" onClick={() => handleDelete(report.id)} >
                                 <FaTrash />
                             </button>
