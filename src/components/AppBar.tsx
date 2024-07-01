@@ -18,12 +18,10 @@ const AppBar = () => {
     setUserState(
       {
         isLogged: false,
-        userid: null
       }
     )
     // delete token from local storage
     localStorage.removeItem("token")
-    localStorage.removeItem("userid")
   }
 
   return (
