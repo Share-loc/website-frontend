@@ -174,7 +174,7 @@ const AdminUsersPape = () => {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                <p className="text-2xl font-semibold text-gray-900 mb-4">Informations de la catégorie</p>
+                <p className="text-2xl font-semibold text-gray-900 mb-4">Informations de l'utilisateur</p>
                 <p className="text-lg font-semibold text-gray-900 mb-2">Avatar:</p>
                 <Avatar src={userSelected?.avatar} alt={userSelected?.username} className="mb-4" />
                 <p className="text-lg font-semibold text-gray-900 mb-4">Email: {userSelected?.email}</p>
