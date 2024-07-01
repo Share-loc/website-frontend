@@ -16,7 +16,7 @@ const ItemsPage = () => {
   const [priceMax, setPriceMax] = useState("");
   const [suggestions, setSuggestions] = useState([]);
 
-    const [selectedCity, setSelectedCity] = useState("");
+  const [selectedCity, setSelectedCity] = useState("");
     
   const handleTitleSearchChange = async (
     e: React.ChangeEvent<HTMLInputElement>
