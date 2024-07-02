@@ -17,6 +17,7 @@ import HelpPage from './pages/HelpPage.tsx'
 import StripePage from './pages/StripePage.tsx'
 import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
+import ReservationStatePage from './pages/ReservationStatePage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import axios from 'axios'
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage.tsx'
@@ -28,11 +29,12 @@ import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
 import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
 
+
 function App() {
 
   // Check if we are in development mode
   const devMode = (import.meta.env.VITE_DEVELOPEMENT_MODE === "development");
-  
+
   // Initialize user state
   const [userState, setUserState] = useState(() => {
     if (devMode) {
@@ -104,6 +106,7 @@ function App() {
             <Route path='/stripe' element={<StripePage />} />
             <Route path='/security' element={<SecurityPage />} />
             <Route path='/reservation' element={<ReservationPage />} />
+            <Route path='/reservation/state' element={<ReservationStatePage />} />
             <Route path='/product/:id' element={<ProductPage />} />
 
             {/* 404 route */}
