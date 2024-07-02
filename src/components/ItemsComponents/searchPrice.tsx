@@ -3,7 +3,7 @@ interface SearchPriceProps {
     handlePriceMaximumChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange }: SearchPriceProps) => {
+const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange, priceMin, priceMax }: SearchPriceProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Prix</p>
@@ -11,7 +11,8 @@ const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange }: Sea
               <div className="relative w-[50%]">
                 <input
                   type="text"
-                  placeholder="Minimum"
+              placeholder="Minimum"
+              value={priceMin}
                   className="rounded-xl w-[100%] p-1 text-sm bg-white border-2 border-[#BABABA] pl-2 pr-6"
                   onChange={handlePriceMinimumChange}
                 />
@@ -22,7 +23,8 @@ const SearchPrice = ({ handlePriceMinimumChange, handlePriceMaximumChange }: Sea
               <div className="relative w-[50%]">
                 <input
                   type="text"
-                  placeholder="Maximum"
+              placeholder="Maximum"
+              value={priceMax}
                   className="rounded-xl w-[100%] p-1 text-sm bg-white border-2 border-[#BABABA] pl-2 pr-6"
                   onChange={handlePriceMaximumChange}
                 />

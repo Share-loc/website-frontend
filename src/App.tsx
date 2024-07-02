@@ -21,6 +21,7 @@ import NotFoundPage from './pages/NotFoundPage.tsx'
 import ItemsPage from './pages/ItemsPage.tsx'
 import axios from 'axios'
 import { getToken } from './const/func.ts'
+import FavorisPage from './pages/FavorisPage.tsx'
 
 function App() {
 
@@ -100,7 +101,13 @@ function App() {
             <Route path='/reservation' element={<ReservationPage />} />
             <Route path='/product/:id' element={<ProductPage />} />
             <Route path='/annonces' element={<ItemsPage />} />
+            {/* userState.isLogged ? <Route path='/favoris' element={<FavorisPage />} />
+            : <LoginPage /> */}
 
+            <Route path='/favoris' element={
+              userState.isLogged ? <FavorisPage /> : <HomePage />
+            } />
+          
             {/* Protected routes */}
             <Route path='/profile' element={
               userState.isLogged ? <ProfilePage /> : <LoginPage />

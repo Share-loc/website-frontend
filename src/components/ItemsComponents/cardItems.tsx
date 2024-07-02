@@ -3,7 +3,7 @@ import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import FavorisItems from "./favorisItems";
 import { Link } from "react-router-dom";
 
 interface CardItemsProps {
@@ -22,79 +22,6 @@ interface CardItemsProps {
 }
 
 const CardItems = ({ item }: CardItemsProps) => {
-  const navigate = useNavigate();
-  const [isFavorite, setIsFavorite] = useState(false);
-
-  // Function to check if the item is in the user's favorites
-  const FavorieItemsUser = async () => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/users/personal-data`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        const userId = data.id;
-
-        const responseFavorites = await fetch(
-          `${import.meta.env.VITE_API_URL}/items/favorites-items/${userId}`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const favorites = await responseFavorites.json();
-        const isFav = favorites.some((favItem: any) => favItem.id === item.id);
-        setIsFavorite(isFav);
-      } catch (error) {
-        console.error("Erreur lors de l'appel API:", error);
-      }
-    }
-  };
-
-  useEffect(() => {
-    FavorieItemsUser();
-  }, []);
-
-  const handleFavoriteToggle = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        navigate("/profile");
-        return;
-      }
-
-      const method = isFavorite ? "DELETE" : "POST";
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/favorites/${item.id}`,
-        {
-          method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log(response);
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
-      } else {
-        console.error("Erreur lors de la modification des favoris:", await response.text());
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
-    }
-  };
-
   return (
     <>
       <style>
@@ -108,26 +35,20 @@ const CardItems = ({ item }: CardItemsProps) => {
             }
         `}
       </style>
-      <Link to={`/product/${item.id}`}
+      <div
         className="rounded-2xl bg-white shadow-lg overflow-hidden cursor-pointer transition duration-300 transform hover:scale-[1.03] hover:shadow-xl"
         key={item.id}>
         <div className="px-2 pt-2 h-1/2 relative">
-          <img
-            className="h-full w-full object-cover rounded-xl"
-            src={item.itemPictures[0].path}
-            alt={item.title}
-          />
-          <div
-            className="icon-container absolute p-1.5 bg-white/43 rounded-xl shadow-lg backdrop-blur-[6.6px] border border-white/10 bottom-1 right-3 cursor-pointer"
-            onClick={handleFavoriteToggle}>
-            {isFavorite ? (
-              <FaHeart className="text-red-500 text-xl" />
-            ) : (
-              <FaRegHeart className="text-white text-xl" />
-            )}
-          </div>
+          <Link to={`/product/${item.id}`}>
+            <img
+              className="h-full w-full object-cover rounded-xl"
+              src={item.itemPictures[0].path}
+              alt={item.title}
+            />
+          </Link>
+          <FavorisItems item={item}/>
         </div>
-        <div className="p-3 h-1/2 flex flex-col justify-center">
+        <Link to={`/product/${item.id}`} className="p-3 h-1/2 flex flex-col justify-center">
           <div className="">
             <div className="">
               <label
@@ -181,8 +102,8 @@ const CardItems = ({ item }: CardItemsProps) => {
               </div>
             )}
           </div>
-        </div>
-      </Link>
+        </Link>
+      </div>
     </>
   );
 };

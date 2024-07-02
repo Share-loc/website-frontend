@@ -15,7 +15,6 @@ const ItemsPage = () => {
   const [priceMin, setPriceMin] = useState("");
   const [priceMax, setPriceMax] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-
   const [selectedCity, setSelectedCity] = useState("");
     
   const handleTitleSearchChange = async (
@@ -94,9 +93,9 @@ const ItemsPage = () => {
     const value = e.target.value;
     setCategorieSearch(value);
   };
-    
+
   const fetchApiData = async () => {
-      try {
+    try {
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
@@ -105,7 +104,7 @@ const ItemsPage = () => {
           method: "GET",
         }
       );
-          console.log(response);
+      console.log(response);
       const data = await response.json();
       data; // Traiter les données reçues
       setItems(data);
@@ -113,16 +112,26 @@ const ItemsPage = () => {
       console.error("Erreur lors de l'appel API:", error);
     }
   };
-    
-    const resetInfo = () => {
-        setTitleSearch("");
-        setCategorieSearch("");
-        setPriceMin("");
-        setPriceMax("");
-        setVilleRecherche("");
-        fetchApiData();
-    };
-    
+
+  const resetInfo = async () => {
+    setTitleSearch("");
+    setCategorieSearch("");
+    setPriceMin("");
+    setPriceMax("");
+    setVilleRecherche("");
+    setSelectedType("all");
+    setSelectedOption("recentItems");
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
+        method: "GET",
+      });
+      const data = await response.json();
+      data;
+      setItems(data);
+    } catch (error) {
+      console.error("Erreur lors de l'appel API:", error);
+    }
+  };
 
   const fetchCategory = async () => {
     try {
@@ -141,8 +150,7 @@ const ItemsPage = () => {
     }
   };
 
-    useEffect(() => {
-        resetInfo();
+  useEffect(() => {
     fetchCategory();
     fetchApiData();
   }, [selectedOption, selectedCity]);
@@ -165,6 +173,9 @@ const ItemsPage = () => {
         selectedCity={selectedCity}
         villeRecherche={villeRecherche}
         resetInfo={resetInfo}
+              titleSearch={titleSearch}
+              priceMin={priceMin}
+              priceMax={priceMax}
         isDisplayed={false}
       />
       <div className="xl:w-[75%] lg:w-[75%] md:w-[75%] sm:w-[100%] xs:w-[100%]">

@@ -19,6 +19,9 @@ const FilterItems = ({
   fetchApiData,
   selectedCity,
   villeRecherche,
+  titleSearch,
+  priceMin,
+  priceMax,
   resetInfo,
   isDisplayed
 }: any) => {
@@ -26,7 +29,7 @@ const FilterItems = ({
     <div className={`${isDisplayed ? ('block w-full shadow-xl'):('hidden') } md:block rounded-xl bg-white w-[25%] h-full`}>
       <div className="py-7 px-5">
         <p className="text-center text-md font-bold">Filtrer les résultats</p>
-        <SearchBar handleCitySearchChange={handleTitleSearchChange} />
+        <SearchBar handleTitleSearchChange={handleTitleSearchChange} titleSearch={titleSearch} />
         <SearchCategorie
           categorieSearch={categorieSearch}
           handleSelectChangeCat={handleSelectChangeCat}
@@ -42,6 +45,8 @@ const FilterItems = ({
         <SearchPrice
           handlePriceMinimumChange={handlePriceMinimumChange}
           handlePriceMaximumChange={handlePriceMaximumChange}
+          priceMin={priceMin}
+          priceMax={priceMax}
         />
         <SearchTypeUser
           selectedType={selectedType}

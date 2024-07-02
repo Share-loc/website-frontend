@@ -1,15 +1,17 @@
 interface SearchBarProps {
-    handleCitySearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    handleTitleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    titleSearch: string;
 }
 
-const SearchBar = ({ handleCitySearchChange }: SearchBarProps) => {
+const SearchBar = ({ handleTitleSearchChange, titleSearch }: SearchBarProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1 font-bold">Recherche</p>
             <input
-              type="text"
+          type="text"
+          value={titleSearch}
               className="rounded-xl p-1 text-sm bg-white border-2 border-[#BABABA]"
-              onChange={handleCitySearchChange}
+              onChange={handleTitleSearchChange}
             />
           </div>
     );
