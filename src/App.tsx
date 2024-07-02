@@ -18,6 +18,7 @@ import StripePage from './pages/StripePage.tsx'
 import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
+import ItemsPage from './pages/ItemsPage.tsx'
 import axios from 'axios'
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage.tsx'
 import AdminLayout from './components/layouts/AdminLayout.tsx'
@@ -27,6 +28,7 @@ import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.tsx'
 import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
 import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
+import FavorisPage from './pages/FavorisPage.tsx'
 
 
 function App() {
@@ -106,7 +108,14 @@ function App() {
             <Route path='/security' element={<SecurityPage />} />
             <Route path='/reservation' element={<ReservationPage />} />
             <Route path='/product/:id' element={<ProductPage />} />
+            <Route path='/annonces' element={<ItemsPage />} />
+            {/* userState.isLogged ? <Route path='/favoris' element={<FavorisPage />} />
+            : <LoginPage /> */}
 
+            <Route path='/favoris' element={
+              userState.isLogged ? <FavorisPage /> : <HomePage />
+            } />
+          
             {/* 404 route */}
             <Route path="*" element={<NotFoundPage />} />
 
