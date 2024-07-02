@@ -30,11 +30,12 @@ import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
 
+
 function App() {
 
   // Check if we are in development mode
   const devMode = (import.meta.env.VITE_DEVELOPEMENT_MODE === "development");
-  
+
   // Initialize user state
   const [userState, setUserState] = useState(() => {
     if (devMode) {
