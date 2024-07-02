@@ -15,8 +15,9 @@ interface CardItemsProps {
     user: {
       is_pro: boolean;
     };
-    itemPictures: {
+    activeItemPictures: {
       path: string;
+      fullPath: string;
     }[];
   }
 }
@@ -36,19 +37,19 @@ const CardItems = ({ item }: CardItemsProps) => {
         `}
       </style>
       <div
-        className="rounded-2xl bg-white shadow-lg overflow-hidden cursor-pointer transition duration-300 transform hover:scale-[1.03] hover:shadow-xl"
+        className="rounded-2xl bg-white shadow-lg overflow-hidden cursor-pointer transition duration-300 transform hover:scale-[1.03] hover:shadow-xl "
         key={item.id}>
         <div className="px-2 pt-2 h-1/2 relative">
           <Link to={`/product/${item.id}`}>
             <img
               className="h-full w-full object-cover rounded-xl"
-              src={item.itemPictures[0].path}
+              src={ import.meta.env.VITE_DOMAIN + '/' + item.activeItemPictures[0].fullPath}
               alt={item.title}
             />
           </Link>
           <FavorisItems item={item}/>
         </div>
-        <Link to={`/product/${item.id}`} className="p-3 h-1/2 flex flex-col justify-center">
+        <Link to={`/product/${item.id}`} className="p-3 flex flex-col justify-center">
           <div className="">
             <div className="">
               <label
