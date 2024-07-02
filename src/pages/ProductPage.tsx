@@ -183,7 +183,7 @@ const ProductPage = () => {
                 });
                 setProduct({
                     id: item.id,
-                    category: item.user,
+                    category: item.category,
                     title: item.title,
                     body: item.body,
                     price: item.price,
@@ -210,8 +210,7 @@ const ProductPage = () => {
                 item: product.id,
                 start_at: startAt,
                 end_at: endAt,
-                price: product.price,
-                tenant_id: userState.userid
+                price: product.price
             };
             const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
                 method: 'POST',
@@ -247,14 +246,16 @@ const ProductPage = () => {
         return options;
     };
 
+    const firstActiveItemPicture = product.activeItemPictures?.[0]?.fullPath || 'Chemin par défaut ou gestion de l\'absence d\'image';
+
     return (
         <>
-            <img className='w-[400px] h-[400] contain' src={`${import.meta.env.VITE_IMAGE_URL}/${product.itemPictures.fullPath}`}
+            <img className='w-[400px] h-[400] contain' src={`${import.meta.env.VITE_DOMAIN}/${firstActiveItemPicture}`}
                  alt={product.title}/>
             <div className="flex flex-col lg:flex-row justify-between px-4">
                 <section className="lg:w-3/4 lg:pr-8">
                     <div>
-                        <SectionTitle>{product.name}</SectionTitle>
+                        <SectionTitle>{product.title}</SectionTitle>
                         <p className='mb-5 text-xl font-semibold text-blue'>{product.price}€ par jour</p>
                         <p className='text-lg font-medium text-black'>{product.body}</p>
                         <h3 className='my-3 text-lg font-normal text-black'>Catégorie: {product.category.name}</h3>
