@@ -17,7 +17,6 @@ import HelpPage from './pages/HelpPage.tsx'
 import StripePage from './pages/StripePage.tsx'
 import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
-import ReservationStatePage from './pages/ReservationStatePage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import axios from 'axios'
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage.tsx'
@@ -106,7 +105,6 @@ function App() {
             <Route path='/stripe' element={<StripePage />} />
             <Route path='/security' element={<SecurityPage />} />
             <Route path='/reservation' element={<ReservationPage />} />
-            <Route path='/reservation/state' element={<ReservationStatePage />} />
             <Route path='/product/:id' element={<ProductPage />} />
 
             {/* 404 route */}
