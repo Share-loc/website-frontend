@@ -53,21 +53,20 @@ const ProfilePage = () => {
     email: '',
   });
 
-  const handleChangeUsername = (e: any) => {
-    const { name, value } = e.target;
-    setNewUser({ ...newUser, [name]: value });
-  }
-
-  const handleChangeEmail = (e: any) => {
-    const { name, value } = e.target;
-    setNewUser({ ...newUser, [name]: value });
+  const handleChangeInput = (input: 'username' | 'email', e: any) => {
+    setNewUser({
+      ...newUser,
+      [input]: e.target.value,
+    });
+    console.log(newUser);
+    
   }
 
   const handleClickSave = async (input: 'username' | 'email') => {
     try {
       console.log(input);
       const token = getToken();
-      await axios.put(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
         [input]: newUser[input],
       }, {
         headers: { Authorization: `Bearer ${token}` },
@@ -134,7 +133,7 @@ const ProfilePage = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom d'utilisateur.</Typography>
-                <TextField id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={handleChangeUsername} />
+                <TextField id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('username', e)} />
               </AccordionDetails>
               <AccordionActions>
                 <Button size="small" color="primary" disabled={newUser.username === ''} onClick={() => handleClickSave('username')} >Enregistrer</Button>
@@ -155,10 +154,10 @@ const ProfilePage = () => {
               </AccordionSummary>
               <AccordionDetails>
                 <Typography variant='body1' gutterBottom>Vous pouvez changer votre email.</Typography>
-                <TextField id="filled-basic" label="Email" variant="outlined" onChange={handleChangeEmail} />
+                <TextField id="filled-basic" label="Email" variant="outlined" onChange={(e) => handleChangeInput('email', e)} />
               </AccordionDetails>
               <AccordionActions>
-                <Button size="small" color="primary" disabled={true} onClick={() => handleClickSave('username')} >Enregistrer</Button>
+                <Button size="small" color="primary" disabled={newUser.username === ''} onClick={() => handleClickSave('email')} >Enregistrer</Button>
               </AccordionActions>
             </Accordion>
           </div>
