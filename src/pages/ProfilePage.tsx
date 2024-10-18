@@ -13,6 +13,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
+import { checkEmailSyntax, checkUsernameSyntax } from '../lib/regex';
 
 interface User {
   id: number;
@@ -24,6 +25,8 @@ interface User {
 }
 
 const ProfilePage = () => {
+
+  const [reloadTrigger, setReloadTrigger] = useState(false);
 
   const [user, setUser] = useState<User>({
     id: 0,
@@ -58,19 +61,25 @@ const ProfilePage = () => {
       ...newUser,
       [input]: e.target.value,
     });
-    console.log(newUser);
-    
   }
 
   const handleClickSave = async (input: 'username' | 'email') => {
+    if (input === 'email' && !checkEmailSyntax(newUser.email)) {
+      alert('Email invalide');
+      return;
+    }
+    if (input === 'username' && !checkUsernameSyntax(newUser.username)) {
+      alert('Nom d\'utilisateur invalide');
+      return;
+    }
     try {
-      console.log(input);
       const token = getToken();
       await axios.patch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
         [input]: newUser[input],
       }, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      setReloadTrigger(!reloadTrigger)
     } catch (error) {
       console.error(error);
     }
@@ -111,7 +120,7 @@ const ProfilePage = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [reloadTrigger]);
 
   return (
     <>
@@ -157,7 +166,7 @@ const ProfilePage = () => {
                 <TextField id="filled-basic" label="Email" variant="outlined" onChange={(e) => handleChangeInput('email', e)} />
               </AccordionDetails>
               <AccordionActions>
-                <Button size="small" color="primary" disabled={newUser.username === ''} onClick={() => handleClickSave('email')} >Enregistrer</Button>
+                <Button size="small" color="primary" disabled={newUser.email === ''} onClick={() => handleClickSave('email')} >Enregistrer</Button>
               </AccordionActions>
             </Accordion>
           </div>
