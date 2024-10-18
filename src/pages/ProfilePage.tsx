@@ -5,6 +5,14 @@ import { Link } from 'react-router-dom';
 import { IoImageSharp } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
 
 interface User {
   id: number;
@@ -35,6 +43,35 @@ const ProfilePage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserItems(userItems.filter((item: any) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+  });
+
+  const handleChangeUsername = (e: any) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+  }
+
+  const handleChangeEmail = (e: any) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+  }
+
+  const handleClickSave = async (input: 'username' | 'email') => {
+    try {
+      console.log(input);
+      const token = getToken();
+      await axios.put(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
+        [input]: newUser[input],
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
     } catch (error) {
       console.error(error);
     }
@@ -83,17 +120,47 @@ const ProfilePage = () => {
         <h1 className="text-3xl font-bold mb-10">Mon profil</h1>
         <div className="flex flex-col items-start gap-5">
           {user.avatar && <img src={user.avatar} alt="avatar" className="w-32 h-32 rounded-full" />}
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Nom d'utilisateur :</span>
-              {user.username}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Nom d'utilisateur :</span>
+                  {user.username}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom d'utilisateur.</Typography>
+                <TextField id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={handleChangeUsername} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={newUser.username === ''} onClick={() => handleClickSave('username')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Email :</span>
-              {user.email}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Email :</span>
+                  {user.email}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous pouvez changer votre email.</Typography>
+                <TextField id="filled-basic" label="Email" variant="outlined" onChange={handleChangeEmail} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={true} onClick={() => handleClickSave('username')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
           <div className="flex gap-5">
             <p className="text-lg font-bold">
