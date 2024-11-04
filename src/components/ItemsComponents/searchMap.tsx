@@ -9,12 +9,12 @@ interface SearchMapProps {
 const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, suggestions, selectSuggestion}: SearchMapProps) => {
     return (
         <div className="flex flex-col my-5">
-            <p className="text-xs mb-1 font-bold">Localisation</p>
+            <p className="text-xs mb-1">Localisation</p>
             <input
               type="text"
               value={villeRecherche}
               onChange={handleCitySearchChangeMap}
-              className="rounded-md p-1 text-sm bg-white border-2 border-[#BABABA]"
+              className="rounded-md p-1 text-sm bg-white border-[#BABABA]"
             />
             {suggestions.length > 0 && (
               <ul className="z-10 max-h-60 overflow-auto bg-white border border-gray-200 rounded-md mt-1 w-full">

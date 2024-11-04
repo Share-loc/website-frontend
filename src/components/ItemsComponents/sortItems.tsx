@@ -40,27 +40,29 @@ const SortItems = ({
     const buttonColor = clickCount % 2 === 0 ? "primary" : "secondary";
     const buttonStyle = {
       backgroundColor: buttonColor === "primary" ? "#22AFAF" : "#FEA634",
-      color: "white"
+      color: "white",
+      padding: "5px 10px",
+      lineHeight: "1.25rem"
     };
 
     return (
         <div className="md:bg-white w-[100%] md:p-2 rounded-xl flex justify-between flex-col mb-5 md:mb-5 md:flex-row md:items-center">
-          <p className="text-black text-sm xl:w-[50%] sm:w-[100%] mb-3 md:mb-0 xl:mb-0">
+          <p className="text-black text-sm xl:w-[50%] sm:w-[50%] mb-3 md:mb-0 xl:mb-0">
             Nombre de résultat : {items.length}
           </p>
           <div className="flex items-center gap-2 xl:w-[50%] sm:w-[100%] justify-between">
-            <p className="text-black text-s xl:w-[50%] sm:w-[100%] text-end hidden md:block">
+            <p className="text-black text-s xl:w-[50%] sm:w-[100%] text-end hidden xl:block">
               Trier par :
             </p>
 
             <PopupState variant="popper" popupId="demo-popup-popper">
               {(popupState) => (
-                <div className="flex gap-2 items-center w-[50%] md:hidden">
+                <div className="flex gap-2 items-center w-[50%] xl:hidden">
                
                     <Button
                       variant="contained"
                       {...bindToggle(popupState)}
-                      className="w-full text-xs p-1"
+                      className="w-full text-xs"
                       onClick={handleTogglePopper}
                       style={buttonStyle}
                       >
@@ -99,7 +101,7 @@ const SortItems = ({
 
             <div className="flex gap-2 items-center w-[50%]">
               <select
-                className="rounded-md p-1 text-sm bg-white border border-[#BABABA] w-[100%]"
+                className="rounded-md text-sm bg-white border border-[#BABABA] w-[100%] py-[5px] px-[10px]"
                 value={selectedOption} // Lier la valeur sélectionnée à l'état
                 onChange={handleSelectChange} // Mettre à jour l'état lors du changement de sélection
               >

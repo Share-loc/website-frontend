@@ -1,29 +1,45 @@
+import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
 interface SearchCategorieProps {
     categorieSearch: string;
-    handleSelectChangeCat: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+    handleSelectChangeCat: (event: SelectChangeEvent) => void;
     categories: any;
 }
 
 const SearchCategorie = ({ categorieSearch, handleSelectChangeCat, categories }: SearchCategorieProps) => {
     return (
-        <div className="flex flex-col my-5">
-            <p className="text-xs mb-1 font-bold">Catégorie</p>
-                <select className="rounded-xl p-1 text-sm bg-white border-2 border-[#BABABA]" value={categorieSearch} onChange={handleSelectChangeCat}>
-                <option value="0">Sélectionnez une catégorie</option>
-              {Object.keys(categories).length === 0 ? (
-                    <option disabled>Vous n'avez pas encore d'annonces.</option>
-              ) : (
-                Object.keys(categories).map((key) => {
-                  const categorieOption = categories[key];
-                  return (
-                    <option value={categorieOption.id} key={categorieOption.id}>
-                      {categorieOption.name}
-                    </option>
-                  );
-                })
-              )}
-            </select>
-          </div>
+      <div className="flex flex-col mt-8 mb-5">
+      <FormControl fullWidth>
+        <InputLabel id="categorie-select-label">Catégorie</InputLabel>
+        <Select
+          labelId="categorie-select-label"
+          id="categorie-select"
+          value={categorieSearch || "0"}
+          label="Catégorie"
+          onChange={handleSelectChangeCat}
+          sx={{
+            color: '#767676',
+            '& .MuiSelect-select': {
+              padding: '8px', // Gestion du padding à l'intérieur du select
+              fontSize: '13px' // Taille du texte dans le select lui-même
+            }
+          }}
+        >
+          <MenuItem value="0">Sélectionnez une catégorie</MenuItem> {/* Option par défaut */}
+          {Object.keys(categories).length === 0 ? (
+            <MenuItem disabled>Vous n'avez pas encore d'annonces.</MenuItem>
+          ) : (
+            Object.keys(categories).map((key) => {
+              const categorieOption = categories[key];
+              return (
+                <MenuItem value={categorieOption.id} key={categorieOption.id}>
+                  {categorieOption.name}
+                </MenuItem>
+              );
+            })
+          )}
+        </Select>
+      </FormControl>
+    </div>
     );
 };
 

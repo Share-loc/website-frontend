@@ -104,7 +104,6 @@ const ItemsPage = () => {
           method: "GET",
         }
       );
-      console.log(response);
       const data = await response.json();
       data; // Traiter les données reçues
       setItems(data);
@@ -178,7 +177,7 @@ const ItemsPage = () => {
               priceMax={priceMax}
         isDisplayed={false}
       />
-      <div className="xl:w-[75%] lg:w-[75%] md:w-[75%] sm:w-[100%] xs:w-[100%]">
+      <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
         <SortItems
           items={items}
           selectedOption={selectedOption}
