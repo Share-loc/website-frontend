@@ -12,3 +12,13 @@ export const checkUsernameSyntax = (username: string) => {
     const usernameRegex = /^[a-zA-Z0-9]{3,30}$/;
     return usernameRegex.test(username);
 }
+
+export const checkFirstNameSyntax = (firstName: string) => {
+    const firstNameRegex = /^[a-zA-Z]{1,30}$/;
+    return firstNameRegex.test(firstName);
+}
+
+export const checkLastNameSyntax = (lastName: string) => {
+    const lastNameRegex = /^[a-zA-Z]{1,30}$/;
+    return lastNameRegex.test(lastName);
+}
