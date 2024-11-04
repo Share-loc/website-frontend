@@ -5,6 +5,15 @@ import { Link } from 'react-router-dom';
 import { IoImageSharp } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
+import { FaPen } from "react-icons/fa";
+import Accordion from '@mui/material/Accordion';
+import AccordionActions from '@mui/material/AccordionActions';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { checkEmailSyntax, checkUsernameSyntax, checkFirstNameSyntax, checkLastNameSyntax } from '../lib/regex';
 
 interface User {
   id: number;
@@ -16,6 +25,8 @@ interface User {
 }
 
 const ProfilePage = () => {
+
+  const [reloadTrigger, setReloadTrigger] = useState(false);
 
   const [user, setUser] = useState<User>({
     id: 0,
@@ -35,6 +46,55 @@ const ProfilePage = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserItems(userItems.filter((item: any) => item.id !== id));
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  const [newUser, setNewUser] = useState({
+    username: '',
+    email: '',
+    first_name: '',
+    last_name: '',
+  });
+
+  const handleChangeInput = (input: 'username' | 'email' | 'first_name' | 'last_name', e: any) => {
+    setNewUser({
+      ...newUser,
+      [input]: e.target.value,
+    });
+  }
+
+  const handleClickSave = async (input: 'username' | 'email' | 'first_name' | 'last_name') => {
+    if (input === 'email' && !checkEmailSyntax(newUser.email)) {
+      alert('Email invalide');
+      return;
+    }
+    if (input === 'username' && !checkUsernameSyntax(newUser.username)) {
+      alert('Nom d\'utilisateur invalide');
+      return;
+    }
+    if (input === 'first_name' && !checkFirstNameSyntax(newUser.first_name)) {
+      alert('Prénom invalide');
+      return;
+    }
+    if (input === 'last_name' && !checkLastNameSyntax(newUser.last_name)) {
+      alert('Nom invalide');
+      return;
+    }
+    try {
+      const token = getToken();
+      await axios.patch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
+        [input]: newUser[input],
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setReloadTrigger(!reloadTrigger)
+      // erase the input field
+      setNewUser({
+        ...newUser,
+        [input]: '',
+      });
     } catch (error) {
       console.error(error);
     }
@@ -66,16 +126,14 @@ const ProfilePage = () => {
         const itemsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/${userData.id}/items`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserItems(itemsResponse.data); 
-        console.log(itemsResponse.data);
-        
+        setUserItems(itemsResponse.data);  
       } catch (error) {
         console.error(error);
       }
     };
 
     fetchUserData();
-  }, []);
+  }, [reloadTrigger]);
 
   return (
     <>
@@ -83,29 +141,89 @@ const ProfilePage = () => {
         <h1 className="text-3xl font-bold mb-10">Mon profil</h1>
         <div className="flex flex-col items-start gap-5">
           {user.avatar && <img src={user.avatar} alt="avatar" className="w-32 h-32 rounded-full" />}
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Nom d'utilisateur :</span>
-              {user.username}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Nom d'utilisateur :</span>
+                  {user.username}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom d'utilisateur.</Typography>
+                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('username', e)} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={!checkUsernameSyntax(newUser.username)} onClick={() => handleClickSave('username')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Email :</span>
-              {user.email}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Email :</span>
+                  {user.email}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous ne pouvez pas changer votre email pour l'instant.</Typography>
+                <TextField id="filled-basic" label="Email" variant="outlined" onChange={(e) => handleChangeInput('email', e)} disabled={true} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={!checkEmailSyntax(newUser.email)} onClick={() => handleClickSave('email')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Prénom :</span>
-              {user.first_name}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Prénom :</span>
+                  {user.first_name}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous pouvez changer votre prénom.</Typography>
+                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('first_name', e)} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={!checkFirstNameSyntax(newUser.first_name)} onClick={() => handleClickSave('first_name')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
-          <div className="flex gap-5">
-            <p className="text-lg font-bold">
-              <span className='text-blue mr-10'>Nom :</span>
-              {user.last_name}
-            </p>
+          <div className="flex gap-5 w-full">
+            <Accordion sx={{width: '100%'}}>
+              <AccordionSummary
+                expandIcon={<FaPen />}
+                aria-controls="panel1-content"
+                id="panel1-header"
+              >
+                <p className="text-lg font-bold">
+                  <span className='text-blue mr-10'>Nom :</span>
+                  {user.last_name}
+                </p>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom.</Typography>
+                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('last_name', e)} />
+              </AccordionDetails>
+              <AccordionActions>
+                <Button size="small" color="primary" disabled={!checkLastNameSyntax(newUser.last_name)} onClick={() => handleClickSave('last_name')} >Enregistrer</Button>
+              </AccordionActions>
+            </Accordion>
           </div>
         </div>
       </div>
