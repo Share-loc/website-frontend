@@ -19,7 +19,7 @@ interface CardItemsProps {
       path: string;
       fullPath: string;
     }[];
-  }
+  };
 }
 
 const CardItems = ({ item }: CardItemsProps) => {
@@ -37,71 +37,65 @@ const CardItems = ({ item }: CardItemsProps) => {
         `}
       </style>
       <div
-        className="rounded-2xl bg-white shadow-lg overflow-hidden cursor-pointer transition duration-300 transform hover:scale-[1.03] hover:shadow-xl "
+        className="rounded-xl overflow-hidden shadow-lg w-full transition duration-300 transform hover:scale-[1.015] hover:shadow-xl"
         key={item.id}>
-        <div className="px-2 pt-2 h-1/2 relative">
+        {/* Cœur en haut à gauche */}
+        <div className="relative w-full h-[150px] md:h-[200px]">
+          <div className="absolute p-3 right-0">
+            <FavorisItems item={item} />
+          </div>
           <Link to={`/product/${item.id}`}>
             <img
               className="h-full w-full object-cover rounded-xl"
-              src={ import.meta.env.VITE_DOMAIN + '/' + item.activeItemPictures[0].fullPath}
+              src={
+                import.meta.env.VITE_URL_BACK_END +
+                "/" +
+                item.activeItemPictures[0].fullPath
+              }
               alt={item.title}
             />
           </Link>
-          <FavorisItems item={item}/>
         </div>
-        <Link to={`/product/${item.id}`} className="p-3 flex flex-col justify-center">
-          <div className="">
-            <div className="">
-              <label
-                className="text-black text-xs font-semibold mb-2"
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  minHeight: "18px", // Exemple basé sur une taille de police de 16px et un espacement des lignes de 1.5
-                }}>
-                {item.title}
-              </label>
+        <Link to={`/product/${item.id}`}>
+          <div className="px-4 py-4">
+            <div
+              className="font-semibold text-lg mb-2"
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                minHeight: "18px",
+              }}>
+              {item.title}
             </div>
-            <div className="flex items-center gap-1">
+            <div className="text-sm flex items-center gap-2">
+              <FaMapMarkerAlt className="flex-shrink-0" />
               <div
-                className="text-black text-xs sm:text-xs"
                 style={{
                   display: "-webkit-box",
                   WebkitLineClamp: 1,
                   WebkitBoxOrient: "vertical",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
-                  minHeight: "12px", // Exemple basé sur une taille de police de 16px et un espacement des lignes de 1.5
+                  minHeight: "18px",
                 }}>
-                <FaMapMarkerAlt />
-              </div>
-              <p className="text-black text-xs sm:text-xs first-letter:uppercase">
                 {item.location}
-              </p>
+              </div>
             </div>
           </div>
-          <div className="w-full bg-[#BABABA] h-[2px] my-2 sm:my-3"></div>
-          <div className="flex items-center justify-between">
-            <div className="mb-0">
-              <p className="text-blue text-sm font-bold sm:text-md">
-                {item.price}€/h
-              </p>
+          <div className="w-6/6 h-[2px] bg-[#cbcbcb] mx-4"></div>
+          <div className="px-4 py-4 flex flex-col md:flex-col lg:flex-col xl:flex-row 2xl:flex-row justify-between items-center gap-4">
+            <div className="text-[#22AFAF] font-bold text-sm lg:text-md">
+              {item.price}€/heure
             </div>
-            {item.user.is_pro && (
-              <div className="flex">
-                <div className="flex items-center gap-1">
-                  <div className="text-black text-[0.7rem] sm:text-xs">
-                    <IoMdPerson />
-                  </div>
-                  <p className="text-[0.7rem] text-black font-bold first-letter:uppercase sm:text-xs">
-                    pro
-                  </p>
-                </div>
-              </div>
-            )}
+            <div className="flex items-center gap-2 border border-[#cbcbcb] p-[5px] rounded-md">
+              <IoMdPerson className="text-[#cbcbcb] text-xs" />
+              <label className="text-[#cbcbcb] text-xs">
+                {item.user.is_pro ? "Professionnel" : "Particulier"}
+              </label>
+            </div>
           </div>
         </Link>
       </div>
