@@ -29,6 +29,7 @@ import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
 import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
+import MessagePage from './pages/MessagePage.tsx'
 
 
 function App() {
@@ -114,6 +115,10 @@ function App() {
 
             <Route path='/favoris' element={
               userState.isLogged ? <FavorisPage /> : <HomePage />
+            } />
+            
+            <Route path='/messages' element={
+              userState.isLogged ? <MessagePage /> : <HomePage />
             } />
           
             {/* 404 route */}
