@@ -12,6 +12,7 @@ import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
 import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { io } from "socket.io-client";
+import { useWebSocket } from "@/components/context/WebSocketContext";
 
 setDefaultOptions({ locale: fr });
 
@@ -28,6 +29,7 @@ function MessagePage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+  const { socket } = useWebSocket();
 
   // Récupération de l'identifiant de l'utilisateur
   const getUserId = async() => {
@@ -66,7 +68,7 @@ function MessagePage() {
 
   // Connexion au serveur temps réel
   useEffect(() => {
-    const socket = io("http://localhost:3000");
+    if (!socket) return;
 
     const registerUser = async () => {
       const userId = await getUserId();
@@ -83,9 +85,9 @@ function MessagePage() {
 
     // Retourner une fonction de nettoyage pour fermer la connexion proprement
     return () => {
-      socket.disconnect();
+      socket.off('newMessage');
     };
-  }, []);
+  }, [socket]);
 
   if (loadingConversations) {
     return <Spinner />;

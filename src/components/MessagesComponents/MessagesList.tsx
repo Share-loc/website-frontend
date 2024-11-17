@@ -1,9 +1,10 @@
 import { formatDistanceToNow, setDefaultOptions } from "date-fns";
 import { ScrollArea } from "../ui/scroll-area";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getToken } from "@/const/func";
 import axios from "axios";
 import { fr } from "date-fns/locale";
+import { useWebSocket } from "../context/WebSocketContext";
 
 setDefaultOptions({ locale: fr });
 interface Message {
@@ -39,30 +40,44 @@ function MessagesList({
 }: MessagesListProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const messageListRef = useRef<HTMLDivElement | null>(null); // Référence pour la ScrollArea
+  const { socket } = useWebSocket();
+
+  const fetchMessages = useCallback(async () => {
+    if (!selectedConversation) return;
+    try {
+      const token = getToken();
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/messages/conversation/${
+          selectedConversation.user_id
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessages(response.data);
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
+  }, [selectedConversation]);
 
   useEffect(() => {
-    const fetchMessages = async () => {
-      if (!selectedConversation) return;
-      try {
-        const token = getToken();
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/messages/conversation/${
-            selectedConversation.user_id
-          }`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setMessages(response.data);
-      } catch (err) {
-        console.error("Failed to fetch messages:", err);
-      }
-    };
-
     fetchMessages();
-  }, [selectedConversation]);
+  }, [fetchMessages]);
+
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('newMessage', () => {
+      console.log('nouveau message dans MessagesList');
+      fetchMessages();
+    });
+
+    return () => {
+      socket.off('newMessage');
+    };
+  }, [socket, fetchMessages]);
 
   useEffect(() => {
     console.log("scroll to bottom");
