@@ -1,9 +1,11 @@
-import { formatDistanceToNow } from "date-fns";
+import { formatDistanceToNow, setDefaultOptions } from "date-fns";
 import { ScrollArea } from "../ui/scroll-area";
 import { useEffect, useRef, useState } from "react";
 import { getToken } from "@/const/func";
 import axios from "axios";
+import { fr } from "date-fns/locale";
 
+setDefaultOptions({ locale: fr });
 interface Message {
   id: number;
   sender: {
@@ -54,7 +56,9 @@ function MessagesList({
           }
         );
         setMessages(response.data);
-      } catch (err) {}
+      } catch (err) {
+        console.error("Failed to fetch messages:", err);
+      }
     };
 
     fetchMessages();
@@ -67,7 +71,7 @@ function MessagesList({
 
   return (
     <ScrollArea className="flex-1">
-      <div className="flex-1 p-4 h-full" ref={messageListRef}>
+      <div className="flex-1 h-full p-4" ref={messageListRef}>
         {/* <Button>scroll to bottom</Button> */}
         {messages.map((message) => (
           <div

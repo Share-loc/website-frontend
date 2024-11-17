@@ -11,6 +11,7 @@ import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
 import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { io } from "socket.io-client";
 
 setDefaultOptions({ locale: fr });
 
@@ -28,26 +29,62 @@ function MessagePage() {
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
 
+  // Récupération de l'identifiant de l'utilisateur
+  const getUserId = async() => {
+    const token = getToken();
+    const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/personal-data`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const userData = userResponse.data;
+    return userData.id;
+  }
+
+  // Récupération des conversations
+  const fetchConversations = async () => {
+    try {
+      const token = getToken();
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/messages/conversations`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setConversations(response.data);
+    } catch (err) {
+      console.error("Failed to fetch conversations", err);
+    } finally {
+      setLoadingConversations(false);
+    }
+  };
+
+  // Récupération des conversations au chargement de la page
   useEffect(() => {
-    const fetchConversations = async () => {
-      try {
-        const token = getToken();
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/messages/conversations`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setConversations(response.data);
-      } catch (err) {
-      } finally {
-        setLoadingConversations(false);
-      }
+    fetchConversations();
+  }, []);
+
+  // Connexion au serveur temps réel
+  useEffect(() => {
+    const socket = io("http://localhost:3000");
+
+    const registerUser = async () => {
+      const userId = await getUserId();
+      socket.emit('register', userId);
     };
 
-    fetchConversations();
+    registerUser();
+
+    // Ecoute des nouveaux messages
+    socket.on('newMessage', () => {
+      console.log('nouveau message');
+      fetchConversations();
+    });
+
+    // Retourner une fonction de nettoyage pour fermer la connexion proprement
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   if (loadingConversations) {
@@ -76,7 +113,7 @@ function MessagePage() {
                   } cursor-pointer`}
                   onClick={() => setSelectedConversation(conversation)}
                 >
-                  <Avatar className="w-10 h-10 rounded-full mr-3">
+                  <Avatar className="w-10 h-10 mr-3 rounded-full">
                     <AvatarImage src={conversation.user_avatar ?? ""} />
                     <AvatarFallback>
                       {conversation.user_username.substring(0, 2).toUpperCase()}
@@ -103,13 +140,13 @@ function MessagePage() {
           </div>
 
           {/* Right column - Chat interface */}
-          <div className="flex-1 flex flex-col">
+          <div className="flex flex-col flex-1">
             {selectedConversation ? (
               <>
                 {/* Chat header */}
-                <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+                <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
                   <div className="flex items-center">
-                    <Avatar className="w-10 h-10 rounded-full mr-3">
+                    <Avatar className="w-10 h-10 mr-3 rounded-full">
                       <AvatarImage
                         src={selectedConversation.user_avatar ?? ""}
                       />
@@ -124,7 +161,7 @@ function MessagePage() {
                     </h2>
                   </div>
                   <Button variant="ghost" size="icon">
-                    <MoreVertical className="h-5 w-5" />
+                    <MoreVertical className="w-5 h-5" />
                   </Button>
                 </div>
 
@@ -132,12 +169,12 @@ function MessagePage() {
                 <MessagesList selectedConversation={selectedConversation} />
 
                 {/* Message input */}
-                <div className="p-4 border-t border-gray-200 bg-white">
+                <div className="p-4 bg-white border-t border-gray-200">
                   <FormMessageSend receiver_id={selectedConversation.user_id} />
                 </div>
               </>
             ) : (
-              <div className="p-4 text-center h-full text-gray-500 flex items-center justify-center">
+              <div className="flex items-center justify-center h-full p-4 text-center text-gray-500">
                 Sélectionnez une conversation
               </div>
             )}
