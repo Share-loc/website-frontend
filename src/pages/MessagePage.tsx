@@ -11,7 +11,6 @@ import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
 import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { io } from "socket.io-client";
 import { useWebSocket } from "@/components/context/WebSocketContext";
 
 setDefaultOptions({ locale: fr });
@@ -21,6 +20,7 @@ interface Conversation {
   user_avatar?: string | null;
   user_username: string;
   last_message: string;
+  new_messages: boolean;
   last_message_created_at: string;
 }
 
@@ -115,6 +115,9 @@ function MessagePage() {
                   } cursor-pointer`}
                   onClick={() => setSelectedConversation(conversation)}
                 >
+                  {conversation.new_messages && (
+                    <span className="mr-2 bg-blue-500 rounded-full size-2"></span>
+                  )}
                   <Avatar className="w-10 h-10 mr-3 rounded-full">
                     <AvatarImage src={conversation.user_avatar ?? ""} />
                     <AvatarFallback>

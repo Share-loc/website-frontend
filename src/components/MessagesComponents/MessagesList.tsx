@@ -5,6 +5,7 @@ import { getToken } from "@/const/func";
 import axios from "axios";
 import { fr } from "date-fns/locale";
 import { useWebSocket } from "../context/WebSocketContext";
+import { Check, CheckCheck } from "lucide-react";
 
 setDefaultOptions({ locale: fr });
 interface Message {
@@ -21,6 +22,7 @@ interface Message {
   };
   content: string;
   created_at: string;
+  is_read: boolean;
 }
 
 interface Conversation {
@@ -115,6 +117,9 @@ function MessagesList({
                 {formatDistanceToNow(new Date(message.created_at), {
                   addSuffix: true,
                 })}
+              {message.receiver.id === selectedConversation?.user_id && (
+                message.is_read ? <CheckCheck className="inline-block ml-1 size-4" /> : <Check className="inline-block ml-1 size-4" />
+              )} 
               </span>
             </div>
           </div>
