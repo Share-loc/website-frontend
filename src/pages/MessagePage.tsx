@@ -5,13 +5,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getToken } from "@/const/func";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, Trash } from "lucide-react";
 import { formatDistanceToNow, setDefaultOptions } from "date-fns";
 import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
 import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useWebSocket } from "@/components/context/WebSocketContext";
+import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
 
 setDefaultOptions({ locale: fr });
 
@@ -29,6 +30,8 @@ function MessagePage() {
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
   const { socket } = useWebSocket();
 
   // Récupération de l'identifiant de l'utilisateur
@@ -89,6 +92,28 @@ function MessagePage() {
     };
   }, [socket]);
 
+  const handleDeleteClick = (conversation: Conversation) => {
+    setConversationToDelete(conversation);
+    setIsDeleteModalOpen(true);
+  }
+
+  const handleConfirmDelete = async () => {
+    if (!conversationToDelete) return;
+
+    try {
+      const token = getToken();
+      await axios.delete(`${import.meta.env.VITE_API_URL}/messages/conversations/${conversationToDelete.user_id}/delete`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchConversations();
+    } catch (err) {
+      console.error("Failed to delete conversation", err);
+    }
+    console.log('delete conversation');
+    setIsDeleteModalOpen(false);
+    fetchConversations();
+  }
+
   if (loadingConversations) {
     return <Spinner />;
   }
@@ -139,6 +164,13 @@ function MessagePage() {
                       { addSuffix: true }
                     )}
                   </span>
+                  <Trash className="w-4 h-4 ml-3 text-gray-400" onClick={() => handleDeleteClick(conversation)} />
+                  <DeleteConversationModal
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={handleConfirmDelete}
+                    conversationUserName={conversationToDelete?.user_username ?? ''}
+                  />
                 </div>
               ))}
             </ScrollArea>
