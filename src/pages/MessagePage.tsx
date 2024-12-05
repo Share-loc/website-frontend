@@ -13,17 +13,9 @@ import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useWebSocket } from "@/components/context/WebSocketContext";
 import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
+import { Conversation } from "@/types/MessageTypes";
 
 setDefaultOptions({ locale: fr });
-
-interface Conversation {
-  user_id: number;
-  user_avatar?: string | null;
-  user_username: string;
-  last_message: string;
-  new_messages: boolean;
-  last_message_created_at: string;
-}
 
 function MessagePage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -35,6 +27,7 @@ function MessagePage() {
   const { socket } = useWebSocket();
 
   // Récupération de l'identifiant de l'utilisateur
+  // ! todo : Voir pour stocker l'identifiant de l'utilisateur dans le contexte (comme pour le token)
   const getUserId = async() => {
     const token = getToken();
     const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/personal-data`, {

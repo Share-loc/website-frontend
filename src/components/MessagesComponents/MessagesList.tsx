@@ -6,32 +6,9 @@ import axios from "axios";
 import { fr } from "date-fns/locale";
 import { useWebSocket } from "../context/WebSocketContext";
 import { Check, CheckCheck } from "lucide-react";
+import { Conversation, Message } from "@/types/MessageTypes";
 
 setDefaultOptions({ locale: fr });
-interface Message {
-  id: number;
-  sender: {
-    id: number;
-    username: string;
-    avatar?: string | null;
-  };
-  receiver: {
-    id: number;
-    username: string;
-    avatar?: string | null;
-  };
-  content: string;
-  created_at: string;
-  is_read: boolean;
-}
-
-interface Conversation {
-  user_id: number;
-  user_avatar?: string | null;
-  user_username: string;
-  last_message: string;
-  last_message_created_at: string;
-}
 
 interface MessagesListProps {
   selectedConversation: Conversation | null;
