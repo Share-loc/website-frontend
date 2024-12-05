@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getToken } from "@/const/func";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MoreVertical, Trash } from "lucide-react";
 import { formatDistanceToNow, setDefaultOptions } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -13,12 +13,13 @@ import MessagesList from "@/components/MessagesComponents/MessagesList";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useWebSocket } from "@/components/context/WebSocketContext";
 import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
-import { Conversation } from "@/types/MessageTypes";
+import { Conversation, Message } from "@/types/MessageTypes";
 
 setDefaultOptions({ locale: fr });
 
 function MessagePage() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [loadingConversations, setLoadingConversations] = useState(true);
   const [selectedConversation, setSelectedConversation] =
     useState<Conversation | null>(null);
@@ -57,10 +58,55 @@ function MessagePage() {
     }
   };
 
+  const fetchMessages = useCallback(async () => {
+    if (!selectedConversation) return;
+    try {
+      const token = getToken();
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/messages/conversation/${
+          selectedConversation.user_id
+        }`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setMessages(response.data);
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
+  }, [selectedConversation]);
+
+  const handleSendMessage = async (content: string) => {
+    if (!selectedConversation) return;
+
+    try {
+      const token = getToken();
+      await axios.post(
+        `${import.meta.env.VITE_API_URL}/messages/send`,
+        {
+          content: content,
+          receiver_id: selectedConversation.user_id,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchMessages();
+      fetchConversations();
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du message :", error);
+    }
+  }
+
   // Récupération des conversations au chargement de la page
   useEffect(() => {
     fetchConversations();
-  }, []);
+    fetchMessages();
+  }, [fetchMessages]);
 
   // Connexion au serveur temps réel
   useEffect(() => {
@@ -77,13 +123,14 @@ function MessagePage() {
     socket.on('newMessage', () => {
       console.log('nouveau message');
       fetchConversations();
+      fetchMessages();
     });
 
     // Retourner une fonction de nettoyage pour fermer la connexion proprement
     return () => {
       socket.off('newMessage');
     };
-  }, [socket]);
+  }, [socket, fetchMessages]);
 
   const handleDeleteClick = (conversation: Conversation) => {
     setConversationToDelete(conversation);
@@ -196,11 +243,11 @@ function MessagePage() {
                 </div>
 
                 {/* Chat messages */}
-                <MessagesList selectedConversation={selectedConversation} />
+                <MessagesList selectedConversation={selectedConversation} messages={messages} />
 
                 {/* Message input */}
                 <div className="p-4 bg-white border-t border-gray-200">
-                  <FormMessageSend receiver_id={selectedConversation.user_id} />
+                  <FormMessageSend onSendMessage={handleSendMessage} />
                 </div>
               </>
             ) : (
