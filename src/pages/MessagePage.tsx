@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getToken } from "@/const/func";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, MoreVertical, Trash } from "lucide-react";
+import { ArrowLeft, Flag, MoreVertical, Trash, UserMinusIcon } from "lucide-react";
 import { format, setDefaultOptions } from "date-fns";
 import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
@@ -14,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useWebSocket } from "@/components/context/WebSocketContext";
 import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
 import { Conversation, Message } from "@/types/MessageTypes";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 setDefaultOptions({ locale: fr });
 
@@ -275,9 +276,24 @@ function MessagePage() {
                       {selectedConversation.user_username}
                     </h2>
                   </div>
-                  <Button variant="ghost" size="icon">
-                    <MoreVertical className="size-4 sm:size-5" />
-                  </Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreVertical className="size-4 sm:size-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      // ! todo : Ajouter les fonctionnalités de signalement et de blocage
+                      <DropdownMenuItem>
+                        <Flag className="w-4 h-4 mr-2" />
+                        <span>Signaler l'utilisateur</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <UserMinusIcon className="w-4 h-4 mr-2" />
+                        <span>Bloquer l'utilisateur</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
 
                 {/* Chat messages */}
