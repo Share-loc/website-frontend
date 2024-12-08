@@ -29,6 +29,8 @@ import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
 import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
 import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
+import MessagePage from './pages/MessagePage.tsx'
+import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
 
 
 function App() {
@@ -92,69 +94,75 @@ function App() {
 
   return (
     <AuthContext.Provider value={{ userState, setUserState }}>
-      <Routes>
-        <Route element={<AppBarLayout />}>
-          <Route element={<ContentLayout />}>
+      <WebSocketProvider>
+        <Routes>
+          <Route element={<AppBarLayout />}>
+            <Route element={<ContentLayout />}>
 
-            {/* Unprotected routes */}
-            <Route path="/" element={<HomePage />} />
-            <Route path='/register' element={<RegisterPage />} />
-            <Route path='/about' element={<AboutUsPage />} />
-            <Route path='/cgu' element={<CGUPage />} />
-            <Route path='/cgv' element={<CGVPage />} />
-            <Route path='/gdpr' element={<GDPRPage />} />
-            <Route path='/help' element={<HelpPage />} />
-            <Route path='/stripe' element={<StripePage />} />
-            <Route path='/security' element={<SecurityPage />} />
-            <Route path='/reservation' element={<ReservationPage />} />
-            <Route path='/product/:id' element={<ProductPage />} />
-            <Route path='/annonces' element={<ItemsPage />} />
-            {/* userState.isLogged ? <Route path='/favoris' element={<FavorisPage />} />
-            : <LoginPage /> */}
+              {/* Unprotected routes */}
+              <Route path="/" element={<HomePage />} />
+              <Route path='/register' element={<RegisterPage />} />
+              <Route path='/about' element={<AboutUsPage />} />
+              <Route path='/cgu' element={<CGUPage />} />
+              <Route path='/cgv' element={<CGVPage />} />
+              <Route path='/gdpr' element={<GDPRPage />} />
+              <Route path='/help' element={<HelpPage />} />
+              <Route path='/stripe' element={<StripePage />} />
+              <Route path='/security' element={<SecurityPage />} />
+              <Route path='/reservation' element={<ReservationPage />} />
+              <Route path='/product/:id' element={<ProductPage />} />
+              <Route path='/annonces' element={<ItemsPage />} />
+              {/* userState.isLogged ? <Route path='/favoris' element={<FavorisPage />} />
+              : <LoginPage /> */}
 
-            <Route path='/favoris' element={
-              userState.isLogged ? <FavorisPage /> : <HomePage />
-            } />
-          
-            {/* 404 route */}
-            <Route path="*" element={<NotFoundPage />} />
+              <Route path='/favoris' element={
+                userState.isLogged ? <FavorisPage /> : <HomePage />
+              } />
+              
+              <Route path='/messages' element={
+                userState.isLogged ? <MessagePage /> : <HomePage />
+              } />
+            
+              {/* 404 route */}
+              <Route path="*" element={<NotFoundPage />} />
 
-            {/* Protected routes */}
-            <Route path='/profile' element={
-              userState.isLogged ? <ProfilePage /> : <LoginPage />
-            } />
-            <Route path='/adpage' element={
-              userState.isLogged ? <AdPage /> : <LoginPage />
-            } />
+              {/* Protected routes */}
+              <Route path='/profile' element={
+                userState.isLogged ? <ProfilePage /> : <LoginPage />
+              } />
+              <Route path='/adpage' element={
+                userState.isLogged ? <AdPage /> : <LoginPage />
+              } />
+            </Route>
           </Route>
-        </Route>
 
-        <Route element={<AdminLayout />}>
-            {/* ADMIN routes */}
-            <Route path='/admin/dashboard' element={
-                userState.isLogged ? <AdminDashboardPage /> : <LoginPage />
-              } />
-            <Route path='/admin/users' element={
-                userState.isLogged ? <AdminUsersPape /> : <LoginPage />
-              } />
-            <Route path='/admin/items' element={
-                userState.isLogged ? <AdminItemsPage /> : <LoginPage />
-              } />
-            <Route path='/admin/categories' element={
-                userState.isLogged ? <AdminCategoriesPage /> : <LoginPage />
-              } />
-            <Route path='/admin/reviews' element={
-                userState.isLogged ? <AdminReviewsPage /> : <LoginPage />
-              } />
-            <Route path='/admin/reports' element={
-                userState.isLogged ? <AdminReportsPage /> : <LoginPage />
-              } />
-        </Route>
+          <Route element={<AdminLayout />}>
+              {/* ADMIN routes */}
+              <Route path='/admin/dashboard' element={
+                  userState.isLogged ? <AdminDashboardPage /> : <LoginPage />
+                } />
+              <Route path='/admin/users' element={
+                  userState.isLogged ? <AdminUsersPape /> : <LoginPage />
+                } />
+              <Route path='/admin/items' element={
+                  userState.isLogged ? <AdminItemsPage /> : <LoginPage />
+                } />
+              <Route path='/admin/categories' element={
+                  userState.isLogged ? <AdminCategoriesPage /> : <LoginPage />
+                } />
+              <Route path='/admin/reviews' element={
+                  userState.isLogged ? <AdminReviewsPage /> : <LoginPage />
+                } />
+              <Route path='/admin/reports' element={
+                  userState.isLogged ? <AdminReportsPage /> : <LoginPage />
+                } />
+          </Route>
 
-            {/* Login route */}
+              {/* Login route */}
 
 
-      </Routes>
+        </Routes>
+      </WebSocketProvider>
     </AuthContext.Provider>
   )
 }
