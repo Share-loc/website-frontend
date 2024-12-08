@@ -26,7 +26,6 @@ function MessagesList({
   return (
     <ScrollArea className="flex-1">
       <div className="flex-1 h-full p-4" ref={messageListRef}>
-        {/* <Button>scroll to bottom</Button> */}
         {messages.map((message) => (
           <div
             key={message.id}

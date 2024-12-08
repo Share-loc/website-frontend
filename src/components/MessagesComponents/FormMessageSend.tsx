@@ -17,18 +17,25 @@ function FormMessageSend({ onSendMessage }: FormMessageSendProps) {
     setMessage("");
   };
   return (
-    <form className="flex items-center" onSubmit={handleSubmit}>
-      <Input
-        className="flex-1 mr-2"
-        placeholder="Saisissez votre message..."
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-      />
-      <Button type="submit" disabled={!message.trim()}>
-        Envoyer
-        <Send className="w-5 h-5 mr-1" />
-      </Button>
-    </form>
+    <div className="p-4 bg-white border-t border-gray-200">
+      <form className="flex items-center" onSubmit={handleSubmit}>
+        <Input
+          className="flex-1 mr-2 text-sm sm:text-base"
+          placeholder="Saisissez votre message..."
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <Button
+          type="submit"
+          size="sm"
+          className="px-2 sm:px-4"
+          disabled={!message.trim()}
+        >
+          <span className="hidden sm:inline">Envoyer</span>
+          <Send className="w-4 h-4 mr-1 sm:h-5 sm:w-5" />
+        </Button>
+      </form>
+    </div>
   );
 }
 

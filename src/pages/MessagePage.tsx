@@ -246,9 +246,7 @@ function MessagePage() {
                 <MessagesList selectedConversation={selectedConversation} messages={messages} />
 
                 {/* Message input */}
-                <div className="p-4 bg-white border-t border-gray-200">
-                  <FormMessageSend onSendMessage={handleSendMessage} />
-                </div>
+                <FormMessageSend onSendMessage={handleSendMessage} />
               </>
             ) : (
               <div className="flex items-center justify-center h-full p-4 text-center text-gray-500">

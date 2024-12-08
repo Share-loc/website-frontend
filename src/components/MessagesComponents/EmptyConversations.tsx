@@ -4,13 +4,13 @@ import { RiMapPinAddFill } from "react-icons/ri";
 
 function EmptyConversations() {
   return (
-    <div className="flex flex-col w-full items-center justify-center gap-6">
+    <div className="flex flex-col items-center justify-center gap-6 my-10">
       <img
         src={PaperAirplane}
         alt="Illustration envoi de message"
         className="w-[500px]"
       />
-      <h1 className="text-xl font-semibold">
+      <h1 className="text-xl font-semibold text-center">
         Bienvenue sur votre messagerie !
       </h1>
       <p className="text-sm font-light text-slate-600 max-w-[700px] text-center">
