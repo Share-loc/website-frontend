@@ -5,8 +5,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getToken } from "@/const/func";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { MoreVertical, Trash } from "lucide-react";
-import { formatDistanceToNow, setDefaultOptions } from "date-fns";
+import { ArrowLeft, MoreVertical, Trash } from "lucide-react";
+import { format, setDefaultOptions } from "date-fns";
 import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
 import MessagesList from "@/components/MessagesComponents/MessagesList";
@@ -26,6 +26,7 @@ function MessagePage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
   const { socket } = useWebSocket();
+  const [activeView, setActiveView] = useState('conversations');
 
   // Récupération de l'identifiant de l'utilisateur
   // ! todo : Voir pour stocker l'identifiant de l'utilisateur dans le contexte (comme pour le token)
@@ -132,6 +133,16 @@ function MessagePage() {
     };
   }, [socket, fetchMessages]);
 
+  const handleConversationClick = (conversation: Conversation) => {
+    setSelectedConversation(conversation);
+    setActiveView('messages');
+  }
+
+  const handleBackClick = () => {
+    setSelectedConversation(null);
+    setActiveView('conversations');
+  }
+
   const handleDeleteClick = (conversation: Conversation) => {
     setConversationToDelete(conversation);
     setIsDeleteModalOpen(true);
@@ -165,7 +176,11 @@ function MessagePage() {
       ) : (
         <div className="flex h-[calc(100vh-120px)] bg-gray-100 shadow">
           {/* Left column - Conversation list */}
-          <div className="w-1/3 bg-white border-r border-gray-200">
+          <div
+            className={`w-full lg:w-1/3 bg-white border-r border-gray-200 ${
+              activeView === "messages" ? "hidden lg:block" : ""
+            }`}
+          >
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold">Conversations</h2>
             </div>
@@ -178,7 +193,7 @@ function MessagePage() {
                       ? "bg-gray-200"
                       : ""
                   } cursor-pointer`}
-                  onClick={() => setSelectedConversation(conversation)}
+                  onClick={() => handleConversationClick(conversation)}
                 >
                   {conversation.new_messages && (
                     <span className="mr-2 bg-blue-500 rounded-full size-2"></span>
@@ -198,18 +213,30 @@ function MessagePage() {
                       {conversation.last_message}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-400">
-                    {formatDistanceToNow(
+                  <span className="text-xs text-gray-400 truncate">
+                    {format(
                       new Date(conversation.last_message_created_at),
-                      { addSuffix: true }
+                      "dd/MM"
                     )}
                   </span>
-                  <Trash className="w-4 h-4 ml-3 text-gray-400" onClick={() => handleDeleteClick(conversation)} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="ml-3"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(conversation);
+                    }}
+                  >
+                    <Trash className="size-4" />
+                  </Button>
                   <DeleteConversationModal
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
                     onConfirm={handleConfirmDelete}
-                    conversationUserName={conversationToDelete?.user_username ?? ''}
+                    conversationUserName={
+                      conversationToDelete?.user_username ?? ""
+                    }
                   />
                 </div>
               ))}
@@ -217,12 +244,25 @@ function MessagePage() {
           </div>
 
           {/* Right column - Chat interface */}
-          <div className="flex flex-col flex-1">
+          <div
+            className={`flex flex-col flex-1 ${
+              activeView === "conversations" ? "hidden lg:flex" : ""
+            }`}
+          >
             {selectedConversation ? (
               <>
                 {/* Chat header */}
                 <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
                   <div className="flex items-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="mr-4 lg:hidden"
+                      onClick={handleBackClick}
+                    >
+                      <ArrowLeft className="size-4" />
+                      <span>Retour</span>
+                    </Button>
                     <Avatar className="w-10 h-10 mr-3 rounded-full">
                       <AvatarImage
                         src={selectedConversation.user_avatar ?? ""}
@@ -238,12 +278,15 @@ function MessagePage() {
                     </h2>
                   </div>
                   <Button variant="ghost" size="icon">
-                    <MoreVertical className="w-5 h-5" />
+                    <MoreVertical className="size-4 sm:size-5" />
                   </Button>
                 </div>
 
                 {/* Chat messages */}
-                <MessagesList selectedConversation={selectedConversation} messages={messages} />
+                <MessagesList
+                  selectedConversation={selectedConversation}
+                  messages={messages}
+                />
 
                 {/* Message input */}
                 <FormMessageSend onSendMessage={handleSendMessage} />

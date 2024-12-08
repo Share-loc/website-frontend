@@ -19,7 +19,6 @@ function MessagesList({
   const messageListRef = useRef<HTMLDivElement | null>(null); // Référence pour la ScrollArea
 
   useEffect(() => {
-    console.log("scroll to bottom");
     messageListRef.current?.scrollIntoView(false);
   }, [selectedConversation, messages]);
 
@@ -36,13 +35,13 @@ function MessagesList({
             } mb-4`}
           >
             <div
-              className={`max-w-[70%] p-3 rounded-lg ${
+              className={`max-w-[85%] sm:max-w-[70%] p-3 rounded-lg ${
                 message.receiver.id === selectedConversation?.user_id
                   ? "bg-blue-500 text-white"
                   : "bg-gray-200"
               }`}
             >
-              <p>{message.content}</p>
+              <p className="text-sm sm:text-base">{message.content}</p>
               <span
                 className={`text-xs ${
                   message.receiver.id === selectedConversation?.user_id
