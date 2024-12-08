@@ -230,16 +230,14 @@ function MessagePage() {
                   >
                     <Trash className="size-4" />
                   </Button>
-                  <DeleteConversationModal
-                    isOpen={isDeleteModalOpen}
-                    onClose={() => setIsDeleteModalOpen(false)}
-                    onConfirm={handleConfirmDelete}
-                    conversationUserName={
-                      conversationToDelete?.user_username ?? ""
-                    }
-                  />
                 </div>
               ))}
+              <DeleteConversationModal
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                conversationUserName={conversationToDelete?.user_username ?? ""}
+              />
             </ScrollArea>
           </div>
 
