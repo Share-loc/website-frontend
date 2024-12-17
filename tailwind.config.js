@@ -1,4 +1,7 @@
 /** @type {import('tailwindcss').Config} */
+import forms from '@tailwindcss/forms';
+import tailwindAnimate from 'tailwindcss-animate';
+
 export default {
     darkMode: ["class"],
     content: [
@@ -68,8 +71,8 @@ export default {
   },
   plugins: [
     // ...
-    require('@tailwindcss/forms'),
-      require("tailwindcss-animate")
+    forms,
+    tailwindAnimate
 ],
 }
 
