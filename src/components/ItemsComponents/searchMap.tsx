@@ -1,12 +1,11 @@
 interface SearchMapProps {
-    selectedCity: string;
     villeRecherche: string;
     handleCitySearchChangeMap: (event: React.ChangeEvent<HTMLInputElement>) => void;
     suggestions: any;
-    selectSuggestion: (suggestion: any) => void;
+    selectSuggestionMap: (suggestion: any) => void;
 }
 
-const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, suggestions, selectSuggestion}: SearchMapProps) => {
+const SearchMap = ({ villeRecherche, handleCitySearchChangeMap, suggestions, selectSuggestionMap}: SearchMapProps) => {
     return (
         <div className="flex flex-col my-5">
             <p className="text-xs mb-1">Localisation</p>
@@ -21,8 +20,8 @@ const SearchMap = ({ selectedCity, villeRecherche, handleCitySearchChangeMap, su
                 {suggestions.map((suggestion: any, index: number) => (
                   <li
                     key={index}
-                    value={selectedCity}
-                    onClick={() => selectSuggestion(suggestion)}
+                    value={suggestion.label}
+                    onClick={() => selectSuggestionMap(suggestion)}
                     className="p-2 hover:bg-gray-100 cursor-pointer">
                     {suggestion.label}
                   </li>

@@ -1,46 +1,41 @@
-import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
+import {
+  FormControl,
+} from "@mui/material";
+
+interface Category {
+  id: string;
+  name: string;
+}
 interface SearchCategorieProps {
-    categorieSearch: string;
-    handleSelectChangeCat: (event: SelectChangeEvent) => void;
-    categories: any;
+  categorieSearch: string;
+  handleSelectChangeCategory: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  categories: Category[];
 }
 
-const SearchCategorie = ({ categorieSearch, handleSelectChangeCat, categories }: SearchCategorieProps) => {
-    return (
-      <div className="flex flex-col mt-8 mb-5">
+const SearchCategorie = ({
+  categorieSearch,
+  handleSelectChangeCategory,
+  categories,
+}: SearchCategorieProps) => {
+  return (
+    <div className="flex flex-col my-5">
+      <p className="text-xs mb-1">Catégorie</p>
       <FormControl fullWidth>
-        <InputLabel id="categorie-select-label">Catégorie</InputLabel>
-        <Select
-          labelId="categorie-select-label"
-          id="categorie-select"
-          value={categorieSearch || "0"}
-          label="Catégorie"
-          onChange={handleSelectChangeCat}
-          sx={{
-            color: '#767676',
-            '& .MuiSelect-select': {
-              padding: '8px', // Gestion du padding à l'intérieur du select
-              fontSize: '13px' // Taille du texte dans le select lui-même
-            }
-          }}
-        >
-          <MenuItem value="0">Sélectionnez une catégorie</MenuItem> {/* Option par défaut */}
-          {Object.keys(categories).length === 0 ? (
-            <MenuItem disabled>Vous n'avez pas encore d'annonces.</MenuItem>
-          ) : (
-            Object.keys(categories).map((key) => {
-              const categorieOption = categories[key];
-              return (
-                <MenuItem value={categorieOption.id} key={categorieOption.id}>
-                  {categorieOption.name}
-                </MenuItem>
-              );
-            })
-          )}
-        </Select>
+        <select
+          value={categorieSearch}
+          onChange={handleSelectChangeCategory}
+          className="rounded-md p-1 text-sm bg-white border-[#BABABA]">
+          <option value="">Sélectionner une catégorie</option>
+          {categories &&
+            categories.map((category: Category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+        </select>
       </FormControl>
     </div>
-    );
+  );
 };
 
 export default SearchCategorie;

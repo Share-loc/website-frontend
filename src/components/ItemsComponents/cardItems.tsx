@@ -1,10 +1,9 @@
-import { useEffect } from "react";
-import { FaMapMarkerAlt } from "react-icons/fa";
 import { IoMdPerson } from "react-icons/io";
-import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { useState } from "react";
 import FavorisItems from "./favorisItems";
+import { FiMapPin } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import { MdOutlineCategory } from "react-icons/md";
+
 
 interface CardItemsProps {
   item: {
@@ -57,43 +56,43 @@ const CardItems = ({ item }: CardItemsProps) => {
           </Link>
         </div>
         <Link to={`/product/${item.id}`}>
-          <div className="px-4 py-4">
-            <div
-              className="font-semibold text-lg mb-2"
-              style={{
-                display: "-webkit-box",
-                WebkitLineClamp: 1,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                minHeight: "18px",
-              }}>
+          <div className="px-4 py-4 flex flex-col gap-2">
+          <div
+className="font-semibold text-md"
+style={{
+  display: "-webkit-box",
+  WebkitLineClamp: 2,
+  WebkitBoxOrient: "vertical",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  minHeight: "48px", // Hauteur de deux lignes
+}}
+>
               {item.title}
             </div>
-            <div className="text-sm flex items-center gap-2">
-              <FaMapMarkerAlt className="flex-shrink-0" />
-              <div
-                style={{
-                  display: "-webkit-box",
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: "vertical",
-                  overflow: "hidden",
-                  textOverflow: "ellipsis",
-                  minHeight: "18px",
-                }}>
+            <div className="flex items-center gap-2">
+              <MdOutlineCategory className="text-sm"/>
+              <div className="text-xs">
+                {item.category.name}
+              </div>
+            </div>
+            <div className="flex items-center gap-2 my-auto">
+            <FiMapPin className="text-sm"/>
+              <div className="text-xs">
                 {item.location}
               </div>
             </div>
           </div>
+
           <div className="w-6/6 h-[2px] bg-[#cbcbcb] mx-4"></div>
-          <div className="px-4 py-4 flex flex-col md:flex-col lg:flex-col xl:flex-row 2xl:flex-row justify-between items-center gap-4">
-            <div className="text-[#22AFAF] font-bold text-sm lg:text-md">
+          <div className="px-4 py-4 flex flex-col gap-3 md:gap-3 xl:gap-0 sm:flex-row lg:flex-row xl:flex-row 2xl:flex-row justify-between items-center">
+            <div className="text-[#FEB24D] font-bold text-xs lg:text-md">
               {item.price}€/heure
             </div>
-            <div className="flex items-center gap-2 border border-[#cbcbcb] p-[5px] rounded-md">
-              <IoMdPerson className="text-[#cbcbcb] text-xs" />
-              <label className="text-[#cbcbcb] text-xs">
-                {item.user.is_pro ? "Professionnel" : "Particulier"}
+            <div className="flex items-center gap-1 border border-[#cbcbcb] p-[5px] rounded-md">
+              <IoMdPerson className="text-[#00000] text-xs" />  
+              <label className="text-[#00000] text-xs">
+                {item.user.is_pro ? "Pro" : "Particulier"}
               </label>
             </div>
           </div>
