@@ -45,7 +45,7 @@ const FavorisPage = () => {
         <div>
             <h1 className="text-black text-lg font-bold mb-3 uppercase">Vos annonces favorites</h1>
             <div className="w-3/6 h-0.5 bg-blue mb-10"></div>
-            <AllCardsItems items={items} />
+            <AllCardsItems filter={false} items={items} />
         </div>
     );
 };

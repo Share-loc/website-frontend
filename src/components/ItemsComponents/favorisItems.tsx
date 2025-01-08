@@ -52,7 +52,6 @@ const FavorisItems = ({ item }) => {
       const token = localStorage.getItem("token");
 
       if (!token) {
-
         navigate("/profile");
         return;
       }
@@ -83,7 +82,7 @@ const FavorisItems = ({ item }) => {
 
   return (
     <div
-      className="icon-container absolute p-1.5 bg-white/43 rounded-xl shadow-lg backdrop-blur-[6.6px] border border-white/10 bottom-1 right-3 cursor-pointer"
+      className="icon-container p-1.5 bg-white/43 rounded-xl shadow-lg backdrop-blur-[6.6px] border border-white/10 bottom-1 right-3 cursor-pointer"
       onClick={handleFavoriteToggle}>
       {isFavorite ? (
         <FaHeart className="text-red-500 text-xl" />

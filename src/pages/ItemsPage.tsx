@@ -2,50 +2,92 @@ import React, { useEffect, useState } from "react";
 import AllCardsItems from "../components/ItemsComponents/allCardsItems";
 import FilterItems from "../components/ItemsComponents/filterItems";
 import SortItems from "../components/ItemsComponents/sortItems";
+import { useSearchParams } from "react-router-dom";
+import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 
 const ItemsPage = () => {
   const [items, setItems] = useState<any>([]);
-  const [selectedOption, setSelectedOption] = useState("recentItems");
-  const [selectedType, setSelectedType] = useState("all");
-  const [categories, setCategories] = useState<any>([]);
-  const [titleSearch, setTitleSearch] = useState("");
-
-  const [villeRecherche, setVilleRecherche] = useState("");
-  const [categorieSearch, setCategorieSearch] = useState("");
-  const [priceMin, setPriceMin] = useState("");
-  const [priceMax, setPriceMax] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState("");
   const [suggestions, setSuggestions] = useState([]);
-  const [selectedCity, setSelectedCity] = useState("");
-    
-  const handleTitleSearchChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value;
-    setTitleSearch(value);
+  const [isSearchValid, setIsSearchValid] = useState(false);
+  const [isResetFilter, setIsResetFilter] = useState(false);
+  const [totalPages, setTotalPages] = useState(1);
+  const [numberItems, setNumberItems] = useState(0);
+
+  const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
+  const [selectedOrder, setSelectedOrder] = useState(
+    searchParams.get("orderBy") || "recentItems"
+  );
+  const [selectedType, setSelectedType] = useState(
+    searchParams.get("type") || "all"
+  );
+  const [titleSearch, setTitleSearch] = useState(
+    searchParams.get("title") || ""
+  );
+  const [villeRecherche, setVilleRecherche] = useState(
+    searchParams.get("location") || ""
+  );
+  const [categorieSearch, setCategorieSearch] = useState(
+    searchParams.get("category") || ""
+  );
+  const [priceMin, setPriceMin] = useState(searchParams.get("priceMin") || "");
+  const [priceMax, setPriceMax] = useState(searchParams.get("priceMax") || "");
+
+
+  //Variable temporaire pour les champs de recherche
+  const [tempTitleSearch, setTempTitleSearch] = useState(titleSearch);
+  const [tempCategorieSearch, setTempCategorieSearch] = useState(categorieSearch);
+  const [tempPriceMin, setTempPriceMin] = useState(priceMin);
+  const [tempPriceMax, setTempPriceMax] = useState(priceMax);
+  const [tempVilleRecherche, setTempVilleRecherche] = useState(villeRecherche);
+  const [tempSelectedType, setTempSelectedType] = useState(selectedType);
+
+  // Fonction pour mettre à jour les paramètres de recherche Url
+  const updateSearchParams = () => {
+    const params: any = {
+      title: titleSearch,
+      category: categorieSearch,
+      location: villeRecherche,
+      priceMin,
+      priceMax,
+      type: selectedType,
+      page,
+    };
+
+    // Supprime les paramètres vides pour garder une URL propre
+    Object.keys(params).forEach((key) => {
+      if (!params[key]) {
+        delete params[key];
+      }
+    });
+
+    setSearchParams(params);
   };
 
-  const handlePriceMinimumChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleTitleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setPriceMin(value);
-    console.log(value);
+    setTempTitleSearch(value);
   };
 
-  const handlePriceMaximumChange = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handlePriceMinimumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setPriceMax(value);
-    console.log(value);
+    setTempPriceMin(value);
   };
 
-  const handleTypeItem = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePriceMaximumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSelectedType(value);
-    console.log(value);
+    setTempPriceMax(value);
   };
 
+  const handleTypeItem = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setTempSelectedType(value);
+  };
+
+  // Fonction pour la recherche de ville avec l'API de l'état
   const handleCitySearchChangeMap = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -67,52 +109,110 @@ const ItemsPage = () => {
         filteredSuggestions;
         setSuggestions(filteredSuggestions);
       } catch (error) {
-        console.error("Erreur lors de la récupération des suggestions:", error);
+        console.error("Erreur lors de la récupération des suggestions de ville :", error);
+        setError(
+          "Erreur lors de la récupération des suggestions de ville. Veuillez réessayer plus tard."
+        );
       }
     } else {
       setSuggestions([]);
     }
   };
 
-  const selectSuggestion = (suggestion: {
+  // Fonction pour sélectionner une suggestion de ville
+  const selectSuggestionMap = (suggestion: {
     label: string;
     city: string;
     postcode: string;
   }) => {
-    setVilleRecherche(`${suggestion.city} (${suggestion.postcode})`);
+    setTempVilleRecherche(`${suggestion.city} (${suggestion.postcode})`);
     setSuggestions([]);
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedOption(e.target.value);
+  const handleSelectChangeOrder = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedOrder(e.target.value);
   };
 
-  const handleSelectChangeCat = async (
+  const handleSelectChangeCategory = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
-    setCategorieSearch(value);
+    setTempCategorieSearch(value);
   };
 
-  const fetchApiData = async () => {
+  // Fonction pour récupérer les catégories
+  const fetchCategory = async () => {
     try {
+      setError(null);
       const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/items/filterItems?title_like=${titleSearch}&category=${categorieSearch}&priceMin=${priceMin}&priceMax=${priceMax}&type=${selectedType}&location_like=${villeRecherche}&orderBy=${selectedOption}`,
+        `${import.meta.env.VITE_API_URL}/categories`,
         {
           method: "GET",
         }
       );
-      console.log(response);
       const data = await response.json();
-      data; // Traiter les données reçues
-      setItems(data);
+      setCategories(data);
     } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
+      setError(
+        "Erreur lors de la récupération des catégories. Veuillez réessayer plus tard."
+      );
     }
   };
 
+  // Fonction pour récupérer les données recherchées
+  const fetchApiData = async (currentPage = page) => {
+    try {
+      setError(null);
+      setLoading(true);
+      // Création des paramètres de recherche
+      const params = new URLSearchParams({
+        title_like: titleSearch,
+        category: categorieSearch,
+        priceMin: priceMin,
+        priceMax: priceMax,
+        type: selectedType,
+        location_like: villeRecherche,
+        orderBy: selectedOrder,
+      });
+
+      const response = await fetch(
+        `${
+          import.meta.env.VITE_API_URL
+        }/items/filterItems?${params.toString()}&page=${currentPage}&limit=9`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      const data = await response.json();
+      setTotalPages(Math.ceil(data.totalItems / 9));
+      setNumberItems(data.totalItems);
+      setItems(data.items);
+    } catch (error) {
+      setError(
+        "Une erreur s'est produite lors de la récupération des données. Veuillez réessayer plus tard."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour appliquer les filtres de recherche
+  const applyFilters = async () => {
+    setTitleSearch(tempTitleSearch);
+    setCategorieSearch(tempCategorieSearch);
+    setPriceMin(tempPriceMin);
+    setPriceMax(tempPriceMax);
+    setVilleRecherche(tempVilleRecherche);
+    setSelectedType(tempSelectedType);
+    setPage(1);
+    setIsSearchValid(true);
+    fetchApiData();
+  };
+
+  // Fonction pour réinitialiser les filtres
   const resetInfo = async () => {
     setTitleSearch("");
     setCategorieSearch("");
@@ -120,86 +220,133 @@ const ItemsPage = () => {
     setPriceMax("");
     setVilleRecherche("");
     setSelectedType("all");
-    setSelectedOption("recentItems");
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
-        method: "GET",
-      });
-      const data = await response.json();
-      data;
-      setItems(data);
-    } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
+    setSelectedOrder("recentItems");
+    setTempTitleSearch("");
+    setTempCategorieSearch("");
+    setTempPriceMin("");
+    setTempPriceMax("");
+    setTempVilleRecherche("");
+    setTempSelectedType("all");
+    setPage(1);
+    setIsResetFilter(true);
+  };
+
+  // Fonction pour passer à la page suivante
+  const handleNextPage = () => {
+    if (page < totalPages) {
+      setPage(page + 1);
     }
   };
 
-  const fetchCategory = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/categories`,
-        {
-          method: "GET",
-        }
-      );
-
-      const data = await response.json();
-      data;
-      setCategories(data);
-    } catch (error) {
-      console.error("Erreur lors de la récupération des données:", error);
+  // Fonction pour passer à la page précédente
+  const handlePreviousPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
     }
   };
 
+  // Effet pour récupérer les données lors du chargement de la page
   useEffect(() => {
     fetchCategory();
+  }, []);
+
+  // Mettre à jour les paramètres de recherche lors de la recherche
+  useEffect(() => {
+    updateSearchParams();
+  }, [
+    titleSearch,
+    categorieSearch,
+    villeRecherche,
+    priceMin,
+    priceMax,
+    selectedType,
+    selectedOrder,
+    page,
+  ]);
+
+  // Mettre à jour les données lors du changement de page
+  useEffect(() => {
     fetchApiData();
-  }, [selectedOption, selectedCity]);
+  }, [page]);
+
+  // Mettre à jour les données lors de la recherche
+  useEffect(() => {
+    fetchApiData();
+    isResetFilter ? setIsResetFilter(false) : null;
+    isSearchValid ? setIsSearchValid(false) : null;
+  }, [selectedOrder, isSearchValid, isResetFilter]);
 
   return (
     <div className="w-full flex gap-5">
       <FilterItems
         handleTitleSearchChange={handleTitleSearchChange}
-        categorieSearch={categorieSearch}
-        handleSelectChangeCat={handleSelectChangeCat}
+        categorieSearch={tempCategorieSearch}
+        handleSelectChangeCategory={handleSelectChangeCategory}
         categories={categories}
         handleCitySearchChangeMap={handleCitySearchChangeMap}
         suggestions={suggestions}
-        selectSuggestion={selectSuggestion}
+        selectSuggestionMap={selectSuggestionMap}
         handlePriceMinimumChange={handlePriceMinimumChange}
         handlePriceMaximumChange={handlePriceMaximumChange}
-        selectedType={selectedType}
+        selectedType={tempSelectedType}
         handleTypeItem={handleTypeItem}
-        fetchApiData={fetchApiData}
-        selectedCity={selectedCity}
-        villeRecherche={villeRecherche}
+        applyFilters={applyFilters}
+        villeRecherche={tempVilleRecherche}
         resetInfo={resetInfo}
-              titleSearch={titleSearch}
-              priceMin={priceMin}
-              priceMax={priceMax}
+        titleSearch={tempTitleSearch}
+        priceMin={tempPriceMin}
+        priceMax={tempPriceMax}
         isDisplayed={false}
       />
-      <div className="xl:w-[75%] lg:w-[75%] md:w-[75%] sm:w-[100%] xs:w-[100%]">
+      <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
         <SortItems
-          items={items}
-          selectedOption={selectedOption}
-          handleSelectChange={handleSelectChange}
+          selectedOrder={selectedOrder}
+          handleSelectChangeOrder={handleSelectChangeOrder}
           handleTitleSearchChange={handleTitleSearchChange}
-          categorieSearch={categorieSearch}
-          handleSelectChangeCat={handleSelectChangeCat}
+          categorieSearch={tempCategorieSearch}
+          handleSelectChangeCategory={handleSelectChangeCategory}
           categories={categories}
           handleCitySearchChangeMap={handleCitySearchChangeMap}
           suggestions={suggestions}
-          selectSuggestion={selectSuggestion}
+          selectSuggestionMap={selectSuggestionMap}
           handlePriceMinimumChange={handlePriceMinimumChange}
           handlePriceMaximumChange={handlePriceMaximumChange}
-          selectedType={selectedType}
+          selectedType={tempSelectedType}
           handleTypeItem={handleTypeItem}
           fetchApiData={fetchApiData}
-          selectedCity={selectedCity}
-          villeRecherche={villeRecherche}
+          villeRecherche={tempVilleRecherche}
           resetInfo={resetInfo}
+          numberItems={numberItems}
         />
-        <AllCardsItems items={items} />
+        {loading ? (
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+          </div>
+        ) : error ? (
+          <div className="text-red-500 text-center">{error}</div>
+        ) : (
+          <AllCardsItems
+            filter={true}
+            items={items}
+          />
+        )}
+        <div className="flex justify-evenly items-center mt-10">
+          <button
+            className="text-2xl"
+            onClick={handlePreviousPage}
+            disabled={page === 1}>
+            <FaArrowLeft />
+          </button>
+          <span className="text-lg">
+            {page} sur {totalPages}
+          </span>
+          <button
+            className="text-2xl"
+            onClick={handleNextPage}
+            disabled={page === totalPages}>
+            <FaArrowRight />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -5,42 +5,46 @@ import SearchTypeUser from "./searchTypeUser";
 import SearchMap from "./searchMap";
 
 const FilterItems = ({
+  categories,
   handleTitleSearchChange,
   categorieSearch,
-  handleSelectChangeCat,
-  categories,
+  handleSelectChangeCategory,
   handleCitySearchChangeMap,
   suggestions,
-  selectSuggestion,
+  selectSuggestionMap,
   handlePriceMinimumChange,
   handlePriceMaximumChange,
   selectedType,
   handleTypeItem,
-  fetchApiData,
-  selectedCity,
+  applyFilters,
   villeRecherche,
   titleSearch,
   priceMin,
   priceMax,
   resetInfo,
-  isDisplayed
+  isDisplayed,
 }: any) => {
   return (
-    <div className={`${isDisplayed ? ('block w-full shadow-xl'):('hidden') } md:block rounded-xl bg-white w-[25%] h-full`}>
+    <div
+      className={`${
+        isDisplayed ? "block w-full shadow-xl" : "hidden"
+      } xl:block rounded-xl bg-white w-[25%] h-full`}>
       <div className="py-7 px-5">
         <p className="text-center text-md font-bold">Filtrer les résultats</p>
-        <SearchBar handleTitleSearchChange={handleTitleSearchChange} titleSearch={titleSearch} />
+        <SearchBar
+          handleTitleSearchChange={handleTitleSearchChange}
+          titleSearch={titleSearch}
+        />
         <SearchCategorie
           categorieSearch={categorieSearch}
-          handleSelectChangeCat={handleSelectChangeCat}
+          handleSelectChangeCategory={handleSelectChangeCategory}
           categories={categories}
         />
         <SearchMap
-          selectedCity={selectedCity}
           villeRecherche={villeRecherche}
           handleCitySearchChangeMap={handleCitySearchChangeMap}
           suggestions={suggestions}
-          selectSuggestion={selectSuggestion}
+          selectSuggestionMap={selectSuggestionMap}
         />
         <SearchPrice
           handlePriceMinimumChange={handlePriceMinimumChange}
@@ -52,13 +56,15 @@ const FilterItems = ({
           selectedType={selectedType}
           handleTypeItem={handleTypeItem}
         />
-        <div className="flex justify-between gap-2">
-          <button className="border border-[#BABABA] text-sm text-[#BABABA] rounded-md p-1 w-[50%] duration-100 hover:bg-gray hover:text-blue hover:duration-100" onClick={resetInfo}>
+        <div className="flex flex-col-reverse gap-2">
+          <button
+            className="border border-[#BABABA] text-sm text-[#BABABA] rounded-md p-1 w-[100%] duration-100 hover:bg-gray hover:text-blue hover:duration-100"
+            onClick={resetInfo}>
             Effacer les filtres
           </button>
           <button
-            className="bg-blue text-white text-sm rounded-md p-1 w-[50%] duration-100 hover:bg-transparent hover:border hover:border-blue hover:text-blue hover:duration-100"
-            onClick={fetchApiData}>
+            className="border border-transparent bg-[#FEB24D] text-white text-sm rounded-md p-1 w-[100%] duration-100 hover:bg-transparent hover:border hover:border-[#FEB24D] hover:text-[#FEB24D] hover:duration-100"
+            onClick={applyFilters}>
             Lancer la recherche
           </button>
         </div>
