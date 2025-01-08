@@ -36,6 +36,8 @@ const ItemsPage = () => {
   const [priceMin, setPriceMin] = useState(searchParams.get("priceMin") || "");
   const [priceMax, setPriceMax] = useState(searchParams.get("priceMax") || "");
 
+
+  //Variable temporaire pour les champs de recherche
   const [tempTitleSearch, setTempTitleSearch] = useState(titleSearch);
   const [tempCategorieSearch, setTempCategorieSearch] = useState(categorieSearch);
   const [tempPriceMin, setTempPriceMin] = useState(priceMin);
@@ -43,6 +45,7 @@ const ItemsPage = () => {
   const [tempVilleRecherche, setTempVilleRecherche] = useState(villeRecherche);
   const [tempSelectedType, setTempSelectedType] = useState(selectedType);
 
+  // Fonction pour mettre à jour les paramètres de recherche Url
   const updateSearchParams = () => {
     const params: any = {
       title: titleSearch,
@@ -64,23 +67,17 @@ const ItemsPage = () => {
     setSearchParams(params);
   };
 
-  const handleTitleSearchChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleTitleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTempTitleSearch(value);
   };
 
-  const handlePriceMinimumChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handlePriceMinimumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTempPriceMin(value);
   };
 
-  const handlePriceMaximumChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handlePriceMaximumChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setTempPriceMax(value);
   };
@@ -90,6 +87,7 @@ const ItemsPage = () => {
     setTempSelectedType(value);
   };
 
+  // Fonction pour la recherche de ville avec l'API de l'état
   const handleCitySearchChangeMap = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -111,13 +109,17 @@ const ItemsPage = () => {
         filteredSuggestions;
         setSuggestions(filteredSuggestions);
       } catch (error) {
-        console.error("Erreur lors de la récupération des suggestions:", error);
+        console.error("Erreur lors de la récupération des suggestions de ville :", error);
+        setError(
+          "Erreur lors de la récupération des suggestions de ville. Veuillez réessayer plus tard."
+        );
       }
     } else {
       setSuggestions([]);
     }
   };
 
+  // Fonction pour sélectionner une suggestion de ville
   const selectSuggestionMap = (suggestion: {
     label: string;
     city: string;
@@ -138,6 +140,7 @@ const ItemsPage = () => {
     setTempCategorieSearch(value);
   };
 
+  // Fonction pour récupérer les catégories
   const fetchCategory = async () => {
     try {
       setError(null);
@@ -150,14 +153,18 @@ const ItemsPage = () => {
       const data = await response.json();
       setCategories(data);
     } catch (error) {
-      setError("Erreur lors de la récupération des catégories. Veuillez réessayer plus tard.");
+      setError(
+        "Erreur lors de la récupération des catégories. Veuillez réessayer plus tard."
+      );
     }
   };
 
+  // Fonction pour récupérer les données recherchées
   const fetchApiData = async (currentPage = page) => {
     try {
       setError(null);
       setLoading(true);
+      // Création des paramètres de recherche
       const params = new URLSearchParams({
         title_like: titleSearch,
         category: categorieSearch,
@@ -184,12 +191,15 @@ const ItemsPage = () => {
       setNumberItems(data.totalItems);
       setItems(data.items);
     } catch (error) {
-      setError("Une erreur s'est produite lors de la récupération des données. Veuillez réessayer plus tard.");
+      setError(
+        "Une erreur s'est produite lors de la récupération des données. Veuillez réessayer plus tard."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  // Fonction pour appliquer les filtres de recherche
   const applyFilters = async () => {
     setTitleSearch(tempTitleSearch);
     setCategorieSearch(tempCategorieSearch);
@@ -202,6 +212,7 @@ const ItemsPage = () => {
     fetchApiData();
   };
 
+  // Fonction pour réinitialiser les filtres
   const resetInfo = async () => {
     setTitleSearch("");
     setCategorieSearch("");
@@ -220,22 +231,26 @@ const ItemsPage = () => {
     setIsResetFilter(true);
   };
 
+  // Fonction pour passer à la page suivante
   const handleNextPage = () => {
     if (page < totalPages) {
       setPage(page + 1);
     }
   };
 
+  // Fonction pour passer à la page précédente
   const handlePreviousPage = () => {
     if (page > 1) {
       setPage(page - 1);
     }
   };
 
+  // Effet pour récupérer les données lors du chargement de la page
   useEffect(() => {
-    fetchCategory()
+    fetchCategory();
   }, []);
 
+  // Mettre à jour les paramètres de recherche lors de la recherche
   useEffect(() => {
     updateSearchParams();
   }, [
@@ -249,16 +264,17 @@ const ItemsPage = () => {
     page,
   ]);
 
+  // Mettre à jour les données lors du changement de page
   useEffect(() => {
     fetchApiData();
   }, [page]);
 
+  // Mettre à jour les données lors de la recherche
   useEffect(() => {
     fetchApiData();
-    isResetFilter ? setIsResetFilter(false) : null
-    isSearchValid ? setIsSearchValid(false) : null
-    }, [selectedOrder, isSearchValid, isResetFilter]);
-
+    isResetFilter ? setIsResetFilter(false) : null;
+    isSearchValid ? setIsSearchValid(false) : null;
+  }, [selectedOrder, isSearchValid, isResetFilter]);
 
   return (
     <div className="w-full flex gap-5">
@@ -309,7 +325,10 @@ const ItemsPage = () => {
         ) : error ? (
           <div className="text-red-500 text-center">{error}</div>
         ) : (
-          <AllCardsItems items={items} />
+          <AllCardsItems
+            filter={true}
+            items={items}
+          />
         )}
         <div className="flex justify-evenly items-center mt-10">
           <button
