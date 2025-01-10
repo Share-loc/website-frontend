@@ -31,6 +31,7 @@ import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
 import MessagePage from './pages/MessagePage.tsx'
 import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
+import UserPublicProfile from './pages/UserPublicProfile.tsx'
 
 
 function App() {
@@ -133,7 +134,9 @@ function App() {
               <Route path='/adpage' element={
                 userState.isLogged ? <AdPage /> : <LoginPage />
               } />
+              <Route path="/userProfile/:userId" element={<UserPublicProfile />} />
             </Route>
+
           </Route>
 
           <Route element={<AdminLayout />}>

@@ -4,6 +4,7 @@ import FilterItems from "../components/ItemsComponents/filterItems";
 import SortItems from "../components/ItemsComponents/sortItems";
 import { useSearchParams } from "react-router-dom";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
+import { CircularProgress } from "@mui/material";
 
 const ItemsPage = () => {
   const [items, setItems] = useState<any>([]);
@@ -319,9 +320,9 @@ const ItemsPage = () => {
           numberItems={numberItems}
         />
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
-          </div>
+            <div className="flex items-center justify-center h-full">
+              <CircularProgress color="inherit"/>
+            </div>
         ) : error ? (
           <div className="text-red-500 text-center">{error}</div>
         ) : (
