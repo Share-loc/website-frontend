@@ -1,21 +1,31 @@
-import { Button } from "../ui/button"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog"
-import { Label } from "../ui/label"
-import { Textarea } from "../ui/textarea"
-import { useState } from "react"
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Button } from "../ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
+import { ReactNode, useState } from "react";
 
 interface SendMessageModalProps {
-    isOpen: boolean
-    onClose: () => void
-    onSend: (message: string) => void
-    recipientName: string
+  trigger: ReactNode;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSend: (message: string) => void;
+  recipientName: string;
 }
 
 function SendMessageModal({
-    isOpen,
-    onClose,
-    onSend,
-    recipientName
+  trigger,
+  isOpen,
+  onOpenChange,
+  onSend,
+  recipientName,
 }: SendMessageModalProps) {
     const [message, setMessage] = useState('')
 
@@ -26,7 +36,8 @@ function SendMessageModal({
     }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Envoyer un message à {recipientName}</DialogTitle>
@@ -47,7 +58,10 @@ function SendMessageModal({
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => onOpenChange(false)}>
             Annuler
           </Button>
           <Button type="button" onClick={handleSend} disabled={!message.trim()}>

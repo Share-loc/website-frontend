@@ -1,11 +1,11 @@
 import "react-datepicker/dist/react-datepicker.css";
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import ProductGallery from "@/components/ProductDetailGallery";
+import ProductGallery from "@/components/DetailsItems/ProductDetailGallery";
 import { FiMapPin } from "react-icons/fi";
-import RecentReviews from "@/components/ProductDetailReview";
-import SellerCard from "@/components/ProductDetailSeller";
-import ReservationForm from "@/components/ProductDetailReservation";
+import RecentReviews from "@/components/DetailsItems/ProductDetailReview";
+import SellerCard from "@/components/DetailsItems/ProductDetailSeller";
+import ReservationForm from "@/components/DetailsItems/ProductDetailReservation";
 import AllCardsItems from "@/components/ItemsComponents/allCardsItems";
 import { CircularProgress } from "@mui/material";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,9 @@ const ProductPage = () => {
   const [allItems, setAllItems] = useState<any>([]);
   const [itemPictures, setItemPictures] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [rating, setRating] = useState<number>(0);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
+  const [totalItemsUser, setTotalItemsUser] = useState<number>(0);
 
   // Récupération des données de l'item
   const FetchItemDataInfo = async () => {
@@ -49,7 +52,7 @@ const ProductPage = () => {
   const FetchReviewsUser = async (userId: number) => {
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reviews/user/${userId}`,
+        `${import.meta.env.VITE_API_URL}/reviews/user/${userId}?limit=3`,
         {
           method: "GET",
           headers: {
@@ -63,6 +66,8 @@ const ProductPage = () => {
       }
       const data = await response.json();
       setReviews(data.reviews);
+      setRating(data.averageRate);
+      setTotalReviews(data.totalReviews);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
@@ -85,12 +90,10 @@ const ProductPage = () => {
         throw new Error(errorData.message || "Erreur lors de l'appel API");
       }
       const data = await response.json();
-      //enlever l'item actuel de la liste
-      data.splice(
-        data.findIndex((item: any) => item.id === id),
-        1
-      );
-      setItemsUser(data);
+      const currentItemId = items.id;
+      const filteredItems = data.items.filter(item => item.id !== currentItemId);
+      setItemsUser(filteredItems);
+      setTotalItemsUser(data.totalItems);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
@@ -99,25 +102,23 @@ const ProductPage = () => {
   // Récupération des items pour en afficher 4 aléatoirement
   const FetchAllItems = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+     
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/items/itemsProductDetailsPage?&categoryId=${items.category.id}&excludedUserId=${userInfo.id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || "Erreur lors de l'appel API");
       }
       const data = await response.json();
-      const currentItemId = Number(id) || id;
-      const filteredItems = data.filter(
-        (item: any) => item.id !== currentItemId
-      );
-      const lastFourItems = [...filteredItems]
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 4);
-      setAllItems(lastFourItems);
+      console.log(data);
+      setAllItems(data);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
@@ -153,7 +154,7 @@ const ProductPage = () => {
         </div>
         <div className="hidden xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex gap-5 flex-col">
           <div className="w-6/6">
-            <SellerCard userInfo={userInfo} items={items} />
+            <SellerCard userInfo={userInfo} items={items} rating={rating} totalReviews={totalReviews} totalItemsUser={totalItemsUser} />
           </div>
           <div className="w-6/6">
             {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
@@ -172,7 +173,7 @@ const ProductPage = () => {
       </div>
       <div className="xl:hidden flex gap-8 mt-8 flex-col md:flex-row">
         <div className="w-6/6 md:w-3/6">
-          <SellerCard items={items} userInfo={userInfo} />
+          <SellerCard userInfo={userInfo} items={items} rating={rating} totalReviews={totalReviews} totalItemsUser={totalItemsUser}/>
         </div>
         <div className="w-6/6 md:w-3/6">
           {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
@@ -208,13 +209,15 @@ const ProductPage = () => {
       {itemsUser.length > 0 ? (
         <div className="mt-8">
           <h2 className="text-xl md:text-2xl font-bold mb-4">
-            Annonces du vendeur
+            Parcourez les annonces du loueur
           </h2>
           <AllCardsItems filter={false} items={itemsUser} />
         </div>
       ) : null}
       <div className="mt-8">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">Autres annonces</h2>
+        <h2 className="text-xl md:text-2xl font-bold mb-4">
+          D'autres annonces sélectionnées pour vous
+        </h2>
         <AllCardsItems filter={false} items={allItems} />
       </div>
     </>

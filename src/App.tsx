@@ -32,7 +32,7 @@ import FavorisPage from './pages/FavorisPage.tsx'
 import MessagePage from './pages/MessagePage.tsx'
 import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
 import UserPublicProfile from './pages/UserPublicProfile.tsx'
-
+import { Toaster } from '@/components/ui/toaster';
 
 function App() {
 
@@ -96,6 +96,7 @@ function App() {
   return (
     <AuthContext.Provider value={{ userState, setUserState }}>
       <WebSocketProvider>
+        <Toaster />
         <Routes>
           <Route element={<AppBarLayout />}>
             <Route element={<ContentLayout />}>
