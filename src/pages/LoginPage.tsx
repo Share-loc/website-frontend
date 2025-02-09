@@ -1,16 +1,22 @@
 import { useState, useContext } from 'react'
 import AuthContext from '../components/context/AuthContext'
-import Input from '../components/Input'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { Navigate } from 'react-router-dom'
 
 const LoginPage = () => {
-
-    const { setUserState } = useContext(AuthContext)
-
+    const { userState, setUserState } = useContext(AuthContext)
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     })
     const [responseMessage, setResponseMessage] = useState('')
+
+    // Si l'utilisateur est déjà connecté, rediriger vers la page d'accueil
+    if (userState.isLogged) {
+        return <Navigate to="/" replace />;
+    }
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -31,13 +37,13 @@ const LoginPage = () => {
             })
             if (response.ok) {
                 const data = await response.json();
-                setResponseMessage('Login successful!');
+                // Save the token in the local storage
+                localStorage.setItem('token', data.token);
                 // Update the user state
                 setUserState({
                     isLogged: true,
                 })
-                // Save the token in the local storage
-                localStorage.setItem('token', data.token);
+                // La redirection se fera automatiquement grâce au if(userState.isLogged) ci-dessus
             } else {
                 const errorData = await response.json();
                 setResponseMessage('Login failed: ' + errorData.message);
@@ -48,56 +54,79 @@ const LoginPage = () => {
     }
 
     return (
-        <div className="flex flex-col justify-center items-center">
-            <div className="flex min-h-full flex-1 flex-col justify-center items-center py-12 lg:px-8 w-full">
-                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-                    Connectez-vous
-                </h2>
+      <div className="grid min-h-svh lg:grid-cols-2">
+        <div className="flex flex-col gap-4 p-6 md:p-10">
+          <div className="flex items-center justify-center flex-1">
+            <div className="w-full max-w-xs">
+              <form
+                className="flex flex-col gap-6"
+                onSubmit={handleSubmit}
+                method="POST"
+              >
+                <div className="flex flex-col items-center gap-2 text-center">
+                  <h1 className="text-2xl font-bold">Connectez vous</h1>
+                  <p className="text-sm text-balance text-muted-foreground">
+                    Entrez vos identifiants pour vous connecter
+                  </p>
                 </div>
-
-                <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-                    <form className="space-y-6" onSubmit={handleSubmit} method="POST">
-
-                        <Input 
-                            label='Adresse email'
-                            id='email'
-                            name='email'
-                            type='email'
-                            value={formData.email}
-                            onChange={handleChange}
-                            autoComplete='email'
-                            required
-                        />
-
-                        <Input
-                            label='Mot de passe'
-                            id='password'
-                            name='password'
-                            type='password'
-                            value={formData.password}
-                            onChange={handleChange}
-                            autoComplete='current-password'
-                            required
-                        >
-                        </Input>
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="flex w-full justify-center rounded-md bg-orange-100 px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-orange-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black duration-300 ease-out"
-                            >
-                                Se connecter
-                            </button>
-                        </div>
-                        <div>
-                            <p className="text-red-500 text-xs italic">{responseMessage}</p>
-                        </div>
-                    </form>
+                <div className="grid gap-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      name="email"
+                      placeholder="m@exemple.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      autoComplete="email"
+                      required
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <div className="flex items-center">
+                      <Label htmlFor="password">Mot de passe</Label>
+                      <a
+                        href="#"
+                        className="ml-auto text-sm underline-offset-4 hover:underline"
+                      >
+                        Mot de passe oublié ?
+                      </a>
+                    </div>
+                    <Input
+                      id="password"
+                      type="password"
+                      name="password"
+                      value={formData.password}
+                      onChange={handleChange}
+                      autoComplete="current-password"
+                      required
+                    />
+                  </div>
+                  {responseMessage && (<p className="text-xs italic text-red-500">{responseMessage}</p>)}
+                  <Button type="submit" className="w-full">
+                    Se connecter
+                  </Button>
                 </div>
+                <div className="text-sm text-center">
+                  Vous n'avez pas de compte ?{" "}
+                  <a href="#" className="underline underline-offset-4">
+                    Créer un compte
+                  </a>
+                </div>
+              </form>
             </div>
+          </div>
         </div>
-    )
+        <div className="relative hidden bg-muted lg:block">
+          <img
+            src="../../public/login_picture.jpg"
+            alt="Image d'une femme entourée de cartons"
+            className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+          />
+        </div>
+      </div>
+    );
 }
 
 export default LoginPage

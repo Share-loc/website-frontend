@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import AuthContext from './components/context/AuthContext'
 import AppBarLayout from './components/layouts/AppBarLayout'
@@ -96,6 +96,9 @@ function App() {
     <AuthContext.Provider value={{ userState, setUserState }}>
       <WebSocketProvider>
         <Routes>
+          {/* Login route - outside of any layout */}
+          <Route path='/login' element={<LoginPage />} />
+
           <Route element={<AppBarLayout />}>
             <Route element={<ContentLayout />}>
 
@@ -112,54 +115,47 @@ function App() {
               <Route path='/reservation' element={<ReservationPage />} />
               <Route path='/product/:id' element={<ProductPage />} />
               <Route path='/annonces' element={<ItemsPage />} />
-              {/* userState.isLogged ? <Route path='/favoris' element={<FavorisPage />} />
-              : <LoginPage /> */}
-
-              <Route path='/favoris' element={
-                userState.isLogged ? <FavorisPage /> : <HomePage />
-              } />
-              
-              <Route path='/messages' element={
-                userState.isLogged ? <MessagePage /> : <HomePage />
-              } />
-            
-              {/* 404 route */}
-              <Route path="*" element={<NotFoundPage />} />
 
               {/* Protected routes */}
               <Route path='/profile' element={
-                userState.isLogged ? <ProfilePage /> : <LoginPage />
+                userState.isLogged ? <ProfilePage /> : <Navigate to="/login" />
               } />
               <Route path='/adpage' element={
-                userState.isLogged ? <AdPage /> : <LoginPage />
+                userState.isLogged ? <AdPage /> : <Navigate to="/login" />
               } />
+              <Route path='/favoris' element={
+                userState.isLogged ? <FavorisPage /> : <Navigate to="/login" />
+              } />
+              <Route path='/messages' element={
+                userState.isLogged ? <MessagePage /> : <Navigate to="/login" />
+              } />
+
+              {/* 404 route */}
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Route>
 
           <Route element={<AdminLayout />}>
               {/* ADMIN routes */}
               <Route path='/admin/dashboard' element={
-                  userState.isLogged ? <AdminDashboardPage /> : <LoginPage />
+                  userState.isLogged ? <AdminDashboardPage /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/users' element={
-                  userState.isLogged ? <AdminUsersPape /> : <LoginPage />
+                  userState.isLogged ? <AdminUsersPape /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/items' element={
-                  userState.isLogged ? <AdminItemsPage /> : <LoginPage />
+                  userState.isLogged ? <AdminItemsPage /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/categories' element={
-                  userState.isLogged ? <AdminCategoriesPage /> : <LoginPage />
+                  userState.isLogged ? <AdminCategoriesPage /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/reviews' element={
-                  userState.isLogged ? <AdminReviewsPage /> : <LoginPage />
+                  userState.isLogged ? <AdminReviewsPage /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/reports' element={
-                  userState.isLogged ? <AdminReportsPage /> : <LoginPage />
+                  userState.isLogged ? <AdminReportsPage /> : <Navigate to="/login" />
                 } />
           </Route>
-
-              {/* Login route */}
-
 
         </Routes>
       </WebSocketProvider>
