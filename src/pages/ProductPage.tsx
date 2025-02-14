@@ -91,7 +91,9 @@ const ProductPage = () => {
       }
       const data = await response.json();
       const currentItemId = items.id;
-      const filteredItems = data.items.filter(item => item.id !== currentItemId);
+      const filteredItems = data.items.filter(
+        (item) => item.id !== currentItemId
+      );
       setItemsUser(filteredItems);
       setTotalItemsUser(data.totalItems);
     } catch (error) {
@@ -102,9 +104,12 @@ const ProductPage = () => {
   // Récupération des items pour en afficher 4 aléatoirement
   const FetchAllItems = async () => {
     try {
-     
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/items/itemsProductDetailsPage?&categoryId=${items.category.id}&excludedUserId=${userInfo.id}`,
+        `${
+          import.meta.env.VITE_API_URL
+        }/items/itemsProductDetailsPage?&categoryId=${
+          items.category.id
+        }&excludedUserId=${userInfo.id}`,
         {
           method: "GET",
           headers: {
@@ -154,7 +159,13 @@ const ProductPage = () => {
         </div>
         <div className="hidden xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex gap-5 flex-col">
           <div className="w-6/6">
-            <SellerCard userInfo={userInfo} items={items} rating={rating} totalReviews={totalReviews} totalItemsUser={totalItemsUser} />
+            <SellerCard
+              userInfo={userInfo}
+              items={items}
+              rating={rating}
+              totalReviews={totalReviews}
+              totalItemsUser={totalItemsUser}
+            />
           </div>
           <div className="w-6/6">
             {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
@@ -171,11 +182,17 @@ const ProductPage = () => {
         </div>
         <p className="text-xl md:text-2xl font-bold">{items.price}€ / Jour</p>
       </div>
-      <div className="xl:hidden flex gap-8 mt-8 flex-col md:flex-row">
-        <div className="w-6/6 md:w-3/6">
-          <SellerCard userInfo={userInfo} items={items} rating={rating} totalReviews={totalReviews} totalItemsUser={totalItemsUser}/>
+      <div className="xl:hidden flex gap-8 mt-8 flex-col lg:flex-row">
+        <div className="w-6/6 lg:w-3/6">
+          <SellerCard
+            userInfo={userInfo}
+            items={items}
+            rating={rating}
+            totalReviews={totalReviews}
+            totalItemsUser={totalItemsUser}
+          />
         </div>
-        <div className="w-6/6 md:w-3/6">
+        <div className="w-6/6 lg:w-3/6">
           {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
           <ReservationForm productId={items.id} pricePerDay={50} />
         </div>

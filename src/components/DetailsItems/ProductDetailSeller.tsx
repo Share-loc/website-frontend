@@ -11,6 +11,13 @@ import SendMessageModal from "../MessagesComponents/SendMessageModal";
 import { useToast } from "@/hooks/use-toast";
 import { Cuboid } from 'lucide-react';
 import { ToastAction } from "@/components/ui/toast";
+import { Share2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SellerCardProps {
   userInfo: any;
@@ -74,6 +81,28 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
       });
     }
   };
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      description: "Lien copié dans le presse-papier",
+    });
+  };
+
+  const handleShare = (platform: string) => {
+    const url = encodeURIComponent(window.location.href);
+
+    const shareMessage = encodeURIComponent(
+      `🔎 Découvrez cette annonce sur Share'Loc : \n`
+    );
+
+    const shareUrls = {
+      whatsapp: `https://wa.me/?text=${shareMessage}%20${url}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${url}`,
+      message: `sms:?body=${shareMessage}%20${url}`,
+    };
+
+    window.open(shareUrls[platform as keyof typeof shareUrls], "_blank");
+  };
 
   return (
     <Card className="h-full flex flex-col justify-evenly">
@@ -93,11 +122,34 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
             </Avatar>
           </Link>
           <div className="w-full">
-            <Link
-              to={`/userProfile/${userInfo.id}`}
-              className="hover:underline">
-              <h2 className="text-2xl font-bold">{userInfo.username}</h2>
-            </Link>
+            <div className="flex items-center justify-between">
+              <Link
+                to={`/userProfile/${userInfo.id}`}
+                className="hover:underline">
+                <h2 className="text-2xl font-bold">{userInfo.username}</h2>
+              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Share2 className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={handleCopyLink}>
+                    Copier le lien
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare("whatsapp")}>
+                    Partager sur WhatsApp
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare("facebook")}>
+                    Partager sur Facebook
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleShare("message")}>
+                    Partager par Message
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
             <Badge variant="default">
               {userInfo.isPro ? "Professionnel" : "Particulier"}
             </Badge>
