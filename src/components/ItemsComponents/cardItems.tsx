@@ -43,7 +43,7 @@ const CardItems = ({ item }: CardItemsProps) => {
           <div className="absolute p-3 right-0">
             <FavorisItems item={item} />
           </div>
-          <Link to={`/product/${item.id}`}>
+          <a href={`/product/${item.id}`}>
             <img
               className="h-full w-full object-cover rounded-xl"
               src={
@@ -53,9 +53,9 @@ const CardItems = ({ item }: CardItemsProps) => {
               }
               alt={item.title}
             />
-          </Link>
+          </a>
         </div>
-        <Link to={`/product/${item.id}`}>
+        <a href={`/product/${item.id}`}>
           <div className="px-4 py-4 flex flex-col gap-2">
           <div
 className="font-semibold text-md"
@@ -96,7 +96,7 @@ style={{
               </label>
             </div>
           </div>
-        </Link>
+        </a>
       </div>
     </>
   );

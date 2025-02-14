@@ -5,6 +5,8 @@ import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { getToken } from "@/const/func";
 import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
+import { ToastAction } from "@/components/ui/toast";
 
 interface PopupSignalementProps {
     trigger: ReactNode;
@@ -18,6 +20,7 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
   const [motif, setMotif] = useState("");
   const [details, setDetails] = useState("");
   const [open, setOpen] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,6 +35,16 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
 
     if (!token) {
       console.error("Vous devez être connecté pour signaler un contenu.");
+      toast({
+        title: "Signalement impossible",
+        description: "Vous devez être connecté pour signaler un contenu.",
+        action: (
+          <a href={`/profile`}>
+            <ToastAction altText="connexion">Connexion</ToastAction>
+          </a>
+        ),
+      });
+      setOpen(false);
       return;
     }
 
@@ -53,8 +66,17 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
       setOpen(false);
       setMotif("");
       setDetails("");
+      toast({
+        title: "Signalement envoyé",
+        description: "Le signalement a bien été envoyé.",
+      });
     } catch (error) {
       console.error("Erreur lors de l'envoi du signalement", error);
+      toast({
+        title: "Erreur lors du signalement",
+        description: "Une erreur est survenue lors de l'envoi du signalement.",
+        variant: "destructive",
+      });
     }
   };
 

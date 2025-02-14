@@ -31,7 +31,8 @@ import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
 import MessagePage from './pages/MessagePage.tsx'
 import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
-
+import UserPublicProfile from './pages/UserPublicProfile.tsx'
+import { Toaster } from '@/components/ui/toaster';
 
 function App() {
 
@@ -95,6 +96,7 @@ function App() {
   return (
     <AuthContext.Provider value={{ userState, setUserState }}>
       <WebSocketProvider>
+        <Toaster />
         <Routes>
           {/* Login route - outside of any layout */}
           <Route path='/login' element={<LoginPage />} />
@@ -132,7 +134,17 @@ function App() {
 
               {/* 404 route */}
               <Route path="*" element={<NotFoundPage />} />
+
+              {/* Protected routes */}
+              <Route path='/profile' element={
+                userState.isLogged ? <ProfilePage /> : <LoginPage />
+              } />
+              <Route path='/adpage' element={
+                userState.isLogged ? <AdPage /> : <LoginPage />
+              } />
+              <Route path="/userProfile/:userId" element={<UserPublicProfile />} />
             </Route>
+
           </Route>
 
           <Route element={<AdminLayout />}>
