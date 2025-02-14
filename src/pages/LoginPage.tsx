@@ -37,13 +37,26 @@ const LoginPage = () => {
             })
             if (response.ok) {
                 const data = await response.json();
-                // Save the token in the local storage
                 localStorage.setItem('token', data.token);
-                // Update the user state
-                setUserState({
-                    isLogged: true,
-                })
-                // La redirection se fera automatiquement grâce au if(userState.isLogged) ci-dessus
+                
+                // Fetch user data after successful login
+                try {
+                    const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user/me`, {
+                        headers: {
+                            Authorization: `Bearer ${data.token}`
+                        }
+                    });
+                    const userData = await userResponse.json();
+                    
+                    setUserState({
+                        isLogged: true,
+                        avatar: userData.avatar,
+                        username: userData.username,
+                    });
+                } catch (error) {
+                    console.error('Failed to fetch user data:', error);
+                    setUserState({ isLogged: true });
+                }
             } else {
                 const errorData = await response.json();
                 setResponseMessage('Login failed: ' + errorData.message);
