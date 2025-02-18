@@ -1,24 +1,19 @@
 import { Outlet } from "react-router-dom";
 import AdminMenu from "../AdminMenu";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "../ui/sidebar";
 
 const AdminLayout = () => {
-    return (
-        <>
-            <div className="flex flex-1 h-screen bg-gray-50">
-                <AdminMenu />
-                <div className="flex flex-col flex-1 overflow-auto">
-                    <main>
-                    <div className="py-6">
-                        <div className="px-4 mx-auto max-w-7xl sm:px-6 md:px-8">
-                        {/* <!-- ADD YOUR CONTENT HERE --> */}
-                        <Outlet />
-                        </div>
-                    </div>
-                    </main>
-                </div>
-            </div>
-        </>
-    );
-}
+  return (
+    <SidebarProvider>
+      <AdminMenu />
+      <SidebarInset>
+        <SidebarTrigger className="m-4" />
+        <main className="pl-4">
+          <Outlet />
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  );
+};
 
 export default AdminLayout;
