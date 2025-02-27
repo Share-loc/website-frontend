@@ -28,7 +28,7 @@ const AdminMenu = () => {
     {
       name: "Tableau de bord",
       icon: Gauge,
-      url: "/admin/dashboard"
+      url: "/admin"
     },{
       name: "Utilisateurs",
       icon: Users,

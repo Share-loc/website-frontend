@@ -7,10 +7,12 @@ const AdminLayout = () => {
     <SidebarProvider>
       <AdminMenu />
       <SidebarInset>
-        <SidebarTrigger className="m-4" />
-        <main className="pl-4">
-          <Outlet />
-        </main>
+        <div className="bg-gray-100 min-h-screen">
+          <SidebarTrigger className="m-4" />
+          <main className="px-6 pb-6">
+            <Outlet />
+          </main>
+        </div>
       </SidebarInset>
     </SidebarProvider>
   );
