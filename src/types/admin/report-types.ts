@@ -5,6 +5,7 @@ export interface Report {
     email: string;
     username: string;
   };
+  motif: string;
   reporter_message: string;
   created_at: string;
   status: string;
