@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -7,22 +7,35 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Category } from "@/types/admin/category-types";
 import CategoryEditDialog from "@/components/admin/category/category-edit-dialog";
 import CategoryDeleteDialog from "@/components/admin/category/category-delete-dialog";
+import { getToken } from "@/const/func";
 
 const AdminCategoriesPage = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchCategories = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/categories`)
+  const fetchCategories = useCallback(() => {
+    const params = new URLSearchParams();
+
+    if (searchTerm) {
+      params.append("search", searchTerm);
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/categories/admin/all?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      }})
       .then((response) => response.json())
-      .then((response) => setCategories(response))
+      .then((response) => setCategories(response.data))
       .catch((error) =>
         console.error("Erreur lors de la récupération des catégories : ", error)
       );
-  };
+  },[searchTerm]);
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
 
   return (
     <Card>
@@ -37,8 +50,8 @@ const AdminCategoriesPage = () => {
               <Input
                 type="text"
                 placeholder="Chercher une catégorie..."
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
               />
             </div>
