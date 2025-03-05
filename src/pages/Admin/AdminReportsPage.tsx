@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getToken } from "../../const/func";
 import { Report } from "@/types/admin/report-types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,8 +27,14 @@ const AdminReportsPage = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [filter, setFilter] = useState<string>("all");
 
-  const fetchReports = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/report`, {
+  const fetchReports = useCallback(() => {
+    const params = new URLSearchParams();
+
+    if (filter !== "all") {
+      params.append("status", filter);
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/report?${params.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -36,18 +42,18 @@ const AdminReportsPage = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setReports(response))
+      .then((response) => setReports(response.data))
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des signalements : ",
           error
         )
       );
-  };
+  }, [filter]);
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [fetchReports]);
 
   const getReportedContentLabel = (report: Report) => {
     switch (true) {
@@ -77,18 +83,18 @@ const AdminReportsPage = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Filter className="mr-2 h-4 w-4" />
-                Filtrer
+                Filtrer - {filter === "all" ? "Tous" : filter === "waiting_to_be_reviewed" ? "Signalements en attente" : "Signalements traités"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => setFilter("all")}>
                 Tous les signalements
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("processed")}>
-                Signalements traités
+              <DropdownMenuItem onClick={() => setFilter("waiting_to_be_reviewed")}>
+                Signalements en attente
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("unprocessed")}>
-                Signalements non traités
+              <DropdownMenuItem onClick={() => setFilter("reviewed")}>
+                Signalements traités
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
