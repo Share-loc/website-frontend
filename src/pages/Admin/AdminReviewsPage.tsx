@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getToken } from "../../const/func";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Star } from "lucide-react";
@@ -21,9 +21,16 @@ import ReviewDeleteDialog from "@/components/admin/review/review-delete-dialog";
 
 const AdminReviewsPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchReviews = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/reviews`, {
+  const fetchReviews = useCallback(() => {
+    const params = new URLSearchParams();
+
+    if (searchTerm) {
+      params.append("search", searchTerm);
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/reviews?${params.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -31,18 +38,18 @@ const AdminReviewsPage = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setReviews(response))
+      .then((response) => setReviews(response.data))
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des évaluations : ",
           error
         )
       );
-  };
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchReviews();
-  }, []);
+  }, [fetchReviews]);
 
   return (
     <Card>
@@ -57,8 +64,8 @@ const AdminReviewsPage = () => {
               <Input
                 type="text"
                 placeholder="Chercher un avis..."
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
               />
             </div>
