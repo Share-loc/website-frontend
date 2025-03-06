@@ -1,3 +1,4 @@
+import { useAdmin } from "@/components/context/AdminContext";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,6 +38,8 @@ function ReportDetailDialog({
   const [open, setOpen] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
   const [notes, setNotes] = useState("");
+
+  const { refreshReportsCounter } = useAdmin();
 
   useEffect(() => {
     setIsConfirming(false);
@@ -158,6 +161,7 @@ function ReportDetailDialog({
         } else {
           setOpen(false);
           onStatusChanged();
+          refreshReportsCounter();
           toast({
             title: "Signalement traité",
             content: "Le signalement a été traité avec succès.",

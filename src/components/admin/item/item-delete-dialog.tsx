@@ -1,3 +1,4 @@
+import { useAdmin } from "@/components/context/AdminContext";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,6 +22,8 @@ interface ItemDeleteDialogProps {
 
 function ItemDeleteDialog({ item, onDeleted }: ItemDeleteDialogProps) {
   const [open, setOpen] = useState(false);
+  
+  const { refreshItemsCounter } = useAdmin();
 
   const handleDelete = () => {
     fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}`, {
@@ -38,6 +41,7 @@ function ItemDeleteDialog({ item, onDeleted }: ItemDeleteDialogProps) {
         } else {
           onDeleted();
           setOpen(false);
+          refreshItemsCounter();
           toast({
             title: "L'annonce a été supprimée avec succès",
             content: "L'annonce a été supprimée avec succès",

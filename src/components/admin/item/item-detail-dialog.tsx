@@ -1,3 +1,4 @@
+import { useAdmin } from "@/components/context/AdminContext";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,8 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
   const [open, setOpen] = useState(false);
   const [isConfirmingValidation, setIsConfirmingValidation] = useState(false);
 
+  const { refreshItemsCounter } = useAdmin();
+
   const handleValidation = (item: Item) => {
     fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}/validate`, {
       method: "PUT",
@@ -44,6 +47,7 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
           setIsConfirmingValidation(false);
           toast({title: "Annonce approuvée", content: "L'annonce a bien été approuvée" , variant: "success"});
           onItemValidated();
+          refreshItemsCounter();
         }
         return response;
       })
