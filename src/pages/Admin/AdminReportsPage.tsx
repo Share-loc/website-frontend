@@ -22,10 +22,15 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import ReportDetailDialog from "@/components/admin/report/report-detail-dialog";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const AdminReportsPage = () => {
   const [reports, setReports] = useState<Report[]>([]);
   const [filter, setFilter] = useState<string>("all");
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const fetchReports = useCallback(() => {
     const params = new URLSearchParams();
@@ -33,6 +38,10 @@ const AdminReportsPage = () => {
     if (filter !== "all") {
       params.append("status", filter);
     }
+
+    params.append("limit", itemsPerPage.toString());
+
+    if (currentPage > 1) params.append("page", currentPage.toString());
 
     fetch(`${import.meta.env.VITE_API_URL}/report?${params.toString()}`, {
       method: "GET",
@@ -42,18 +51,42 @@ const AdminReportsPage = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setReports(response.data))
+      .then((response) => {
+        setReports(response.data)
+        setTotalPages(response.totalPages)
+        setTotalItems(response.total)
+      })
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des signalements : ",
           error
         )
       );
-  }, [filter]);
+  }, [filter, itemsPerPage, currentPage]);
 
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
+
+  const handleItemsPerPageChange = (itemsPerPage: string) => {
+    setItemsPerPage(Number.parseInt(itemsPerPage));
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (filter: string) => {
+    setFilter(filter);
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+
+    // Faire défiler vers le haut de la page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   const getReportedContentLabel = (report: Report) => {
     switch (true) {
@@ -87,13 +120,13 @@ const AdminReportsPage = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setFilter("all")}>
+              <DropdownMenuItem onClick={() => handleFilterChange("all")}>
                 Tous les signalements
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("waiting_to_be_reviewed")}>
+              <DropdownMenuItem onClick={() => handleFilterChange("waiting_to_be_reviewed")}>
                 Signalements en attente
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilter("reviewed")}>
+              <DropdownMenuItem onClick={() => handleFilterChange("reviewed")}>
                 Signalements traités
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -150,6 +183,7 @@ const AdminReportsPage = () => {
             </TableBody>
           </Table>
         </div>
+        <AdminPagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} onItemsPerPageChange={handleItemsPerPageChange}/>
       </CardContent>
     </Card>
   );

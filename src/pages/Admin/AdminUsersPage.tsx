@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getToken } from "../../const/func";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Mail, Search } from "lucide-react";
 import {
     Table,
   TableBody,
@@ -18,13 +18,28 @@ import { UserProfileDialog } from "@/components/admin/user/user-profile-dialog";
 import { UserDeleteDialog } from "@/components/admin/user/user-delete-dialog";
 import { User } from "@/types/admin/user-types";
 import { UserEditDialog } from "@/components/admin/user/user-edit-dialog";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const AdminUsersPape = () => {
   const [users, setUsers] = useState<User[]>([]);
 
+  const [searchTerm, setSearchTerm] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
   // Get users
-  const fetchUsers = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/users`, {
+  const fetchUsers = useCallback(() => {
+    const params = new URLSearchParams();
+
+    if(searchTerm) params.append("search", searchTerm);
+
+    params.append("limit", itemsPerPage.toString());
+
+    if(currentPage > 1) params.append("page", currentPage.toString());
+
+    fetch(`${import.meta.env.VITE_API_URL}/users?${params.toString()}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -32,18 +47,41 @@ const AdminUsersPape = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setUsers(response))
+      .then((response) => {
+        setUsers(response.data)
+        setTotalPages(response.totalPages)
+        setTotalItems(response.total)})
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des Utilisateurs : ",
           error
         )
       );
-  };
+  }, [searchTerm, itemsPerPage, currentPage]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (itemsPerPage: string) => {
+    setItemsPerPage(Number.parseInt(itemsPerPage));
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+
+    // Faire défiler vers le haut de la page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <Card>
@@ -58,12 +96,12 @@ const AdminUsersPape = () => {
               <Input
                 type="text"
                 placeholder="Chercher un utilisateur..."
-                //   value={searchTerm}
-                //   onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchTerm}
+                onChange={handleSearchChange}
                 className="pl-8"
               />
             </div>
-            <Button variant="outline">Rechercher</Button>
+            <Button variant="outline" onClick={fetchUsers}>Rechercher</Button>
           </div>
         </div>
         <div className="rounded-md border">
@@ -96,7 +134,8 @@ const AdminUsersPape = () => {
                     </Avatar>
                   </TableCell>
                   <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.email}</TableCell>
+                  <TableCell><div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-gray-500" />{user.email}</div></TableCell>
                   <TableCell>
                     <Badge
                       variant={"outline"}
@@ -135,6 +174,7 @@ const AdminUsersPape = () => {
             </TableBody>
           </Table>
         </div>
+        <AdminPagination itemsPerPage={itemsPerPage} currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} onPageChange={handlePageChange} onItemsPerPageChange={handleItemsPerPageChange} />
       </CardContent>
     </Card>
   );

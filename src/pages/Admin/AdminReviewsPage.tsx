@@ -18,16 +18,27 @@ import { fr } from "date-fns/locale";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ReviewDetailDialog from "@/components/admin/review/review-detail-dialog";
 import ReviewDeleteDialog from "@/components/admin/review/review-delete-dialog";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const AdminReviewsPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
 
   const fetchReviews = useCallback(() => {
     const params = new URLSearchParams();
 
     if (searchTerm) {
       params.append("search", searchTerm);
+    }
+
+    params.append("limit", itemsPerPage.toString());
+
+    if (currentPage > 1) {
+      params.append("page", currentPage.toString());
     }
 
     fetch(`${import.meta.env.VITE_API_URL}/reviews?${params.toString()}`, {
@@ -38,18 +49,42 @@ const AdminReviewsPage = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setReviews(response.data))
+      .then((response) => {
+        setReviews(response.data)
+        setTotalPages(response.totalPages)
+        setTotalItems(response.total)
+      })
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des évaluations : ",
           error
         )
       );
-  }, [searchTerm]);
+  }, [searchTerm, itemsPerPage, currentPage]);
 
   useEffect(() => {
     fetchReviews();
   }, [fetchReviews]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (itemsPerPage: string) => {
+    setItemsPerPage(Number.parseInt(itemsPerPage));
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+
+    // Faire défiler vers le haut de la page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <Card>
@@ -65,7 +100,7 @@ const AdminReviewsPage = () => {
                 type="text"
                 placeholder="Chercher un avis..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-8"
               />
             </div>
@@ -146,6 +181,7 @@ const AdminReviewsPage = () => {
             </TableBody>
           </Table>
         </div>
+        <AdminPagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} onItemsPerPageChange={handleItemsPerPageChange}/>
       </CardContent>
     </Card>
   );

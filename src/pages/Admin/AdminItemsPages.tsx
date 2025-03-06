@@ -17,11 +17,16 @@ import { Badge } from "@/components/ui/badge";
 import ItemDetailDialog from "@/components/admin/item/item-detail-dialog";
 import ItemDeleteDialog from "@/components/admin/item/item-delete-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const AdminItemsPage = () => {
   const [items, setItems] = useState<Item[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
   const fetchItems = useCallback(() => {
     const params = new URLSearchParams();
@@ -34,6 +39,12 @@ const AdminItemsPage = () => {
       params.append("status", filter);
     }
 
+    params.append("limit", itemsPerPage.toString());
+
+    if (currentPage > 1) {
+      params.append("page", currentPage.toString());
+    }
+
     fetch(`${import.meta.env.VITE_API_URL}/items/admin/all?${params.toString()}`, {
       method: "GET",
       headers: {
@@ -42,15 +53,39 @@ const AdminItemsPage = () => {
       },
     })
       .then((response) => response.json())
-      .then((response) => setItems(response.data))
+      .then((response) => {
+        setItems(response.data)
+        setTotalPages(response.totalPages)
+        setTotalItems(response.total)
+      })
       .catch((error) =>
         console.error("Erreur lors de la récupération des annonces : ", error)
       );
-  }, [searchTerm, filter]);
+  }, [searchTerm, filter, itemsPerPage, currentPage]);
 
   useEffect(() => {
     fetchItems();
   }, [fetchItems]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (itemsPerPage: string) => {
+    setItemsPerPage(Number.parseInt(itemsPerPage));
+    setCurrentPage(1);
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+
+    // Faire défiler vers le haut de la page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <Card>
@@ -66,7 +101,7 @@ const AdminItemsPage = () => {
                 type="text"
                 placeholder="Chercher une annonce..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-8"
               />
             </div>
@@ -140,6 +175,7 @@ const AdminItemsPage = () => {
             </TableBody>
           </Table>
         </div>
+        <AdminPagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} onItemsPerPageChange={handleItemsPerPageChange}/>
       </CardContent>
     </Card>
   );
