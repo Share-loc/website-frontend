@@ -149,7 +149,7 @@ function App() {
 
           <Route element={<AdminLayout />}>
               {/* ADMIN routes */}
-              <Route path='/admin/dashboard' element={
+              <Route path='/admin' element={
                   userState.isLogged ? <AdminDashboardPage /> : <Navigate to="/login" />
                 } />
               <Route path='/admin/users' element={

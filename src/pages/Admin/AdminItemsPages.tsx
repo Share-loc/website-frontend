@@ -1,219 +1,184 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getToken } from "../../const/func";
-import { FaCheck, FaEye, FaTrash } from "react-icons/fa6";
-import Modal from '@mui/material/Modal';
-import Box from '@mui/material/Box';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Filter, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Item } from "@/types/admin/item-types";
+import { Badge } from "@/components/ui/badge";
+import ItemDetailDialog from "@/components/admin/item/item-detail-dialog";
+import ItemDeleteDialog from "@/components/admin/item/item-delete-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AdminPagination } from "@/components/admin/admin-pagination";
 
 const AdminItemsPage = () => {
+  const [items, setItems] = useState<Item[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
 
-    const style = {
-        position: 'absolute' as 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: 400,
-        bgcolor: 'background.paper',
-        // border: '1px solid #000',
-        boxShadow: 24,
-        borderRadius: '10px',
-        p: 4,
-      };
+  const fetchItems = useCallback(() => {
+    const params = new URLSearchParams();
 
-    const [items, setItems] = useState<Item[]>([]);
-
-    interface Item {
-        id: number,
-        user: {
-            id: number,
-            username: string,
-            is_verified: boolean,
-            email: string,
-        },
-        category: {
-            name: string,
-        },
-        title: string,
-        body: string,
-        status: string,
-        price: number,
-        location: string,
-        show_phone: boolean,
-        item_pictures: {
-            id: number,
-            path: string,
-            fullPath: string,
-        }[],
-        publicPhoneNumber: string,
-        activeItemPictures: {
-            id: number,
-            path: string,
-            fullPath: string,
-        }[],
+    if (searchTerm) {
+      params.append("search", searchTerm);
     }
 
-    useEffect(() => {
-        fetch(`${import.meta.env.VITE_API_URL}/items/admin/all`,
-            {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`,
-                }
-            }
-        )
-            .then((response) => response.json())
-            .then((response) => setItems(response))
-            .catch((error) => console.error('Erreur lors de la récupération des annonces : ', error));
+    if (filter !== "all") {
+      params.append("status", filter);
+    }
+
+    params.append("limit", itemsPerPage.toString());
+
+    if (currentPage > 1) {
+      params.append("page", currentPage.toString());
+    }
+
+    fetch(`${import.meta.env.VITE_API_URL}/items/admin/all?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        setItems(response.data)
+        setTotalPages(response.totalPages)
+        setTotalItems(response.total)
+      })
+      .catch((error) =>
+        console.error("Erreur lors de la récupération des annonces : ", error)
+      );
+  }, [searchTerm, filter, itemsPerPage, currentPage]);
+
+  useEffect(() => {
+    fetchItems();
+  }, [fetchItems]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleItemsPerPageChange = (itemsPerPage: string) => {
+    setItemsPerPage(Number.parseInt(itemsPerPage));
+    setCurrentPage(1);
+  }
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+
+    // Faire défiler vers le haut de la page
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
     });
+  };
 
-    const [infoModalState, setInfoModalState] = useState(false);
-    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-
-    const openInfoModal = (item: Item) => {
-        setSelectedItem(item);
-        setInfoModalState(true);
-    }
-
-    const handleCloseInfoModal = () => {
-        setInfoModalState(false);
-    }
-
-    const handleItemValidation = (item: Item) => {
-        const isConfirmed = confirm('Voulez-vous vraiment approuver cette annonce ?');
-        if (!isConfirmed) {
-            return;
-        }
-
-        fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}/validate`, {
-            method: 'PUT',
-            headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`,
-                },
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    console.error('Erreur lors de l\'approbation de l\'annonce : ', response.status);
-                } else{
-                    setItems(items.map(i => {
-                        if (i.id === item.id) {
-                          // Supposons que vous ayez un champ `isValidated` pour indiquer si le report est validé
-                          return { ...i, status: 'approved' };
-                        }
-                        return i;
-                      }));
-                }
-                return response;
-            })
-            .catch((error) => console.error('Erreur lors de l\'approbation de l\'annonce : ', error));
-        
-    }
-
-    const handleDelete = (item: Item) => {
-        const isConfirmed = confirm('Voulez-vous vraiment supprimer cette annonce ?');
-        if (!isConfirmed) {
-            return;
-        }
-
-        fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${getToken()}`,
-            },
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    console.error('Erreur lors de la suppression de l\'annonce : ', response.status);
-                } else{
-                    setItems(items.filter((i) => i.id !== item.id));
-                }
-                return response;
-            })
-            .catch((error) => console.error('Erreur lors de la suppression de l\'annonce : ', error));
-    }
-
-    return (
-        <>
-            <Modal
-                open={infoModalState}
-                onClose={handleCloseInfoModal}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box sx={style}>
-                <p className="text-2xl font-semibold text-gray-900 mb-4">Informations de l'annonce</p>
-                <p className="text-lg text-gray-900 mb-4">ID: {selectedItem?.id}</p>
-                <p className="text-lg text-gray-900 mb-4">Titre: {selectedItem?.title}</p>
-                <p className="text-lg text-gray-900 mb-4">Catégorie: {selectedItem?.category.name}</p>
-                <p className="text-lg text-gray-900 mb-4">Utilisateur: {selectedItem?.user.email}</p>
-                <p className="text-lg text-gray-900 mb-4">Description: {selectedItem?.body}</p>
-                <p className="text-lg text-gray-900 mb-4">Prix: {selectedItem?.price}</p>
-                <p className="text-lg text-gray-900 mb-4">Localisation: {selectedItem?.location}</p>
-                <p className="text-lg text-gray-900 mb-4">Téléphone: {selectedItem?.show_phone ? selectedItem?.publicPhoneNumber : 'Non affiché'}</p>
-                <p className="text-lg text-gray-900 mb-4">Photos:</p>
-                {selectedItem?.activeItemPictures.map((picture) => (
-                    <img key={picture.id} src={import.meta.env.VITE_DOMAIN + '/' + picture.fullPath} alt="item picture" className="w-1/4" />
-                ))}
-                </Box>
-            </Modal>
-            <p className="text-2xl font-semibold text-gray-900 mb-4">Annonces</p>
-            <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
-                <thead className="text-xs text-gray-700 uppercase bg-gray dark:bg-gray-700 dark:text-gray-400">
-                <tr>
-                    <th scope="col" className="px-6 py-3">
-                    Id
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                    Status
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                    Catégorie
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                    Utilisateur
-                    </th>
-                    <th scope="col" className="px-6 py-3">
-                    Actions
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                {items.map((item) => (
-                    <tr className="hover:bg-white border-b " key={item.id}>
-                        <th
-                        scope="row"
-                        className="px-6 py-4 font-medium whitespace-nowrap"
-                        >
-                        {item.id}
-                        </th>
-                        <td className="px-6 py-4">
-                            <span className={`px-3 py-1 rounded ${item.status === "waiting_for_approval" ? ' bg-orange-200' : ''} ${item.status === "approved" ? ' bg-green-400' : ''} `}>
-                                {item.status === "waiting_for_approval" ? 'En attente' : 'Approuvé'}
-                            </span>
-                        </td>
-                        <td className="px-6 py-4">{item.category.name}</td>
-                        <td className="px-6 py-4">{item.user.email}</td>
-                        <td className="px-6 py-4">
-                            <button className="bg-gray hover:bg-gray-dark font-bold py-3 px-3 me-2 rounded-lg" onClick={() => openInfoModal(item)}>
-                                <FaEye />
-                            </button>
-                            {
-                                item.status === "waiting_for_approval" && (
-                                    <button className="bg-green-400 hover:bg-green-600 font-bold py-3 px-3 me-2 rounded-lg" onClick={() => handleItemValidation(item)}>
-                                        <FaCheck />
-                                    </button>
-                                )
-                            }
-                            <button className="bg-red-500 hover:bg-red-800 duration-200 text-white font-bold py-3 px-3 rounded-lg" onClick={() => handleDelete(item)} >
-                                <FaTrash />
-                            </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-        </>
-    );
-}
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Gestion des Annonces</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex space-x-4">
+            <div className="relative w-64">
+              <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Chercher une annonce..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="pl-8"
+              />
+            </div>
+            <Button variant="outline">Rechercher</Button>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="mr-2 h-4 w-4" />
+                Filtrer - {filter === "all" ? "Tous" : filter === "waiting_for_approval" ? "Annonces en attente" : "Annonces en ligne"}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setFilter("all")}>
+                Toutes les annonces
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("waiting_for_approval")}>
+                Annonces en attente
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilter("approved")}>
+                Annonces en ligne
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>ID</TableHead>
+                <TableHead>Titre</TableHead>
+                <TableHead>Catégorie</TableHead>
+                <TableHead>Prix</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Loueur</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {items.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.id}</TableCell>
+                  <TableCell>{item.title}</TableCell>
+                  <TableCell>{item.category.name}</TableCell>
+                  <TableCell>{item.price} €</TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        item.status != "approved" ? "default" : "secondary"
+                      }
+                    >
+                      {item.status === "approved" ? "Approuvé" : "En attente"}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {item.user.username}
+                    {item.user.is_verified && (
+                      <Badge variant="outline" className="ml-2">
+                        Vérifié
+                      </Badge>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex space-x-2">
+                      <ItemDetailDialog item={item} onItemValidated={fetchItems} />
+                      <ItemDeleteDialog item={item} onDeleted={fetchItems} />
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <AdminPagination currentPage={currentPage} totalPages={totalPages} totalItems={totalItems} itemsPerPage={itemsPerPage} onPageChange={handlePageChange} onItemsPerPageChange={handleItemsPerPageChange}/>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default AdminItemsPage;
