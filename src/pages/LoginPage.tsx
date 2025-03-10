@@ -77,7 +77,12 @@ const LoginPage = () => {
                 method="POST"
               >
                 <div className="flex flex-col items-center gap-2 text-center">
-                  <h1 className="text-2xl font-bold">Connectez vous</h1>
+                  <img
+                    src="/public/Logo-share-loc.svg"
+                    alt="Logo de l'application"
+                    className="mx-auto mb-3"
+                  />
+                  <h1 className="text-3xl font-bold">Connectez vous</h1>
                   <p className="text-sm text-balance text-muted-foreground">
                     Entrez vos identifiants pour vous connecter
                   </p>
@@ -123,7 +128,7 @@ const LoginPage = () => {
                 </div>
                 <div className="text-sm text-center">
                   Vous n'avez pas de compte ?{" "}
-                  <a href="#" className="underline underline-offset-4">
+                  <a href="/register" className="font-medium text-primary underline underline-offset-4">
                     Créer un compte
                   </a>
                 </div>

@@ -100,13 +100,13 @@ function App() {
         <Routes>
           {/* Login route - outside of any layout */}
           <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
 
           <Route element={<AppBarLayout />}>
             <Route element={<ContentLayout />}>
 
               {/* Unprotected routes */}
               <Route path="/" element={<HomePage />} />
-              <Route path='/register' element={<RegisterPage />} />
               <Route path='/about' element={<AboutUsPage />} />
               <Route path='/cgu' element={<CGUPage />} />
               <Route path='/cgv' element={<CGVPage />} />
