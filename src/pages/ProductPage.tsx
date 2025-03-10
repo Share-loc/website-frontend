@@ -1,135 +1,30 @@
 import { useState, useEffect, useContext } from 'react';
 import { useParams } from 'react-router-dom';
-import Image from '../components/Image';
 import SectionTitle from '../components/SectionTitle';
 import TextIcon from '../components/TextIcon';
 import { FaPhone, FaLocationDot } from "react-icons/fa6";
 import { MdAccountCircle } from "react-icons/md";
 import AuthContext from '../components/context/AuthContext';
-import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { registerLocale } from 'react-datepicker';
 import { fr } from 'date-fns/locale';
-import styled from 'styled-components';
-import { format, parseISO } from 'date-fns';
-import { getToken } from "../const/func.ts";
+import { addDays, format } from 'date-fns';
 import NotFoundPage from "./NotFoundPage.tsx";
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { cn } from '@/lib/utils.ts';
+import { DateRange } from 'react-day-picker';
+import { CalendarIcon } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar.tsx';
+import axios from 'axios';
 
 
 registerLocale("fr", fr);
 
-const CustomDatePickerWrapper = styled.div`
-    .react-datepicker {
-        border: 1px solid #d6d6d6;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        width: 100%;
-    }
-    .react-datepicker__input-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .react-datepicker__header {
-        border-bottom: 1px solid #d6d6d6;
-        padding: 10px 0;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-        text-transform: uppercase;
-    }
-    .react-datepicker__current-month {
-        font-size: 18px;
-        color: rgba(50, 50, 50, 0.5);
-    }
-    .react-datepicker__day {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 40px;
-        height: 40px;
-        margin: 2px 4px;
-        font-size: 14px;
-    }
-    .react-datepicker__day--selected {
-        background-color: rgb(34 175 175 / 0.9);
-        color: white;
-        border-radius: 50%;
-    }
-    .react-datepicker__day--today {
-        font-weight: bold;
-        color: rgb(34 175 175 / 0.9);
-    }
-    .react-datepicker__day--outside-month {
-        color: #d6d6d6;
-    }
-    .react-datepicker__day--disabled {
-        color: #d6d6d6;
-    }
-    .react-datepicker__navigation {
-        top: 11px;
-        line-height: 1.7rem;
-    }
-    .react-datepicker__navigation-icon {
-        border-color: white;
-    }
-    .react-datepicker__navigation--previous {
-        left: 10px;
-        border-right-color: white;
-    }
-    .react-datepicker__navigation--next {
-        right: 10px;
-        border-left-color: white;
-    }
-    .react-datepicker__week {
-        display: flex;
-        justify-content: space-between;
-    }
-    .react-datepicker__day--in-range {
-        background-color: white;
-        color: rgb(34 175 175 / 0.9);
-        font-weight: bold;
-    }
-    .react-datepicker__day--in-selecting-range {
-        background-color: white;
-        color: rgb(34 175 175 / 0.9);
-        font-weight: bold;
-    }
-    .react-datepicker__day--selected {
-        background-color: rgb(34 175 175 / 0.9);
-        color: white;
-    }
-    .react-datepicker__day--keyboard-selected {
-        background-color: rgb(34 175 175 / 0.9);
-        color: white;
-        border-radius: 50%;
-    }
-    .react-datepicker__day:hover {
-        background-color: rgb(34 175 175 / 0.9);
-        color: white;
-        border-radius: 50%;
-    }
-    .react-datepicker__day-names {
-        display: flex;
-        justify-content: space-between;
-    }
-    .react-datepicker__day-name {
-        flex: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .custom-select {
-        appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        background: none;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-`;
-
 const ProductPage = () => {
     const { id } = useParams();
+    // get local storage token
+    const BEARER_TOKEN = localStorage.getItem('token');
     const [user, setUser] = useState({
         id: 0,
         email: '',
@@ -148,13 +43,8 @@ const ProductPage = () => {
         itemPictures: {},
         activeItemPictures: {}
     });
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
-    const [startHour, setStartHour] = useState('00');
-    const [startMinute, setStartMinute] = useState('00');
-    const [endHour, setEndHour] = useState('00');
-    const [endMinute, setEndMinute] = useState('00');
-    const [responseStatus, setResponseStatus] = useState(null);
+
+    const [responseStatus, setResponseStatus] = useState<number | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -200,65 +90,18 @@ const ProductPage = () => {
         fetchData();
     }, [id]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const startAt = `${format(parseISO(startDate.toISOString()), "yyyy-MM-dd")} ${startHour}:${startMinute}`;
-            const endAt = `${format(parseISO(endDate.toISOString()), "yyyy-MM-dd")} ${endHour}:${endMinute}`;
-
-            const reservationData = {
-                item: product.id,
-                start_at: startAt,
-                end_at: endAt,
-                price: product.price
-            };
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/reservations`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${getToken()}`
-                },
-                body: JSON.stringify(reservationData)
-            });
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            const result = await response.json();
-            console.log(result);
-        } catch (error) {
-            console.error('Error making reservation:', error);
-        }
-    };
-
     if (responseStatus && responseStatus !== 200) {
         return <NotFoundPage />;
     }
 
-    const generateOptions = (start, end) => {
-        const options = [];
-        for (let i = start; i <= end; i++) {
-            options.push(
-                <option key={i} value={i < 10 ? `0${i}` : i}>
-                    {i < 10 ? `0${i}` : i}
-                </option>
-            );
-        }
-        return options;
-    };
-
-    const firstActiveItemPicture = product.activeItemPictures?.[0]?.fullPath || 'Chemin par défaut ou gestion de l\'absence d\'image';
-
     return (
         <>
-            <img className='w-[400px] h-[400] contain' src={`${import.meta.env.VITE_DOMAIN}/${firstActiveItemPicture}`}
-                 alt={product.title}/>
             <div className="flex flex-col lg:flex-row justify-between px-4">
                 <section className="lg:w-3/4 lg:pr-8">
                     <div>
                         <SectionTitle>{product.title}</SectionTitle>
                         <p className='mb-5 text-xl font-semibold text-blue'>{product.price}€ par jour</p>
                         <p className='text-lg font-medium text-black'>{product.body}</p>
-                        <h3 className='my-3 text-lg font-normal text-black'>Catégorie: {product.category.name}</h3>
                     </div>
                     <div>
                         <SectionTitle>Informations utiles</SectionTitle>
@@ -298,96 +141,7 @@ const ProductPage = () => {
                         <h2 className="mt-10 mb-3 text-xl font-bold text-black">Faire une réservation</h2>
 
                         {userState.isLogged ? (
-                            <form onSubmit={handleSubmit}>
-                                <div className="w-full">
-                                    <CustomDatePickerWrapper>
-                                        <DatePicker
-                                            selected={startDate}
-                                            onChange={(update) => {
-                                                const [start, end] = update;
-                                                setStartDate(start);
-                                                setEndDate(end);
-                                            }}
-                                            startDate={startDate}
-                                            endDate={endDate}
-                                            selectsRange
-                                            inline
-                                            locale="fr"
-                                            className="w-full p-5 rounded-lg shadow flex justify-center items-center flex-col border-[.5px] border-gray"
-                                            required
-                                        />
-                                        <div>
-                                            <div className="flex flex-col my-3">
-                                                <label htmlFor="startHour">Heure de début</label>
-                                                <div
-                                                    className="flex w-full px-2 py-3 bg-blue text-white font-medium rounded-lg hover:bg-blue/90 ease-out duration-300">
-                                                    <select
-                                                        id="startHour"
-                                                        value={startHour}
-                                                        onChange={(e) => setStartHour(e.target.value)}
-                                                        className="custom-select border-0 bg-transparent focus:ring-0 pr0"
-                                                        required
-                                                    >
-                                                        {generateOptions(0, 23)}
-                                                    </select>
-                                                    <select
-                                                        className="custom-select border-0 bg-transparent focus:ring-0 pr0">
-                                                        <option disabled selected>:</option>
-                                                    </select>
-                                                    <select
-                                                        id="startMinute"
-                                                        value={startMinute}
-                                                        onChange={(e) => setStartMinute(e.target.value)}
-                                                        className="custom-select border-0 bg-transparent focus:ring-0"
-                                                        required
-                                                    >
-                                                        {generateOptions(0, 59)}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                            <div className="flex flex-col">
-                                                <label htmlFor="startHour">Heure de fin</label>
-                                                <div
-                                                    className="w-full px-2 py-3 bg-blue text-white font-medium rounded-lg hover:bg-blue/90 ease-out duration-300">
-                                                    <select
-                                                        id="endHour"
-                                                        value={endHour}
-                                                        onChange={(e) => setEndHour(e.target.value)}
-                                                        className="custom-select border-0 bg-transparent focus:ring-0 pr0"
-                                                        required
-                                                    >
-                                                        {generateOptions(0, 23)}
-                                                    </select>
-                                                    <select
-                                                        className="custom-select border-0 bg-transparent focus:ring-0 pr0">
-                                                        <option disabled selected>:</option>
-                                                    </select>
-                                                    <select
-                                                        id="endMinute"
-                                                        value={endMinute}
-                                                        onChange={(e) => setEndMinute(e.target.value)}
-                                                        className="custom-select border-0 bg-transparent focus:ring-0"
-                                                        required
-                                                    >
-                                                        {generateOptions(0, 59)}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </CustomDatePickerWrapper>
-                                </div>
-                                <div>
-                                    <input type="hidden" name="tenant_id" value={userState.userid}
-                                           className="form-control"/>
-                                </div>
-                                <div className="flex justify-center my-2">
-                                    <button
-                                        className='w-full px-7 py-3 bg-blue text-white font-medium rounded-lg hover:bg-blue/90 ease-out duration-300'
-                                        type="submit">
-                                        Réserver
-                                    </button>
-                                </div>
-                            </form>
+                            <BookingForm tenant_id={id} BEARER_TOKEN={BEARER_TOKEN} item_id={product.id} />
                         ) : (
                             <div className="flex justify-center my-2">
                                 <a href="/profile"
@@ -404,3 +158,120 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
+
+type BookingForm = {
+    date: DateRange | undefined,
+}
+
+function BookingForm({ tenant_id, BEARER_TOKEN, item_id }: { tenant_id: string | undefined, BEARER_TOKEN: string | null, item_id: number | undefined }) {
+
+    const [bookingForm, setBookingForm] = useState<BookingForm>({
+        date: {
+            from: new Date(2024, 1, 1),
+            to: addDays(new Date(2024, 1, 1), 1)
+        },
+    });
+
+    const onValueChange = (e: any, value: string) => {
+        setBookingForm({...bookingForm, [e.target.name]: value});
+        console.log(bookingForm);
+        
+    }
+
+    const handleSubmit = (e: any) => {
+        e.preventDefault();
+
+        let startDate: string;
+        let endDate: string;
+        
+        if (bookingForm.date === undefined || bookingForm.date.from === undefined) {
+            return;
+        }
+        if (bookingForm.date.to === undefined) {
+            startDate = format(bookingForm.date?.from, "yyyy-MM-dd");
+            endDate = "";
+        } else {
+            // format date and time from bookingForm startHour and startMinute -> 2024-12-30 10:30
+            startDate = format(bookingForm.date?.from, "yyyy-MM-dd");
+            endDate = format(bookingForm.date?.to, "yyyy-MM-dd");
+        }
+
+        const bookingData = {
+            item: item_id,
+            start_at: startDate,
+            end_at: endDate,
+            tenant_id: Number(tenant_id)
+        }
+
+        console.log(bookingData);
+        
+
+        axios.post(`${import.meta.env.VITE_API_URL}/reservations`, JSON.stringify(bookingData), {
+            headers: {
+                Authorization: `Bearer ${BEARER_TOKEN}`, // Replace `yourToken` with the actual token
+                'Content-Type': 'application/json',
+            },
+        })
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+            console.error(error);
+        })
+        .finally(() => {
+            console.log('Request completed');
+        })
+
+        
+    }
+
+    return (
+            <div className='w-full'>
+                <div className="grid gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant={'outline'}
+                                className={cn(
+                                    "w-[280px] justify-start text-left font-normal",
+                                    !bookingForm.date && "text-muted-foreground"
+                                )}
+                            >
+                                <CalendarIcon />
+                                {bookingForm.date?.from ? (
+                                    bookingForm.date.to ? (
+                                        <>
+                                        {format(bookingForm.date.from, "LLL dd, y")} -{" "}
+                                        {format(bookingForm.date.to, "LLL dd, y")}
+                                        </>
+                                    ) : (
+                                        format(bookingForm.date.from, "LLL dd, y")
+                                    )
+                                    ) : (
+                                    <span>Choisissez une date</span>
+                                )}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start" side="left">
+                            <form onSubmit={handleSubmit}>
+                                {/* Date Range Picker */}
+                                <Calendar
+                                    initialFocus
+                                    mode='range'
+                                    defaultMonth={bookingForm.date?.from || new Date()}
+                                    selected={bookingForm.date}
+                                    onSelect={(date) => setBookingForm({...bookingForm, date})}
+                                    numberOfMonths={2}
+                                />
+                                <div className='w-full flex'>
+                                    <Button variant={'default'} className='bg-blue hover:bg-blue-dark mx-auto my-3 w-3/4' type='submit'>
+                                        Réserver
+                                    </Button>
+                                </div>
+                            </form>
+                        </PopoverContent>
+                    </Popover>
+                </div>
+            </div>
+    )
+}
