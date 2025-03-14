@@ -135,13 +135,6 @@ function App() {
               {/* 404 route */}
               <Route path="*" element={<NotFoundPage />} />
 
-              {/* Protected routes */}
-              <Route path='/profile' element={
-                userState.isLogged ? <ProfilePage /> : <LoginPage />
-              } />
-              <Route path='/adpage' element={
-                userState.isLogged ? <AdPage /> : <LoginPage />
-              } />
               <Route path="/userProfile/:userId" element={<UserPublicProfile />} />
             </Route>
 

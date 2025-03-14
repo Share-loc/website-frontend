@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Navigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 const LoginPage = () => {
     const { userState, setUserState } = useContext(AuthContext)
@@ -128,9 +129,9 @@ const LoginPage = () => {
                 </div>
                 <div className="text-sm text-center">
                   Vous n'avez pas de compte ?{" "}
-                  <a href="/register" className="font-medium text-primary underline underline-offset-4">
+                  <Link to="/register" className="font-medium text-primary underline underline-offset-4">
                     Créer un compte
-                  </a>
+                  </Link>
                 </div>
               </form>
             </div>

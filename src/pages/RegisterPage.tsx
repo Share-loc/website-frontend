@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -147,12 +148,12 @@ const RegisterPage = () => {
               </form>
               <div className="text-center text-sm">
                 Vous avez déjà un compte?{" "}
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="font-medium text-primary underline underline-offset-4"
                 >
                   Se connecter
-                </a>
+                </Link>
               </div>
             </div>
           </div>
