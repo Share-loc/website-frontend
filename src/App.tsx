@@ -33,6 +33,7 @@ import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
 import UserPublicProfile from './pages/UserPublicProfile.tsx'
 import { Toaster } from '@/components/ui/toaster';
 import ItemPage from './pages/ItemPage.tsx'
+import SettingsPage from './pages/SettingsPage.tsx'
 
 function App() {
 
@@ -133,6 +134,9 @@ function App() {
               } />
               <Route path='/messages' element={
                 userState.isLogged ? <MessagePage /> : <Navigate to="/login" />
+              } />
+              <Route path='/settings' element={
+                userState.isLogged ? <SettingsPage /> : <Navigate to="/login" />
               } />
 
               {/* 404 route */}
