@@ -29,7 +29,7 @@ const AppBar = () => {
             <img src={Logo} alt="logo" className="h-12" />
           </Link>
           <div className="items-center hidden space-x-4 lg:flex">
-            <Link to="/adpage">
+            <Link to="/create-item">
               <Button className="flex items-center space-x-2">
                 <PlusCircle size={18} />
                 <span>Créer une annonce</span>

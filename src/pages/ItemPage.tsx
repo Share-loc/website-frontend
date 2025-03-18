@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { getToken } from "../const/func";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Category } from "@/types/CategoryTypes";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -34,9 +34,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { set } from "date-fns";
 
-const AdPage = () => {
+const ItemPage = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const [existingImages, setExistingImages] = useState<
+    { id: number; fullPath: string }[]
+  >([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const isEditing = Boolean(id);
+
+  const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -110,16 +119,66 @@ const AdPage = () => {
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+
+    const fetchItem = async () => {
+      if (!isEditing) return;
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_URL}/items/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${getToken()}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setTitle(data.title);
+          setDescription(data.body);
+          setPrice(data.price.toString());
+          setLocation(data.location);
+          setPhone(data.phone_number);
+          setShowPhone(data.show_phone);
+          setCategoryId(data.category.id.toString());
+          setExistingImages(data.activeItemPictures || []);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement de l'annonce:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger l'annonce",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItem();
+  }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setHasAttemptedSubmit(true);
+
+    // Vérification des images
+    if (
+      (!isEditing && images.length === 0) ||
+      (isEditing && existingImages.length === 0 && images.length === 0)
+    ) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez ajouter au moins une photo",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-
     try {
-      // Création du FormData pour les images
-      const formData = new FormData();
-
       // Ajout des données du formulaire
       const itemData = {
         title,
@@ -132,17 +191,20 @@ const AdPage = () => {
       };
 
       // Première requête pour créer l'annonce
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/items`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`,
-        },
-        body: JSON.stringify(itemData),
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/items${isEditing ? `/${id}` : ""}`,
+        {
+          method: isEditing ? "PUT" : "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+          body: JSON.stringify(itemData),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de l'annonce");
+        throw new Error("Erreur lors de la sauvegarde de l'annonce");
       }
 
       const data = await response.json();
@@ -150,6 +212,7 @@ const AdPage = () => {
       // Si des images ont été sélectionnées
       if (images.length > 0) {
         // Ajout des images au FormData
+        const formData = new FormData();
         images.forEach((image) => {
           formData.append("pictures[]", image.file);
         });
@@ -172,8 +235,12 @@ const AdPage = () => {
       }
 
       toast({
-        title: "Annonce créée avec succès !",
-        description: "Votre annonce sera vérifiée dans un court délai.",
+        title: isEditing
+          ? "Annonce modifiée avec succès !"
+          : "Annonce créée avec succès !",
+        description: isEditing
+          ? undefined
+          : "Votre annonce sera vérifiée dans un court délai.",
         variant: "success",
       });
 
@@ -181,10 +248,71 @@ const AdPage = () => {
       navigate("/");
     } catch (error) {
       console.error("Erreur:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const removeExistingImage = async (imageId: number) => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/item-picture/${imageId}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+        toast({
+          title: "Image supprimée",
+          variant: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'image:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'image",
+        variant: "destructive",
+      });
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <svg
+          className="animate-spin h-10 w-10 text-primary"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            className="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="4"
+          ></circle>
+          <path
+            className="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+          ></path>
+        </svg>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col justify-center items-center">
@@ -309,7 +437,18 @@ const AdPage = () => {
                 <CardContent className="p-4">
                   <div className="mb-4">
                     <Label htmlFor="images" className="cursor-pointer">
-                      <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors">
+                      <div
+                        className={cn(
+                          "border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-muted-foreground hover:bg-muted/50 transition-colors",
+                          hasAttemptedSubmit &&
+                            ((!isEditing && images.length === 0) ||
+                              (isEditing &&
+                                existingImages.length === 0 &&
+                                images.length === 0))
+                            ? "border-red-500"
+                            : "border-border"
+                        )}
+                      >
                         <Upload className="h-8 w-8 mb-2" />
                         <p>
                           Cliquez pour ajouter des photos ou glissez-déposez
@@ -317,19 +456,29 @@ const AdPage = () => {
                         <p className="text-xs mt-1">
                           JPG, PNG ou GIF • Max 5 Mo par image
                         </p>
+                        {hasAttemptedSubmit &&
+                          ((!isEditing && images.length === 0) ||
+                            (isEditing &&
+                              existingImages.length === 0 &&
+                              images.length === 0)) && (
+                            <p className="text-xs text-red-500 mt-2">
+                              Au moins une photo est requise
+                            </p>
+                          )}
                       </div>
                       <Input
                         id="images"
                         type="file"
                         accept="image/*"
                         multiple
+                        
                         className="hidden"
                         onChange={handleImageUpload}
                       />
                     </Label>
                   </div>
 
-                  {images.length > 0 && (
+                  {(images.length > 0 || existingImages.length > 0) && (
                     <div>
                       <p className="text-sm mb-2">
                         Faites glisser pour réorganiser les images (la première
@@ -341,10 +490,21 @@ const AdPage = () => {
                         onDragEnd={handleDragEnd}
                       >
                         <SortableContext
-                          items={images.map((img) => img.id)}
+                          items={[
+                            ...existingImages.map((img) => img.id.toString()),
+                            ...images.map((img) => img.id),
+                          ]}
                           strategy={verticalListSortingStrategy}
                         >
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            {existingImages.map((img) => (
+                              <SortableItem
+                                key={img.id}
+                                id={img.id.toString()}
+                                url={img.fullPath}
+                                onRemove={() => removeExistingImage(img.id)}
+                              />
+                            ))}
                             {images.map((img) => (
                               <SortableItem
                                 key={img.id}
@@ -379,6 +539,8 @@ const AdPage = () => {
               >
                 <path d="M21 12a9 9 0 1 1-6.219-8.56" />
               </svg>
+            ) : isEditing ? (
+              "Enregistrer les Modifications"
             ) : (
               "Créer l'annonce"
             )}
@@ -437,4 +599,4 @@ function SortableItem({
   );
 }
 
-export default AdPage;
+export default ItemPage;
