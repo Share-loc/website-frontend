@@ -1,4 +1,4 @@
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useCallback, useContext, useEffect, useState } from "react";
 import AuthContext from "./context/AuthContext";
 import Logo from "/Logo-share-loc.svg";
@@ -34,7 +34,6 @@ import { Badge } from "./ui/badge";
 import { useWebSocket } from "./context/WebSocketContext";
 import { getToken } from "@/const/func";
 import axios from "axios";
-import { set } from "date-fns";
 
 const AppBar = () => {
   const navigate = useNavigate();

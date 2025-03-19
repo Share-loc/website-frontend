@@ -34,6 +34,8 @@ import UserPublicProfile from './pages/UserPublicProfile.tsx'
 import { Toaster } from '@/components/ui/toaster';
 import ItemPage from './pages/ItemPage.tsx'
 import SettingsPage from './pages/SettingsPage.tsx'
+import ReservationsListPage from './pages/ReservationsListPage.tsx'
+import EditProfilePage from './pages/EditProfilePage.tsx'
 
 function App() {
 
@@ -123,6 +125,9 @@ function App() {
               <Route path='/profile' element={
                 userState.isLogged ? <ProfilePage /> : <Navigate to="/login" />
               } />
+              <Route path='/profile/edit' element={
+                userState.isLogged ? <EditProfilePage /> : <Navigate to="/login" />
+              } />
               <Route path='/create-item' element={
                 userState.isLogged ? <ItemPage /> : <Navigate to="/login" />
               } />
@@ -137,6 +142,9 @@ function App() {
               } />
               <Route path='/settings' element={
                 userState.isLogged ? <SettingsPage /> : <Navigate to="/login" />
+              } />
+              <Route path='/reservations' element={
+                userState.isLogged ? <ReservationsListPage /> : <Navigate to="/login" />
               } />
 
               {/* 404 route */}

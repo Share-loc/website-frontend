@@ -317,7 +317,7 @@ const ItemPage = () => {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="container max-w-3xl py-10">
-        <h1 className="text-3xl font-bold mb-6">Créer une nouvelle annonce</h1>
+        <h1 className="text-3xl font-bold mb-6">{isEditing ? "Modification de l'annonce" : "Créer une nouvelle annonce"}</h1>
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="space-y-4">

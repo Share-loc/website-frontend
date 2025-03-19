@@ -1,19 +1,12 @@
-import { useEffect, useState } from 'react'
-import { getToken } from '../const/func'
-import axios from 'axios'
-import { Link } from 'react-router-dom';
-import { IoImageSharp } from "react-icons/io5";
-import { FaTrash } from "react-icons/fa";
-import { FaArrowRight } from "react-icons/fa";
-import { FaPen } from "react-icons/fa";
-import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-import { checkEmailSyntax, checkUsernameSyntax, checkFirstNameSyntax, checkLastNameSyntax } from '../lib/regex';
+import { Link } from "react-router-dom";
+import { ArrowLeft, Mail, MapPin, Phone } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import UserItems from "@/components/UserItems";
+import { useEffect, useState } from "react";
+import { format } from "date-fns";
+import UserReviews from "@/components/UserReviews";
 
 interface User {
   id: number;
@@ -22,287 +15,115 @@ interface User {
   avatar: string;
   first_name: string;
   last_name: string;
+  created_at: string;
 }
 
 const ProfilePage = () => {
+  const [user, setUser] = useState<User>();
 
-  const [reloadTrigger, setReloadTrigger] = useState(false);
-
-  const [user, setUser] = useState<User>({
-    id: 0,
-    email: '',
-    username: '',
-    avatar: '',
-    first_name: '',
-    last_name: '',
-  })
-
-  const [userItems, setUserItems] = useState<any>([])
-
-  const handleDeleteItem = async (id: number) => {
+  const fetchUserData = async () => {
     try {
-      const token = getToken();
-      await axios.delete(`${import.meta.env.VITE_API_URL}/items/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUserItems(userItems.filter((item: any) => item.id !== id));
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/personal-data`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setUser(data);
     } catch (error) {
-      console.error(error);
+      console.error("An error occurred while fetching user data", error);
     }
-  }
-
-  const [newUser, setNewUser] = useState({
-    username: '',
-    email: '',
-    first_name: '',
-    last_name: '',
-  });
-
-  const handleChangeInput = (input: 'username' | 'email' | 'first_name' | 'last_name', e: any) => {
-    setNewUser({
-      ...newUser,
-      [input]: e.target.value,
-    });
-  }
-
-  const handleClickSave = async (input: 'username' | 'email' | 'first_name' | 'last_name') => {
-    if (input === 'email' && !checkEmailSyntax(newUser.email)) {
-      alert('Email invalide');
-      return;
-    }
-    if (input === 'username' && !checkUsernameSyntax(newUser.username)) {
-      alert('Nom d\'utilisateur invalide');
-      return;
-    }
-    if (input === 'first_name' && !checkFirstNameSyntax(newUser.first_name)) {
-      alert('Prénom invalide');
-      return;
-    }
-    if (input === 'last_name' && !checkLastNameSyntax(newUser.last_name)) {
-      alert('Nom invalide');
-      return;
-    }
-    try {
-      const token = getToken();
-      await axios.patch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
-        [input]: newUser[input],
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setReloadTrigger(!reloadTrigger)
-      // erase the input field
-      setNewUser({
-        ...newUser,
-        [input]: '',
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const token = getToken();
-        /**
-         * The fetch function is used to send a request to the server to get the user data.
-         */
-        const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/personal-data`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const userData = userResponse.data;
-        setUser({
-          id: userData.id,
-          email: userData.email,
-          username: userData.username,
-          avatar: userData.avatar,
-          first_name: userData.first_name,
-          last_name: userData.last_name,
-        });
-
-        /**
-         * The fetch function is used to send a request to the server to get the user items.
-         */
-        const itemsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/${userData.id}/items`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserItems(itemsResponse.data);  
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
     fetchUserData();
-  }, [reloadTrigger]);
+  }, []);
 
   return (
     <>
-      <div>
-        <h1 className="text-3xl font-bold mb-10">Mon profil</h1>
-        <div className="flex flex-col items-start gap-5">
-          {user.avatar && <img src={user.avatar} alt="avatar" className="w-32 h-32 rounded-full" />}
-          <div className="flex gap-5 w-full">
-            <Accordion sx={{width: '100%'}}>
-              <AccordionSummary
-                expandIcon={<FaPen />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <p className="text-lg font-bold">
-                  <span className='text-blue mr-10'>Nom d'utilisateur :</span>
-                  {user.username}
-                </p>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom d'utilisateur.</Typography>
-                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('username', e)} />
-              </AccordionDetails>
-              <AccordionActions>
-                <Button size="small" color="primary" disabled={!checkUsernameSyntax(newUser.username)} onClick={() => handleClickSave('username')} >Enregistrer</Button>
-              </AccordionActions>
-            </Accordion>
-          </div>
-          <div className="flex gap-5 w-full">
-            <Accordion sx={{width: '100%'}}>
-              <AccordionSummary
-                expandIcon={<FaPen />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <p className="text-lg font-bold">
-                  <span className='text-blue mr-10'>Email :</span>
-                  {user.email}
-                </p>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant='body1' gutterBottom>Vous ne pouvez pas changer votre email pour l'instant.</Typography>
-                <TextField id="filled-basic" label="Email" variant="outlined" onChange={(e) => handleChangeInput('email', e)} disabled={true} />
-              </AccordionDetails>
-              <AccordionActions>
-                <Button size="small" color="primary" disabled={!checkEmailSyntax(newUser.email)} onClick={() => handleClickSave('email')} >Enregistrer</Button>
-              </AccordionActions>
-            </Accordion>
-          </div>
-          <div className="flex gap-5 w-full">
-            <Accordion sx={{width: '100%'}}>
-              <AccordionSummary
-                expandIcon={<FaPen />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <p className="text-lg font-bold">
-                  <span className='text-blue mr-10'>Prénom :</span>
-                  {user.first_name}
-                </p>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant='body1' gutterBottom>Vous pouvez changer votre prénom.</Typography>
-                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('first_name', e)} />
-              </AccordionDetails>
-              <AccordionActions>
-                <Button size="small" color="primary" disabled={!checkFirstNameSyntax(newUser.first_name)} onClick={() => handleClickSave('first_name')} >Enregistrer</Button>
-              </AccordionActions>
-            </Accordion>
-          </div>
-          <div className="flex gap-5 w-full">
-            <Accordion sx={{width: '100%'}}>
-              <AccordionSummary
-                expandIcon={<FaPen />}
-                aria-controls="panel1-content"
-                id="panel1-header"
-              >
-                <p className="text-lg font-bold">
-                  <span className='text-blue mr-10'>Nom :</span>
-                  {user.last_name}
-                </p>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Typography variant='body1' gutterBottom>Vous pouvez changer votre nom.</Typography>
-                <TextField sx={{border: '0px solid'}} id="filled-basic" label="Nom d'utilisateur" variant="outlined" onChange={(e) => handleChangeInput('last_name', e)} />
-              </AccordionDetails>
-              <AccordionActions>
-                <Button size="small" color="primary" disabled={!checkLastNameSyntax(newUser.last_name)} onClick={() => handleClickSave('last_name')} >Enregistrer</Button>
-              </AccordionActions>
-            </Accordion>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h2 className='text-3xl font-bold my-10'>
-          Mes annonces
-        </h2>
-        <div className='grid xl:grid-cols-3 lg:grid-cols-2 grid-cols-1'>
-          {Object.keys(userItems).length === 0 ? (
-            <p>Vous n'avez pas encore d'annonces.</p>
-          ) : (
-            Object.keys(userItems).map(key => {
-              const item = userItems[key];
-              return (
-                <div key={item.id} className='flex flex-col shadow-xl border-gray border-[.5px] rounded-xl p-5 m-3 hover:scale-105 duration-100 ease-out hover:border-blue'>
-                    <div className='flex justify-center items-center my-3'>
-                      { item.activeItemPictures.length === 0 ? 
-                        (
-                          <div className='w-24 h-24 bg-gray rounded flex justify-center items-center'>
-                            <IoImageSharp className='w-12 h-12 text-blue' />
-                          </div>
-                        )
-                        :
-                        (
-                          <img src={`${import.meta.env.VITE_IMAGE_URL}/${item.activeItemPictures[0].fullPath}`} className='w-24 h-24' />
-                        )
-                      }
-                    </div>
-                    <div className="flex gap-5">
-                      <p className="text-lg font-bold">
-                        <span className='text-blue mr-10'>Title :</span>
-                        {item.title}
-                      </p>
-                    </div>
-                    <div className="flex gap-5">
-                      <p className="text-lg font-bold">
-                        <span className='text-blue mr-10'>Mensualités :</span>
-                        {item.price} € / mois
-                      </p>
-                    </div>
-                    <div className="flex gap-5">
-                      <p className="text-lg font-bold">
-                        <span className='text-blue mr-10'>Description :</span>
-                        {item.body}
-                      </p>
-                    </div>
-                    <div className="flex gap-5">
-                      <p className="text-lg font-bold">
-                        <span className='text-blue mr-10'>Lieu :</span>
-                        {item.location}
-                      </p>
-                    </div>
-                    <div className="flex gap-5">
-                      <p className="text-lg font-bold">
-                        <span className='text-blue mr-10'>Catégorie :</span>
-                        {item.category.name}
-                      </p>
-                    </div>
-                    <div className='flex flex-col'>
-                      <Link to={`/product/${item.id}`} className='mt-3 flex bg-blue hover:bg-blue/70 text-white text-xs w-2/3 self-center justify-center py-1 rounded gap-3 items-center'>
-                        Voir l'annonce
-                        <FaArrowRight className='w-3 h-3' />
-                      </Link>
-                      <button 
-                        className='mt-3 flex bg-red-500 hover:bg-red-500/70 text-white text-xs w-2/3 self-center justify-center py-1 rounded gap-3 items-center'
-                        onClick={() => handleDeleteItem(item.id)}
-                      >
-                        Supprimer
-                        <FaTrash className='w-3 h-3' />
-                      </button>
-                    </div>
+      <Link
+        to="/"
+        className="inline-flex items-center text-sm mb-6 hover:text-primary"
+      >
+        <ArrowLeft className="mr-2 h-4 w-4" />
+        Retour à l'accueil
+      </Link>
+
+      <div className="grid md:grid-cols-3 gap-8 mb-10">
+        <div>
+          <Card>
+            <CardHeader className="relative pb-0">
+              <div className="bg-[#fae386] h-32 rounded-t-lg"></div>
+              <div className="absolute top-24 left-1/2 -translate-x-1/2">
+                <img
+                  className="w-24 h-24 rounded-full border-4 border-white bg-[#deed76] flex items-center justify-center text-4xl"
+                  src={user?.avatar}
+                  alt="Avatar"
+                />
+              </div>
+            </CardHeader>
+            <CardContent className="pt-16 text-center">
+              <h2 className="text-xl font-bold">{user?.username}</h2>
+              <p className="text-sm text-muted-foreground mb-4">
+                Membre depuis{" "}
+                {user ? format(user.created_at, "MMMM yyyy") : "-"}
+              </p>
+
+              <div className="flex justify-center gap-4 mb-6">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/profile/edit">Modifier le profil</Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/settings">Paramètres</Link>
+                </Button>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-center gap-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span>Paris, France</span>
                 </div>
-              );
-            })
-          )}
+                <div className="flex items-center justify-center gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground" />
+                  <span>{user?.email}</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                  <Phone className="h-4 w-4 text-muted-foreground" />
+                  <span>+33 6 12 34 56 78</span>
+                </div>
+              </div>
+
+              {/* <div className="mt-6 pt-6 border-t">
+                <h3 className="font-medium mb-2">À propos</h3>
+                <p className="text-sm text-muted-foreground">
+                  Passionné de bricolage et de jardinage. J'aime partager mes
+                  outils et découvrir de nouvelles personnes dans mon quartier.
+                </p>
+              </div> */}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="md:col-span-2">
+          <Tabs defaultValue="items">
+            <TabsList className="grid grid-cols-2 mb-8">
+              <TabsTrigger value="items">Mes annonces</TabsTrigger>
+              <TabsTrigger value="reviews">Mes avis</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="items" className="space-y-4">
+              <UserItems />
+            </TabsContent>
+
+            <TabsContent value="reviews"><UserReviews /></TabsContent>
+          </Tabs>
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;
