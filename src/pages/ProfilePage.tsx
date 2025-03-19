@@ -59,7 +59,7 @@ const ProfilePage = () => {
               <div className="bg-[#fae386] h-32 rounded-t-lg"></div>
               <div className="absolute top-24 left-1/2 -translate-x-1/2">
                 <img
-                  className="w-24 h-24 rounded-full border-4 border-white bg-[#deed76] flex items-center justify-center text-4xl"
+                  className="w-24 h-24 rounded-full border-4 border-white bg-[#deed76] flex items-center justify-center text-4xl object-cover"
                   src={user?.avatar}
                   alt="Avatar"
                 />
