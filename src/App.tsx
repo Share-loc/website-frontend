@@ -36,6 +36,7 @@ import ItemPage from './pages/ItemPage.tsx'
 import SettingsPage from './pages/SettingsPage.tsx'
 import ReservationsListPage from './pages/ReservationsListPage.tsx'
 import EditProfilePage from './pages/EditProfilePage.tsx'
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
 
@@ -100,6 +101,7 @@ function App() {
     <AuthContext.Provider value={{ userState, setUserState }}>
       <WebSocketProvider>
         <Toaster />
+        <ScrollToTop />
         <Routes>
           {/* Login route - outside of any layout */}
           <Route path='/login' element={<LoginPage />} />
