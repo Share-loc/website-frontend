@@ -518,10 +518,10 @@ const ReservationCard = ({ reservation }: { reservation: Reservation }) => {
             reservation.state === "accepted"
               ? "bg-green-100 text-green-800"
               : reservation.state === "pending"
-              ? "bg-yellow-100 text-yellow-800"
+              ? "bg-gray-100 text-gray-800"
               : reservation.state === "canceled"
               ? "bg-red-100 text-red-800"
-              : "bg-gray-100 text-gray-800"
+              : "bg-yellow-100 text-yellow-800"
           }`}
         >
           {reservation.state === "accepted"
@@ -530,7 +530,7 @@ const ReservationCard = ({ reservation }: { reservation: Reservation }) => {
             ? "En attente"
             : reservation.state === "canceled"
             ? "Annulée"
-            : "Terminée"}
+            : "Refusé"}
         </span>
       </div>
     </div>
