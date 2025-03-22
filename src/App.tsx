@@ -4,7 +4,6 @@ import AuthContext from './components/context/AuthContext'
 import AppBarLayout from './components/layouts/AppBarLayout'
 import ContentLayout from './components/layouts/ContentLayout'
 import HomePage from './pages/HomePage'
-import AdPage from './pages/AdPage'
 import ProductPage from './pages/ProductPage'
 import RegisterPage from './pages/RegisterPage'
 import LoginPage from './pages/LoginPage'
@@ -33,6 +32,10 @@ import MessagePage from './pages/MessagePage.tsx'
 import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
 import UserPublicProfile from './pages/UserPublicProfile.tsx'
 import { Toaster } from '@/components/ui/toaster';
+import ItemPage from './pages/ItemPage.tsx'
+import SettingsPage from './pages/SettingsPage.tsx'
+import ReservationsListPage from './pages/ReservationsListPage.tsx'
+import EditProfilePage from './pages/EditProfilePage.tsx'
 
 function App() {
 
@@ -122,14 +125,26 @@ function App() {
               <Route path='/profile' element={
                 userState.isLogged ? <ProfilePage /> : <Navigate to="/login" />
               } />
-              <Route path='/adpage' element={
-                userState.isLogged ? <AdPage /> : <Navigate to="/login" />
+              <Route path='/profile/edit' element={
+                userState.isLogged ? <EditProfilePage /> : <Navigate to="/login" />
+              } />
+              <Route path='/create-item' element={
+                userState.isLogged ? <ItemPage /> : <Navigate to="/login" />
+              } />
+              <Route path='/edit-item/:id' element={
+                userState.isLogged ? <ItemPage /> : <Navigate to="/login" />
               } />
               <Route path='/favoris' element={
                 userState.isLogged ? <FavorisPage /> : <Navigate to="/login" />
               } />
               <Route path='/messages' element={
                 userState.isLogged ? <MessagePage /> : <Navigate to="/login" />
+              } />
+              <Route path='/settings' element={
+                userState.isLogged ? <SettingsPage /> : <Navigate to="/login" />
+              } />
+              <Route path='/reservations' element={
+                userState.isLogged ? <ReservationsListPage /> : <Navigate to="/login" />
               } />
 
               {/* 404 route */}
