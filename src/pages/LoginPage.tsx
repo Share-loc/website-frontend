@@ -5,8 +5,16 @@ import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Navigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Loader2 } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
 
 const LoginPage = () => {
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast(); // Initialisation du toast
+
     const { userState, setUserState } = useContext(AuthContext)
     const [formData, setFormData] = useState({
         email: '',
@@ -18,6 +26,44 @@ const LoginPage = () => {
     if (userState.isLogged) {
         return <Navigate to="/" replace />;
     }
+
+    const handleResetPassword = async (e: any) => {
+        e.preventDefault();
+        setIsLoading(true);
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_URL}/password/request`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: resetEmail }),
+          });
+    
+          if (response.ok) {
+            toast({
+              title: 'Succès',
+              description: 'Un lien de réinitialisation a été envoyé à votre adresse email.',
+              variant: 'success',
+            });
+            setIsResetDialogOpen(false); // Masquer la popup
+          } else {
+            const errorData = await response.json();
+            toast({
+              title: 'Erreur',
+              description: errorData.message || 'Une erreur est survenue.',
+              variant: 'destructive',
+            });
+          }
+        } catch (error) {
+          toast({
+            title: 'Erreur',
+            description: 'Impossible de traiter votre demande. Veuillez réessayer plus tard.',
+            variant: 'destructive',
+          });
+        } finally {
+          setIsLoading(false);
+        }
+    };
 
     const handleChange = (e: any) => {
         const { name, value } = e.target;
@@ -105,12 +151,14 @@ const LoginPage = () => {
                   <div className="grid gap-2">
                     <div className="flex items-center">
                       <Label htmlFor="password">Mot de passe</Label>
-                      <a
-                        href="#"
+                      <Button
+                        type="button"
+                        variant={'link'}
                         className="ml-auto text-sm underline-offset-4 hover:underline"
+                        onClick={() => setIsResetDialogOpen(true)}
                       >
                         Mot de passe oublié ?
-                      </a>
+                      </Button>
                     </div>
                     <Input
                       id="password"
@@ -144,6 +192,42 @@ const LoginPage = () => {
             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
           />
         </div>
+        {/* Dialog pour la réinitialisation du mot de passe */}
+      <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Mot de passe oublié</DialogTitle>
+            <DialogDescription>Entrez votre adresse email pour recevoir un lien de réinitialisation</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleResetPassword}>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="resetEmail">Email</Label>
+                <Input
+                  id="resetEmail"
+                  type="email"
+                  placeholder="m@exemple.com"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="submit" className="bg-[#F26522] hover:bg-[#d55314]" disabled={isLoading}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  "Envoyer le lien de réinitialisation"
+                )}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
       </div>
     );
 }
