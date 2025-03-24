@@ -37,6 +37,7 @@ import SettingsPage from './pages/SettingsPage.tsx'
 import ReservationsListPage from './pages/ReservationsListPage.tsx'
 import EditProfilePage from './pages/EditProfilePage.tsx'
 import ScrollToTop from "./components/ScrollToTop";
+import ResetPasswordPage from './pages/ResetPasswordPage.tsx'
 
 function App() {
 
@@ -106,6 +107,7 @@ function App() {
           {/* Login route - outside of any layout */}
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
+          <Route path='/password/reset' element={<ResetPasswordPage /> } />
 
           <Route element={<AppBarLayout />}>
             <Route element={<ContentLayout />}>
