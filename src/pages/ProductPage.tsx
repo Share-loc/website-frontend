@@ -5,12 +5,13 @@ import ProductGallery from "@/components/DetailsItems/ProductDetailGallery";
 import { FiMapPin } from "react-icons/fi";
 import RecentReviews from "@/components/DetailsItems/ProductDetailReview";
 import SellerCard from "@/components/DetailsItems/ProductDetailSeller";
-import ReservationForm from "@/components/DetailsItems/ProductDetailReservation";
+import ReservationForm from "@/components/DetailsItems/ReservationForm";
 import AllCardsItems from "@/components/ItemsComponents/allCardsItems";
 import { CircularProgress } from "@mui/material";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
 import { ThumbsDown } from "lucide-react";
+import { getToken } from "@/const/func";
+import ExistingReservationsCard from "@/components/DetailsItems/ExistingReservationsCard";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -24,6 +25,9 @@ const ProductPage = () => {
   const [rating, setRating] = useState<number>(0);
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [totalItemsUser, setTotalItemsUser] = useState<number>(0);
+
+  const [userReservations, setUserReservations] = useState<any>();
+  const reservationsList = userReservations?.asRenter?.filter((reservation: any) => reservation.item.id === Number(id)) || null;
 
   // Récupération des données de l'item
   const FetchItemDataInfo = async () => {
@@ -92,7 +96,7 @@ const ProductPage = () => {
       const data = await response.json();
       const currentItemId = items.id;
       const filteredItems = data.items.filter(
-        (item) => item.id !== currentItemId
+        (items) => items.id !== currentItemId
       );
       setItemsUser(filteredItems);
       setTotalItemsUser(data.totalItems);
@@ -122,15 +126,41 @@ const ProductPage = () => {
         throw new Error(errorData.message || "Erreur lors de l'appel API");
       }
       const data = await response.json();
-      console.log(data);
       setAllItems(data);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
   };
 
+    // Récupération des réservations
+    const FetchReservations = async () => {
+      try {
+        const response = await fetch(
+          `${
+            import.meta.env.VITE_API_URL
+          }/users/reservations`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${getToken()}`,
+            },
+          }
+        );
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "Erreur lors de l'appel API");
+        }
+        const data = await response.json();
+        setUserReservations(data)
+      } catch (error) {
+        console.error("Erreur lors de l'appel API:", error);
+      }
+    };
+
   useEffect(() => {
     FetchItemDataInfo();
+    FetchReservations();
   }, [id]);
 
   useEffect(() => {
@@ -158,19 +188,19 @@ const ProductPage = () => {
           )}
         </div>
         <div className="hidden xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex gap-5 flex-col">
-          <div className="w-6/6">
-            <SellerCard
-              userInfo={userInfo}
-              items={items}
-              rating={rating}
-              totalReviews={totalReviews}
-              totalItemsUser={totalItemsUser}
-            />
-          </div>
-          <div className="w-6/6">
-            {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
-            <ReservationForm productId={items.id} pricePerDay={50} />
-          </div>
+          <SellerCard
+            userInfo={userInfo}
+            items={items}
+            rating={rating}
+            totalReviews={totalReviews}
+            totalItemsUser={totalItemsUser}
+          />
+          { reservationsList && reservationsList.length > 0 && (
+            <ExistingReservationsCard reservations={reservationsList} item={items} onChange={FetchReservations} />
+          )}
+          {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
+          {/* <ReservationForm productId={items.id} pricePerDay={50} /> */}
+          <ReservationForm item={items} onNewReservation={FetchReservations} />
         </div>
       </div>
       <div className="flex flex-col mt-8">
@@ -194,7 +224,7 @@ const ProductPage = () => {
         </div>
         <div className="w-6/6 lg:w-3/6">
           {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
-          <ReservationForm productId={items.id} pricePerDay={50} />
+          {/* <ReservationForm productId={items.id} pricePerDay={50} /> */}
         </div>
       </div>
       {reviews.length > 0 ? (
