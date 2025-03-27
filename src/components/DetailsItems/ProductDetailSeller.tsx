@@ -108,7 +108,7 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
     <Card className="h-full flex flex-col justify-evenly">
       <CardHeader>
         <CardTitle className="flex gap-4">
-          <Link to={`/userProfile/${userInfo.id}`}>
+          <a href={`/userProfile/${userInfo.id}`}>
             <Avatar className="w-16 h-16">
               <AvatarImage
                 src={userInfo.avatar || undefined} // Si l'avatar n'est pas défini, on ne l'affiche pas
@@ -120,14 +120,14 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
                   : ""}
               </AvatarFallback>
             </Avatar>
-          </Link>
+          </a>
           <div className="w-full">
             <div className="flex items-center justify-between">
-              <Link
-                to={`/userProfile/${userInfo.id}`}
+              <a
+                href={`/userProfile/${userInfo.id}`}
                 className="hover:underline">
                 <h2 className="text-2xl font-bold">{userInfo.username}</h2>
-              </Link>
+              </a>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="outline" size="icon">
@@ -205,11 +205,11 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
           onSend={handleSendMessage}
         />
         <div className="w-full">
-          <Link to={`/userProfile/${userInfo.id}`}>
+          <a href={`/userProfile/${userInfo.id}`}>
             <Button variant="outline" className="w-full">
               <User className="mr-2 h-4 w-4" /> Voir le profil
             </Button>
-          </Link>
+          </a>
         </div>
         <PopupSignalement
           trigger={

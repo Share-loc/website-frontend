@@ -93,7 +93,7 @@ const ItemsPage = () => {
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const value = e.target.value;
-    setVilleRecherche(value);
+    setTempVilleRecherche(value);
     if (value.length > 2) {
       try {
         const response = await fetch(
@@ -176,17 +176,31 @@ const ItemsPage = () => {
         orderBy: selectedOrder,
       });
 
+      const token = localStorage.getItem("token");
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+  
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
       const response = await fetch(
         `${
           import.meta.env.VITE_API_URL
         }/items/filterItems?${params.toString()}&page=${currentPage}&limit=9`,
         {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers,
         }
       );
+
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        setLoading(false);
+        return;
+      }
+      
       const data = await response.json();
       setTotalPages(Math.ceil(data.totalItems / 9));
       setNumberItems(data.totalItems);
@@ -208,9 +222,9 @@ const ItemsPage = () => {
     setPriceMax(tempPriceMax);
     setVilleRecherche(tempVilleRecherche);
     setSelectedType(tempSelectedType);
+    setSuggestions([]);
     setPage(1);
     setIsSearchValid(true);
-    fetchApiData();
   };
 
   // Fonction pour réinitialiser les filtres
@@ -228,6 +242,7 @@ const ItemsPage = () => {
     setTempPriceMax("");
     setTempVilleRecherche("");
     setTempSelectedType("all");
+    setSuggestions([]);
     setPage(1);
     setIsResetFilter(true);
   };
@@ -267,15 +282,19 @@ const ItemsPage = () => {
 
   // Mettre à jour les données lors du changement de page
   useEffect(() => {
-    fetchApiData();
-  }, [page]);
+    if (!isResetFilter || !isSearchValid) {
+      fetchApiData();
+    }
+  }, [page, selectedOrder]);
 
   // Mettre à jour les données lors de la recherche
   useEffect(() => {
-    fetchApiData();
+    if (isResetFilter || isSearchValid) {
+      fetchApiData();
+    }
     isResetFilter ? setIsResetFilter(false) : null;
     isSearchValid ? setIsSearchValid(false) : null;
-  }, [selectedOrder, isSearchValid, isResetFilter]);
+  }, [isSearchValid, isResetFilter]);
 
   return (
     <div className="w-full flex gap-5">

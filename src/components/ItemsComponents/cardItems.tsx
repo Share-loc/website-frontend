@@ -36,7 +36,7 @@ const CardItems = ({ item }: CardItemsProps) => {
         `}
       </style>
       <div
-        className="rounded-xl overflow-hidden shadow-lg w-full transition duration-300 transform hover:scale-[1.015] hover:shadow-xl"
+        className="rounded-xl overflow-hidden shadow-md w-full transition duration-300 transform hover:scale-[1.015]"
         key={item.id}>
         {/* Cœur en haut à gauche */}
         <div className="relative w-full h-[150px] md:h-[200px]">
