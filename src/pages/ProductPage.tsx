@@ -204,11 +204,11 @@ const ProductPage = () => {
             <span className="text-[#FEB24D]">{userInfo.username}</span>
           </h2>
           <RecentReviews reviews={reviews} />
-          <Link to={`/userProfile/${userInfo.id}`}>
+          <a href={`/userProfile/${userInfo.id}`}>
             <Button variant="outline" className="mt-4 flex mx-auto">
               Voir tous les avis
             </Button>
-          </Link>
+          </a>
         </div>
       ) : (
         <div className="mt-8">

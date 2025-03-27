@@ -282,12 +282,16 @@ const ItemsPage = () => {
 
   // Mettre à jour les données lors du changement de page
   useEffect(() => {
-    fetchApiData();
+    if (!isResetFilter || !isSearchValid) {
+      fetchApiData();
+    }
   }, [page, selectedOrder]);
 
   // Mettre à jour les données lors de la recherche
   useEffect(() => {
-    fetchApiData();
+    if (isResetFilter || isSearchValid) {
+      fetchApiData();
+    }
     isResetFilter ? setIsResetFilter(false) : null;
     isSearchValid ? setIsSearchValid(false) : null;
   }, [isSearchValid, isResetFilter]);
