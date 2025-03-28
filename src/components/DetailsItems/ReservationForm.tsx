@@ -45,7 +45,7 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
   };
 
   const handleSubmitReservation = async () => {
-    if (!dateRange.from || !dateRange.to) {
+    if (!dateRange.from) {
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner une période de location",
@@ -53,6 +53,10 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
       });
       return;
     }
+
+    const formattedStartDate = format(dateRange.from, "yyyy-MM-dd")
+    const formattedEndDate = dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : formattedStartDate
+
     setIsLoadingSendReservation(true);
     try {
       const response = await fetch(
@@ -65,8 +69,8 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
           },
           body: JSON.stringify({
             item: item.id,
-            start_at: dateRange.from,
-            end_at: dateRange.to,
+            start_at: formattedStartDate,
+            end_at: formattedEndDate,
           }),
         }
       );
