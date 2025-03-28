@@ -48,7 +48,7 @@ const ItemsCarousel = ({ items }) => {
           <div className="flex gap-5">
             <AiFillProduct className="text-[#F8B24E] text-2xl md:text-3xl" />
             <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-              Nos derniers annonces
+              Nos dernières annonces
             </h2>
           </div>
           <div className="flex space-x-2">
