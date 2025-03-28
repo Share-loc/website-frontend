@@ -1,7 +1,18 @@
+import { useState } from "react";
 import { Input } from "../ui/input";
 import { FaSearch } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const MainBanner = () => {
+    const navigate = useNavigate();
+    const [searchQuery, setSearchQuery] = useState("");
+  
+    const handleSearch = () => {
+      if(!searchQuery.trim()) return
+      navigate(`/annonces?title=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchQuery("")
+    }
+
     return (
       <div className="bg-cover bg-center py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundImage: "url('public/pexel-hero.jpg')" }}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between md:gap-10">
@@ -23,6 +34,14 @@ const MainBanner = () => {
                     type="text"
                     placeholder="Que recherchez-vous ?"
                     className="w-full px-4 py-3 pr-12 focus:outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if(e.key === "Enter"){
+                        e.preventDefault()
+                        handleSearch()
+                      }
+                    }}
                 />
                 <button className="absolute right-0 top-0 h-full text-[#F8B24E] px-4 py-3">
                     <FaSearch />

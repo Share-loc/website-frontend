@@ -40,6 +40,13 @@ const AppBar = () => {
   const { socket } = useWebSocket();
   const { userState, setUserState } = useContext(AuthContext);
   const [unreadMessages, setUnreadMessages] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = () => {
+    if(!searchQuery.trim()) return
+    navigate(`/annonces?title=${encodeURIComponent(searchQuery.trim())}`)
+    setSearchQuery("")
+  }
 
   const fetchUnreadMessages = useCallback(async () => {
     try {
@@ -137,6 +144,14 @@ const AppBar = () => {
                 type="search"
                 placeholder="Rechercher..."
                 className="w-64 py-2 pl-10 pr-4"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if(e.key === 'Enter'){
+                    e.preventDefault();
+                    handleSearch()
+                  }
+                }}
               />
               <Search
                 className="absolute text-gray-500 transform -translate-y-1/2 left-3 top-1/2"
@@ -272,6 +287,8 @@ const AppBar = () => {
                     type="search"
                     placeholder="Rechercher..."
                     className="w-full py-2 pl-10 pr-4"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                   />
                   <Search
                     className="absolute text-gray-400 transform -translate-y-1/2 left-3 top-1/2"
@@ -279,7 +296,7 @@ const AppBar = () => {
                   />
                 </div>
                 <SheetClose asChild>
-                  <Button>lancer la recherche</Button>
+                  <Button onClick={handleSearch}>lancer la recherche</Button>
                 </SheetClose>
 
                 <SheetClose asChild>
