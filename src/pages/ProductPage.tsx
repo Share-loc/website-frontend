@@ -181,9 +181,7 @@ const ProductPage = () => {
 
   
     const IsActualUserItemOwner = () =>{
-      console.log(user)
-      console.log(items)
-      if(!user || !items) return false
+      if(!user || !items.user?.id) return false
       return user.id === items.user.id
     }
 
