@@ -25,9 +25,30 @@ const ProductPage = () => {
   const [rating, setRating] = useState<number>(0);
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [totalItemsUser, setTotalItemsUser] = useState<number>(0);
+  const [user, setUser] = useState<any>()
 
   const [userReservations, setUserReservations] = useState<any>();
   const reservationsList = userReservations?.asRenter?.filter((reservation: any) => reservation.item.id === Number(id)) || null;
+
+  //Récupération de l'utilisateur connecté
+  const FetchUser = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/users/personal-data`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${getToken()}`,
+          },
+        }
+      );
+      const data = await response.json();
+      setUser(data)
+    } catch (error) {
+      console.error("Erreur lors de l'appel API:", error);
+    }
+  };
 
   // Récupération des données de l'item
   const FetchItemDataInfo = async () => {
@@ -158,9 +179,18 @@ const ProductPage = () => {
       }
     };
 
+  
+    const IsActualUserItemOwner = () =>{
+      console.log(user)
+      console.log(items)
+      if(!user || !items) return false
+      return user.id === items.user.id
+    }
+
   useEffect(() => {
     FetchItemDataInfo();
     FetchReservations();
+    FetchUser();
   }, [id]);
 
   useEffect(() => {
@@ -188,19 +218,30 @@ const ProductPage = () => {
           )}
         </div>
         <div className="hidden xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex gap-5 flex-col">
-          <SellerCard
-            userInfo={userInfo}
-            items={items}
-            rating={rating}
-            totalReviews={totalReviews}
-            totalItemsUser={totalItemsUser}
-          />
-          { reservationsList && reservationsList.length > 0 && (
-            <ExistingReservationsCard reservations={reservationsList} item={items} onChange={FetchReservations} />
+          <div>
+            <SellerCard
+              userInfo={userInfo}
+              items={items}
+              rating={rating}
+              totalReviews={totalReviews}
+              totalItemsUser={totalItemsUser}
+            />
+          </div>
+          {reservationsList && reservationsList.length > 0 && (
+            <ExistingReservationsCard
+              reservations={reservationsList}
+              item={items}
+              onChange={FetchReservations}
+            />
           )}
           {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
           {/* <ReservationForm productId={items.id} pricePerDay={50} /> */}
-          <ReservationForm item={items} onNewReservation={FetchReservations} />
+          {!IsActualUserItemOwner() && (
+            <ReservationForm
+              item={items}
+              onNewReservation={FetchReservations}
+            />
+          )}
         </div>
       </div>
       <div className="flex flex-col mt-8">
@@ -213,7 +254,7 @@ const ProductPage = () => {
         <p className="text-xl md:text-2xl font-bold">{items.price}€ / Jour</p>
       </div>
       <div className="xl:hidden flex gap-8 mt-8 flex-col lg:flex-row">
-        <div className="w-6/6 lg:w-3/6">
+        <div className="w-6/6 h-fit">
           <SellerCard
             userInfo={userInfo}
             items={items}
@@ -222,9 +263,22 @@ const ProductPage = () => {
             totalItemsUser={totalItemsUser}
           />
         </div>
-        <div className="w-6/6 lg:w-3/6">
+        <div className="w-6/6 flex flex-col gap-8">
+          {reservationsList && reservationsList.length > 0 && (
+            <ExistingReservationsCard
+              reservations={reservationsList}
+              item={items}
+              onChange={FetchReservations}
+            />
+          )}
           {/* Partie Réservation à changer plus tard et enlèver composant calendar de shacdn */}
           {/* <ReservationForm productId={items.id} pricePerDay={50} /> */}
+          {!IsActualUserItemOwner() && (
+            <ReservationForm
+              item={items}
+              onNewReservation={FetchReservations}
+            />
+          )}
         </div>
       </div>
       {reviews.length > 0 ? (

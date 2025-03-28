@@ -39,8 +39,9 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
   const isMobile = useIsMobile();
 
   const calculateTotal = () => {
-    if (!dateRange.from || !dateRange.to) return 0;
-    const days = differenceInDays(dateRange.to, dateRange.from) + 1;
+    if (!dateRange.from) return 0;
+    const endDate = dateRange.to || dateRange.from
+    const days = differenceInDays(endDate, dateRange.from) + 1;
     return (item.price * days).toFixed(2);
   };
 
@@ -171,12 +172,12 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
           />
         </div>
 
-        {dateRange.from && dateRange.to && (
+        {dateRange.from && (
           <div className="bg-muted p-3 rounded-md space-y-2">
             <div className="flex justify-between py-1">
               <span className="text-sm">
                 {item.price}€ ×{" "}
-                {differenceInDays(dateRange.to, dateRange.from) + 1} jours
+                {differenceInDays(dateRange.to || dateRange.from, dateRange.from) + 1} jours
               </span>
               <span className="text-sm font-medium">{calculateTotal()}€</span>
             </div>

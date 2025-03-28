@@ -53,12 +53,6 @@ function ExistingReservationsCard({
   });
   const [showModifyDialog, setShowModifyDialog] = useState(false);
 
-  const calculateTotal = () => {
-    if (!modifyDateRange.from || !modifyDateRange.to) return 0;
-    const days = differenceInDays(modifyDateRange.to, modifyDateRange.from) + 1;
-    return (item.price * days).toFixed(2);
-  };
-
   const getStateColor = (state: string) => {
     switch (state) {
       case "accepted":
@@ -206,6 +200,13 @@ function ExistingReservationsCard({
     setReservationToCancel(null);
   };
 
+  const calculateTotal = (item: any, from: Date|undefined, to: Date|undefined) => {
+    if (!from) return 0;
+    const endDate = to || from
+    const days = differenceInDays(endDate, from) + 1;
+    return (item.price * days).toFixed(2);
+  };
+
   return (
     <>
       <Card className="">
@@ -257,12 +258,7 @@ function ExistingReservationsCard({
 
                   <div className="font-medium">Prix total</div>
                   <div className="font-bold">
-                    {item.price *
-                      (differenceInDays(
-                        reservation.end_at,
-                        reservation.start_at
-                      ) +
-                        1)}{" "}
+                    {calculateTotal(reservation.item, modifyDateRange.from || reservation.start_at, modifyDateRange.to)}
                     €
                   </div>
                 </div>
@@ -432,25 +428,25 @@ function ExistingReservationsCard({
               />
             </div>
 
-            {modifyDateRange.from && modifyDateRange.to && (
+            {modifyDateRange.from && (
               <div className="bg-muted p-3 rounded-md space-y-2">
                 <div className="flex justify-between py-1">
                   <span className="text-sm">
                     {item.price}€ ×{" "}
                     {differenceInDays(
-                      modifyDateRange.to,
+                      modifyDateRange.to || modifyDateRange.from,
                       modifyDateRange.from
                     ) + 1}{" "}
                     jours
                   </span>
                   <span className="text-sm font-medium">
-                    {calculateTotal()}€
+                    {calculateTotal(selectedReservation.item, modifyDateRange.from, modifyDateRange.to)}€
                   </span>
                 </div>
                 <Separator />
                 <div className="flex justify-between py-1">
                   <span className="text-sm font-medium">Total</span>
-                  <span className="text-lg font-bold">{calculateTotal()}€</span>
+                  <span className="text-lg font-bold">{calculateTotal(selectedReservation.item, modifyDateRange.from, modifyDateRange.to)}€</span>
                 </div>
               </div>
             )}
