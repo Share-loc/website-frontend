@@ -113,6 +113,7 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
               <AvatarImage
                 src={userInfo.avatar || undefined} // Si l'avatar n'est pas défini, on ne l'affiche pas
                 alt={userInfo.username + " avatar"}
+                className="object-cover"
               />
               <AvatarFallback>
                 {userInfo.username

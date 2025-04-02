@@ -47,8 +47,6 @@ const CardItems = ({ item }: CardItemsProps) => {
             <img
               className="h-full w-full object-cover rounded-xl"
               src={
-                import.meta.env.VITE_URL_BACK_END +
-                "/" +
                 item.activeItemPictures[0].fullPath
               }
               alt={item.title}
@@ -87,7 +85,7 @@ style={{
           <div className="w-6/6 h-[2px] bg-[#cbcbcb] mx-4"></div>
           <div className="px-4 py-4 flex flex-col gap-3 md:gap-3 xl:gap-0 sm:flex-row lg:flex-row xl:flex-row 2xl:flex-row justify-between items-center">
             <div className="text-[#FEB24D] font-bold text-xs lg:text-md">
-              {item.price}€/heure
+              {item.price}€/Jour
             </div>
             <div className="flex items-center gap-1 border border-[#cbcbcb] p-[5px] rounded-md">
               <IoMdPerson className="text-[#00000] text-xs" />  
