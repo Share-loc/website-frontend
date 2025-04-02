@@ -7,6 +7,8 @@ import AllCardsItems from "@/components/ItemsComponents/allCardsItems";
 import { Badge } from "@/components/ui/badge";
 import { Cuboid } from 'lucide-react';
 import { CircularProgress } from "@mui/material";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 const UserPublicProfile = () => {
   const { userId } = useParams();
@@ -107,6 +109,7 @@ const UserPublicProfile = () => {
       <div className="flex items-start mb-4">
         <Avatar className="h-20 w-20 mr-4 my-auto">
           <AvatarImage
+            className="object-cover"
             src={user.avatar || undefined} // Si l'avatar n'est pas défini, on ne l'affiche pas
             alt={user.username + " avatar"}
           />
@@ -137,11 +140,7 @@ const UserPublicProfile = () => {
             <CalendarIcon className="text-yellow-400 mr-2 w-6 h-6" />
             <span>
               Membre depuis{" "}
-              {new Date(user.created_at).toLocaleDateString("fr-FR", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}
+              {format(user.created_at, "MMMM yyyy", { locale: fr})}
             </span>
           </div>
         </div>

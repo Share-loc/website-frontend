@@ -31,8 +31,8 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
     <div>
       <div className="relative aspect-square mb-4">
         <img
-          src={import.meta.env.VITE_URL_BACK_END + "/" + images[currentIndex].fullPath}
-          alt={import.meta.env.VITE_URL_BACK_END + "/" + images[currentIndex].path}
+          src={images[currentIndex].fullPath}
+          alt={images[currentIndex].path}
           className="object-cover rounded-md h-full"
         />
         <button
@@ -58,8 +58,8 @@ export default function ProductGallery({ images }: ProductGalleryProps) {
             }`}
           >
             <img
-              src={import.meta.env.VITE_URL_BACK_END + "/" + image.fullPath}
-              alt={import.meta.env.VITE_URL_BACK_END + "/" + image.path}
+              src={image.fullPath}
+              alt={image.path}
               width={80}
               height={80}
               className="object-cover rounded-md h-full"
