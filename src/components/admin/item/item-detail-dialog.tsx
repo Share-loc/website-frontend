@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
 import { Item } from "@/types/admin/item-types";
-import { CheckCircle, ExternalLink, Eye } from "lucide-react";
+import { CheckCircle, ExternalLink, Eye, Trash } from "lucide-react";
 import { useState } from "react";
 
 interface ItemDetailDialogProps {
@@ -25,6 +25,7 @@ interface ItemDetailDialogProps {
 function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
   const [open, setOpen] = useState(false);
   const [isConfirmingValidation, setIsConfirmingValidation] = useState(false);
+  const [isConfirmingReject, setIsConfirmingReject] = useState(false);
 
   const { refreshItemsCounter } = useAdmin();
 
@@ -53,6 +54,34 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
       })
       .catch((error) =>
         console.error("Erreur lors de l'approbation de l'annonce : ", error)
+      );
+  };
+
+  const handleReject = (item: Item) => {
+    fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}/reject`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          console.error(
+            "Erreur lors du rejet de l'annonce : ",
+            response.status
+          );
+        } else {
+          setOpen(false);
+          setIsConfirmingReject(false);
+          toast({title: "Annonce rejeté", content: "L'annonce a bien été rejetée" , variant: "success"});
+          onItemValidated();
+          refreshItemsCounter();
+        }
+        return response;
+      })
+      .catch((error) =>
+        console.error("Erreur lors du rejet de l'annonce : ", error)
       );
   };
 
@@ -152,14 +181,25 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
           Fermer
         </Button>
         {item.status === "waiting_for_approval" && (
-          <Button
+          <>
+            <Button
+              onClick={() => {
+                setIsConfirmingValidation(true);
+              }}
+            >
+              <CheckCircle className="mr-2 h-4 w-4" />
+              Valider l'annonce
+            </Button>
+            <Button
+            variant={"destructive"}
             onClick={() => {
-              setIsConfirmingValidation(true);
+              setIsConfirmingReject(true);
             }}
           >
-            <CheckCircle className="mr-2 h-4 w-4" />
-            Valider l'annonce
+            <Trash className="mr-2 h-4 w-4" />
+            Rejeter l'annonce
           </Button>
+        </>
         )}
         <a
           href={`/product/${item.id}`}
@@ -196,6 +236,28 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
       </DialogFooter>
     </>
   );
+  
+  const rejectContent = (
+    <>
+      <DialogHeader>
+        <DialogTitle>Rejeter l'annonce ?</DialogTitle>
+        <DialogDescription>
+          Êtes-vous sûr de vouloir rejeter la publication de cette annonce ?
+        </DialogDescription>
+      </DialogHeader>
+      <DialogFooter>
+        <Button
+          variant="outline"
+          onClick={() => setIsConfirmingReject(false)}
+        >
+          Annuler
+        </Button>
+        <Button onClick={() => handleReject(item)} variant={"destructive"}>
+          Rejeter l'annonce 
+        </Button>
+      </DialogFooter>
+    </>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -205,7 +267,11 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-3xl">
-        {isConfirmingValidation ? validationContent : detailContent}
+        {isConfirmingValidation 
+          ? validationContent 
+          : isConfirmingReject 
+            ? rejectContent 
+            : detailContent}
       </DialogContent>
     </Dialog>
   );
