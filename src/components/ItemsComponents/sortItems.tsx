@@ -44,7 +44,7 @@ const SortItems = ({
   };
 
   return (
-    <div className="md:bg-white w-[100%] md:p-2 rounded-xl flex justify-between flex-col mb-5 md:mb-5 md:flex-row md:items-center">
+    <div className="md:bg-gray-100 w-[100%] md:p-2 rounded-xl flex justify-between flex-col mb-5 md:mb-5 md:flex-row md:items-center">
       <p className="text-black text-sm xl:w-[50%] sm:w-[50%] mb-3 md:mb-0 xl:mb-0">
         Nombre de résultat : {numberItems}
       </p>

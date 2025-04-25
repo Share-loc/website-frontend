@@ -28,7 +28,7 @@ const FilterItems = ({
     <div
       className={`${
         isDisplayed ? "block w-full shadow-xl" : "hidden"
-      } xl:block rounded-xl bg-white w-[25%] h-full`}>
+      } xl:block rounded-xl bg-gray-100 w-[25%] h-full`}>
       <div className="py-7 px-5">
         <p className="text-center text-md font-bold">Filtrer les résultats</p>
         <SearchBar
@@ -58,12 +58,12 @@ const FilterItems = ({
         />
         <div className="flex flex-col-reverse gap-2">
           <button
-            className="border border-[#BABABA] text-sm text-[#BABABA] rounded-md p-1 w-[100%] duration-100 hover:bg-gray hover:text-blue hover:duration-100"
+            className="border border-[#8e8e8e] text-sm text-[#8e8e8e] rounded-md p-1 w-[100%] duration-100 hover:bg-gray hover:text-blue hover:duration-100"
             onClick={resetInfo}>
             Effacer les filtres
           </button>
           <button
-            className="border border-transparent bg-[#FEB24D] text-white text-sm rounded-md p-1 w-[100%] duration-100 hover:bg-transparent hover:border hover:border-[#FEB24D] hover:text-[#FEB24D] hover:duration-100"
+            className="border border-transparent bg-primary text-white text-sm rounded-md p-1 w-[100%] duration-100 hover:bg-transparent hover:border hover:border-primary hover:text-primary hover:duration-100"
             onClick={applyFilters}>
             Lancer la recherche
           </button>
