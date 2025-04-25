@@ -34,7 +34,21 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { set } from "date-fns";
+import { z } from "zod";
+
+const itemSchema = z.object({
+  title: z.string().min(1, "Veuillez saisir un titre !").max(100, "Le titre est trop long"),
+  body: z.string().min(1, "Veuillez saisir une description !"),
+  price: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: "Veuillez selectionner un prix correcte !"
+  }),
+  location: z.string().min(1, "Veuillez saisir un lieu"),
+  phone_number: z.string().regex(/^(\+[0-9]{2}|0)[0-9]{9}$/, "Veuillez saisir un format valide !"),
+  show_phone: z.boolean(),
+  category_id: z.string().min(1, "Veuillez sélectionner une catégorie !")
+});
+
+type ItemFormData = z.infer<typeof itemSchema>;
 
 const ItemPage = () => {
   const navigate = useNavigate();
@@ -46,6 +60,7 @@ const ItemPage = () => {
   const isEditing = Boolean(id);
 
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof ItemFormData, string>>>({});
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -68,6 +83,47 @@ const ItemPage = () => {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const validateForm = (): boolean => {
+    try{
+      itemSchema.parse({
+        title,
+        body: description,
+        price,
+        location,
+        phone_number: phone,
+        show_phone: showPhone,
+        category_id: categoryId
+      });
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError){
+        const newErrors: Partial<Record<keyof ItemFormData, string>> = {};
+        err.errors.forEach((error) => {
+          if (error.path) {
+            newErrors[error.path[0] as keyof ItemFormData] = error.message;
+          }
+        });
+        setErrors(newErrors);
+      }
+      return false;
+    }
+  }
+
+  const validateField = (name: keyof ItemFormData, value: string | boolean) => {
+    // Ne valide que si on a déjà tenté de soumettre le formulaire
+    if (!hasAttemptedSubmit) return;
+  
+    try {
+      itemSchema.pick({ [name]: true } as Record<keyof ItemFormData, true>).parse({ [name]: value });
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setErrors(prev => ({ ...prev, [name]: err.errors[0].message }));
+      }
+    }
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -163,6 +219,16 @@ const ItemPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setHasAttemptedSubmit(true);
+
+    // Validation du formulaire
+    if (!validateForm()) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez corriger les erreurs dans le formulaire",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Vérification des images
     if (
@@ -317,9 +383,13 @@ const ItemPage = () => {
   return (
     <div className="flex flex-col justify-center items-center">
       <div className="container max-w-3xl py-10">
-        <h1 className="text-3xl font-bold mb-6">{isEditing ? "Modification de l'annonce" : "Créer une nouvelle annonce"}</h1>
+        <h1 className="text-3xl font-bold mb-6">
+          {isEditing
+            ? "Modification de l'annonce"
+            : "Créer une nouvelle annonce"}
+        </h1>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8" noValidate>
           <div className="space-y-4">
             <div>
               <Label htmlFor="title">Titre de l'annonce</Label>
@@ -328,8 +398,15 @@ const ItemPage = () => {
                 placeholder="Ex: Perceuse électrique Bosch"
                 required
                 value={title}
-                onChange={(e) => setTitle(e.target.value)}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  validateField("title", e.target.value);
+                }}
+                className={errors.title ? "border-red-500" : ""}
               />
+              {errors.title && (
+                <p className="text-sm text-red-500 mt-1">{errors.title}</p>
+              )}
             </div>
 
             <div>
@@ -337,11 +414,20 @@ const ItemPage = () => {
               <Textarea
                 id="description"
                 placeholder="Décrivez votre objet en détail (état, caractéristiques, etc.)"
-                className="min-h-[120px]"
+                className={cn(
+                  "min-h-[120px]",
+                  errors.body ? "border-red-500" : ""
+                )}
                 required
                 value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  validateField("body", e.target.value);
+                }}
               />
+              {errors.body && (
+                <p className="text-sm text-red-500 mt-1">{errors.body}</p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -355,8 +441,15 @@ const ItemPage = () => {
                   placeholder="15.00"
                   required
                   value={price}
-                  onChange={(e) => setPrice(e.target.value)}
+                  onChange={(e) => {
+                    setPrice(e.target.value);
+                    validateField("price", e.target.value);
+                  }}
+                  className={errors.price ? "border-red-500" : ""}
                 />
+                {errors.price && (
+                  <p className="text-sm text-red-500 mt-1">{errors.price}</p>
+                )}
               </div>
 
               <div>
@@ -366,8 +459,15 @@ const ItemPage = () => {
                   placeholder="Ex: Paris 75011"
                   required
                   value={location}
-                  onChange={(e) => setLocation(e.target.value)}
+                  onChange={(e) => {
+                    setLocation(e.target.value);
+                    validateField("location", e.target.value);
+                  }}
+                  className={errors.location ? "border-red-500" : ""}
                 />
+                {errors.location && (
+                  <p className="text-sm text-red-500 mt-1">{errors.location}</p>
+                )}
               </div>
             </div>
 
@@ -394,8 +494,17 @@ const ItemPage = () => {
                     }
                   }}
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  onChange={(e) => {
+                    setPhone(e.target.value);
+                    validateField("phone_number", e.target.value);
+                  }}
+                  className={errors.phone_number ? "border-red-500" : ""}
                 />
+                {errors.phone_number && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {errors.phone_number}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-end pb-2">
@@ -414,9 +523,18 @@ const ItemPage = () => {
 
             <div>
               <Label htmlFor="category">Catégorie</Label>
-              <Select required value={categoryId} onValueChange={setCategoryId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une catégorie" />
+              <Select
+                required
+                value={categoryId}
+                onValueChange={(value) => {
+                  setCategoryId(value);
+                  validateField("category_id", value);
+                }}
+              >
+                <SelectTrigger
+                  className={errors.category_id ? "border-red-500" : ""}
+                >
+                  <SelectValue placeholder="Sélectionner une catégorie" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -429,6 +547,11 @@ const ItemPage = () => {
                   ))}
                 </SelectContent>
               </Select>
+              {errors.category_id && (
+                <p className="text-sm text-red-500 mt-1">
+                  {errors.category_id}
+                </p>
+              )}
             </div>
 
             <div>
@@ -471,7 +594,6 @@ const ItemPage = () => {
                         type="file"
                         accept="image/*"
                         multiple
-                        
                         className="hidden"
                         onChange={handleImageUpload}
                       />
