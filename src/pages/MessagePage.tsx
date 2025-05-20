@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { getToken } from "@/const/func";
 import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
-import { ArrowLeft, Flag, MoreVertical, Trash, UserMinusIcon } from "lucide-react";
+import { ArrowLeft, Flag, Trash } from "lucide-react";
 import { format, setDefaultOptions } from "date-fns";
 import { fr } from "date-fns/locale";
 import FormMessageSend from "@/components/MessagesComponents/FormMessageSend";
@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useWebSocket } from "@/components/context/WebSocketContext";
 import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
 import { Conversation, Message } from "@/types/MessageTypes";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PopupSignalement from "@/components/PopupSignalement";
 
 setDefaultOptions({ locale: fr });
 
@@ -264,7 +264,7 @@ function MessagePage() {
                       <ArrowLeft className="size-4" />
                       <span>Retour</span>
                     </Button>
-                    <Avatar className="w-10 h-10 mr-3 rounded-full">
+                    <Avatar className="hidden sm:block w-10 h-10 mr-3 rounded-full">
                       <AvatarImage
                         src={selectedConversation.user_avatar ?? ""}
                       />
@@ -278,24 +278,16 @@ function MessagePage() {
                       {selectedConversation.user_username}
                     </h2>
                   </div>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <MoreVertical className="size-4 sm:size-5" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      // ! todo : Ajouter les fonctionnalités de signalement et de blocage
-                      <DropdownMenuItem>
+                  
+                  <PopupSignalement
+                    trigger={
+                      <Button variant={"ghost"}>
                         <Flag className="w-4 h-4 mr-2" />
-                        <span>Signaler l'utilisateur</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem>
-                        <UserMinusIcon className="w-4 h-4 mr-2" />
-                        <span>Bloquer l'utilisateur</span>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <span className="hidden sm:block">Signaler</span>
+                      </Button>
+                    }
+                    idUser={selectedConversation.user_id.toString()}
+                  />
                 </div>
 
                 {/* Chat messages */}

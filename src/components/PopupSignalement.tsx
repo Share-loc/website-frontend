@@ -120,6 +120,7 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
               placeholder="Détails supplémentaires (optionnel)"
               value={details}
               onChange={(e) => setDetails(e.target.value)}
+              className="min-h-[100px]"
             />
           </div>
           <DialogFooter>
