@@ -34,6 +34,10 @@ const GDPRPage = () => {
           <p className="mb-4">
             Notre site utilise des cookies pour améliorer votre expérience en ligne. Les cookies sont de petits fichiers stockés sur votre appareil qui nous aident à analyser le trafic web et à personnaliser le contenu. Vous pouvez configurer votre navigateur pour refuser les cookies, mais cela peut affecter votre utilisation de notre site.
           </p>
+          <p className="mb-4">
+            En cas de refus des cookies non nécessaires, nous ne stockerons que les cookies essentiels au fonctionnement du site. Essentielement les données de session et de sécurité.
+            Dans le cas où vous accepteriez les cookies, nous pourrions stocker des cookies de performance et de fonctionnalité. Ces cookies nous aident à analyser le trafic web et à personnaliser le contenu.
+          </p>
         </section>
         <section className="mb-6">
           <h2 className="text-2xl font-semibold mb-4">6. Sécurité des données</h2>
