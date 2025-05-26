@@ -8,7 +8,7 @@ import { Badge } from "./ui/badge";
 import { useAuth } from "./context/AuthContext";
 
 const AdminMenu = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const { pendingItems, pendingReports } = useAdmin();
 
@@ -83,12 +83,12 @@ const AdminMenu = () => {
                   <Avatar className="rounded-lg size-8">
                     {/* !! TODO : Change with user avatar/fallback and username */}
                     <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
+                      src={user?.avatar}
+                      alt="User profile picture"
                     />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
-                  username
+                  {`${user?.first_name} ${user?.last_name}`}
                   <ChevronUp className="ml-auto" />
                 </SidebarMenuButton>
               </DropdownMenuTrigger>

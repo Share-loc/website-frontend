@@ -165,7 +165,7 @@ const AppBar = () => {
                   <div className="relative cursor-pointer">
                     <Avatar>
                       {/* todo : replace with user avatar */}
-                      <AvatarImage src={user?.avatar} alt="Avatar" />
+                      <AvatarImage src={user?.avatar} alt="Avatar" className="object-cover" />
                       <AvatarFallback>
                         {user?.username?.slice(0, 2)}
                       </AvatarFallback>
@@ -181,10 +181,10 @@ const AppBar = () => {
                     <div className="flex flex-col space-y-1">
                       {/* todo : replace with user data */}
                       <p className="text-sm font-medium leading-none">
-                        Jean Dupont
+                        {`${user?.first_name} ${user?.last_name}`}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        jean.dupont@example.com
+                        {user?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>

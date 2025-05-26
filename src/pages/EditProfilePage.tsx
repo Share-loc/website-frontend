@@ -19,14 +19,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
 function EditProfilePage() {
-  const [userId, setUserId] = useState();
+  const [userId, setUserId] = useState<number>();
   const [avatar, setAvatar] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
-  // const [phone, setPhone] = useState("");
-  // const [location, setLocation] = useState("");
-  // const [bio, setBio] = useState("");
 
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -34,7 +31,17 @@ function EditProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { user } = useAuth();
+  const { user, loadUserData } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      setUserId(user.id);
+      setFirstName(user.first_name || '');
+      setLastName(user.last_name || '');
+      setEmail(user.email || '');
+      setAvatar(user.avatar || '');
+    }
+  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,11 +81,9 @@ function EditProfilePage() {
         first_name: firstName,
         last_name: lastName,
         email: email,
-        // phone: phone,
-        // location: location,
-        // bio: bio,
         ...(newPassword && { plainPassword: newPassword }),
       });
+      await loadUserData();
       toast({ title: "Profil mis à jour", variant: "success" });
     } catch (error) {
       console.error("An error occurred while updating user", error);
@@ -133,9 +138,11 @@ function EditProfilePage() {
           }
         );
 
-        if (response.status !== 200) {
+        if (response.status !== 201) {
           throw new Error("Erreur lors du téléchargement de l'avatar");
         }
+
+        await loadUserData();
 
         toast({
           title: "Avatar mis à jour",
