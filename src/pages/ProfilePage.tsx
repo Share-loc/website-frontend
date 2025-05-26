@@ -4,43 +4,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import UserItems from "@/components/UserItems";
-import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import UserReviews from "@/components/UserReviews";
-
-interface User {
-  id: number;
-  email: string;
-  username: string;
-  avatar: string;
-  first_name: string;
-  last_name: string;
-  created_at: string;
-}
+import { useAuth } from "@/components/context/AuthContext";
 
 const ProfilePage = () => {
-  const [user, setUser] = useState<User>();
-
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/personal-data`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setUser(data);
-    } catch (error) {
-      console.error("An error occurred while fetching user data", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
+  const { user } = useAuth();
 
   return (
     <>

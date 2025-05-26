@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { getToken } from "../../const/func";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Mail, Search } from "lucide-react";
@@ -19,6 +18,7 @@ import { UserDeleteDialog } from "@/components/admin/user/user-delete-dialog";
 import { User } from "@/types/admin/user-types";
 import { UserEditDialog } from "@/components/admin/user/user-edit-dialog";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import apiClient from "@/service/api/apiClient";
 
 const AdminUsersPape = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,24 +33,19 @@ const AdminUsersPape = () => {
   const fetchUsers = useCallback(() => {
     const params = new URLSearchParams();
 
-    if(searchTerm) params.append("search", searchTerm);
+    if (searchTerm) params.append("search", searchTerm);
 
     params.append("limit", itemsPerPage.toString());
 
-    if(currentPage > 1) params.append("page", currentPage.toString());
+    if (currentPage > 1) params.append("page", currentPage.toString());
 
-    fetch(`${import.meta.env.VITE_API_URL}/users?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
+    apiClient
+      .get(`/users?${params.toString()}`)
       .then((response) => {
-        setUsers(response.data)
-        setTotalPages(response.totalPages)
-        setTotalItems(response.total)})
+        setUsers(response.data.data);
+        setTotalPages(response.data.totalPages);
+        setTotalItems(response.data.total);
+      })
       .catch((error) =>
         console.error(
           "Erreur lors de la récupération des Utilisateurs : ",

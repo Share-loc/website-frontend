@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Category } from "@/types/admin/category-types";
 import { Pen, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -33,39 +33,27 @@ function CategoryEditDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const url = `${import.meta.env.VITE_API_URL}/categories${
-      category ? `/${category.id}` : ""
-    }`;
-    const method = category ? "PATCH" : "POST";
-
-    const response = await fetch(url, {
-      method: method,
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: JSON.stringify({ name: libelle }),
-    });
-
-    if (!response.ok) {
-      console.error(
-        "Erreur lors de la soumission de la catégorie : ",
-        response.status
-      );
-    } else {
+    try {
+      if (category) {
+        await apiClient.patch(`/categories/${category.id}`, { name: libelle });
+      } else {
+        await apiClient.post("/categories", { name: libelle });
+      }
       onCategoryEdited();
       setOpen(false);
       category
         ? toast({
             title: "Catégorie modifiée avec succès",
-            content: "La catégorie a été modifiée avec succès",
+            description: "La catégorie a été modifiée avec succès",
             variant: "success",
           })
         : toast({
             title: "Catégorie ajoutée avec succès",
-            content: "La catégorie a été ajoutée avec succès",
+            description: "La catégorie a été ajoutée avec succès",
             variant: "success",
           });
+    } catch (error) {
+      console.error("Erreur lors de la soumission de la catégorie :", error);
     }
   };
 

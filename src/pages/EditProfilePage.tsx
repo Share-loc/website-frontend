@@ -1,3 +1,4 @@
+import { useAuth } from "@/components/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 // import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -32,29 +34,7 @@ function EditProfilePage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const fetchUserData = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/personal-data`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setUserId(data.id);
-      setAvatar(data.avatar);
-      setFirstName(data.first_name);
-      setLastName(data.last_name);
-      setEmail(data.email);
-      // setPhone(data.phone);
-      // setLocation(data.location);
-      // setBio(data.bio);
-    } catch (error) {
-      console.error("An error occurred while fetching user data", error);
-    }
-  };
+  const { user } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,26 +70,23 @@ function EditProfilePage() {
     }
 
     try {
-      await fetch(`${import.meta.env.VITE_API_URL}/users/${userId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email: email,
-          // phone: phone,
-          // location: location,
-          // bio: bio,
-          ...(newPassword && { plainPassword: newPassword }),
-        }),
+      await apiClient.patch(`/users/${userId}`, {
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        // phone: phone,
+        // location: location,
+        // bio: bio,
+        ...(newPassword && { plainPassword: newPassword }),
       });
       toast({ title: "Profil mis à jour", variant: "success" });
-      fetchUserData();
     } catch (error) {
       console.error("An error occurred while updating user", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le profil",
+        variant: "destructive",
+      });
     }
   };
 
@@ -122,7 +99,7 @@ function EditProfilePage() {
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
+
       // Vérification du type et de la taille du fichier
       if (!file.type.startsWith('image/')) {
         toast({
@@ -146,24 +123,20 @@ function EditProfilePage() {
       formData.append('file', file);
 
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/users/profile-picture`,
+        const response = await apiClient.post(
+          "/users/profile-picture",
+          formData,
           {
-            method: 'POST',
             headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
+              "Content-Type": "multipart/form-data",
             },
-            body: formData,
           }
         );
 
-        if (!response.ok) {
-          throw new Error('Erreur lors du téléchargement de l\'avatar');
+        if (response.status !== 200) {
+          throw new Error("Erreur lors du téléchargement de l'avatar");
         }
 
-        await response.json();
-        fetchUserData();
-        
         toast({
           title: "Avatar mis à jour",
           variant: "success",
@@ -178,10 +151,6 @@ function EditProfilePage() {
       }
     }
   };
-
-  useEffect(() => {
-    fetchUserData();
-  }, []);
 
   return (
     <>

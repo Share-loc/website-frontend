@@ -5,38 +5,16 @@ import ServicesBanner from "@/components/HomeComponents/BannerService"
 import About from "@/components/HomeComponents/About"
 import TestimonialsCarousel from "@/components/HomeComponents/Testimonial"
 import { CircularProgress } from "@mui/material"
+import apiClient from "@/service/api/apiClient"
 
 const HomePage = () => {
   const [items, setItems] = useState([])
-  const token = localStorage.getItem("token");
   const [loader, setLoader] = useState(true);
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
 
   const itemsHome = async () => {
     try {
-      const responseItems = await fetch(
-        `${import.meta.env.VITE_API_URL}/items`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
-
-      if (responseItems.status === 401) {
-        localStorage.removeItem("token");
-        setLoader(false);
-        return;
-      }
-      
-      const response = await responseItems.json();
-      setItems(response.items);
-
+      const response = await apiClient.get("/items");
+      setItems(response.data.items);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     } finally {

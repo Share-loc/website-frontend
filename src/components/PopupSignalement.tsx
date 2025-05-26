@@ -3,10 +3,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
-import { getToken } from "@/const/func";
-import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { ToastAction } from "@/components/ui/toast";
+import apiClient from "@/service/api/apiClient";
+import { useAuth } from "./context/AuthContext";
 
 interface PopupSignalementProps {
     trigger: ReactNode;
@@ -21,6 +20,7 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
   const [details, setDetails] = useState("");
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,20 +31,8 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
       return;
     }
 
-    const token = getToken();
-
-    if (!token) {
-      console.error("Vous devez être connecté pour signaler un contenu.");
-      toast({
-        title: "Signalement impossible",
-        description: "Vous devez être connecté pour signaler un contenu.",
-        action: (
-          <a href={`/profile`}>
-            <ToastAction altText="connexion">Connexion</ToastAction>
-          </a>
-        ),
-      });
-      setOpen(false);
+    if (!isAuthenticated) {
+      window.location.href = "/login";
       return;
     }
 
@@ -58,11 +46,7 @@ function PopupSignalement({trigger, idMessage, idReview, idItem, idUser}: PopupS
     };
 
     try {
-      await axios.post(`${import.meta.env.VITE_API_URL}/report`, reportData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await apiClient.post(`/report`, reportData);
       setOpen(false);
       setMotif("");
       setDetails("");

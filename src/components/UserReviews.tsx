@@ -7,10 +7,10 @@ import {
   CardTitle,
 } from "./ui/card";
 import { format } from "date-fns";
-import axios from "axios";
-import { getToken } from "@/const/func";
 import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
+import apiClient from "@/service/api/apiClient";
+import { useAuth } from "./context/AuthContext";
 
 interface Review {
   id: number;
@@ -32,27 +32,12 @@ interface Review {
 function UserReviews() {
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   const fetchReviews = async () => {
     setIsLoading(true);
     try {
-      const Userdata = await axios.get(
-        `${import.meta.env.VITE_API_URL}/users/personal-data`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
-
-      const response = await axios.get<Review[]>(
-        `${import.meta.env.VITE_API_URL}/users/${Userdata.data.id}/reviews`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      const response = await apiClient.get<Review[]>(`/users/${user?.id}/reviews`);
       setReviews(response.data);
     } catch (error) {
       console.error(error);

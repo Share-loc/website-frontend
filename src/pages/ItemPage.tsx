@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
+import apiClient from "@/service/api/apiClient";
 
 const itemSchema = z.object({
   title: z.string().min(1, "Veuillez saisir un titre !").max(100, "Le titre est trop long"),
@@ -158,18 +159,10 @@ const ItemPage = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/categories`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data);
-      } else {
-        const errorData = await response.json();
-        console.log("An error occurred: " + errorData.message);
-      }
-    } catch (error) {
-      console.log("An error occurred: " + error);
+      const response = await apiClient.get("/categories");
+      setCategories(response.data);
+    } catch (error: any) {
+      console.log("An error occurred: " + (error?.response?.data?.message || error.message));
     }
   };
 
@@ -181,35 +174,26 @@ const ItemPage = () => {
 
       setIsLoading(true);
       try {
-        const response = await fetch(
-          `${import.meta.env.VITE_API_URL}/items/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${getToken()}`,
-            },
-          }
-        );
+      const response = await apiClient.get(`/items/${id}`);
 
-        if (response.ok) {
-          const data = await response.json();
-          setTitle(data.title);
-          setDescription(data.body);
-          setPrice(data.price.toString());
-          setLocation(data.location);
-          setPhone(data.phone_number);
-          setShowPhone(data.show_phone);
-          setCategoryId(data.category.id.toString());
-          setExistingImages(data.activeItemPictures || []);
-        }
+      const data = response.data;
+      setTitle(data.title);
+      setDescription(data.body);
+      setPrice(data.price.toString());
+      setLocation(data.location);
+      setPhone(data.phone_number);
+      setShowPhone(data.show_phone);
+      setCategoryId(data.category.id.toString());
+      setExistingImages(data.activeItemPictures || []);
       } catch (error) {
-        console.error("Erreur lors du chargement de l'annonce:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger l'annonce",
-          variant: "destructive",
-        });
+      console.error("Erreur lors du chargement de l'annonce:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger l'annonce",
+        variant: "destructive",
+      });
       } finally {
-        setIsLoading(false);
+      setIsLoading(false);
       }
     };
 
@@ -256,48 +240,36 @@ const ItemPage = () => {
         category_id: parseInt(categoryId),
       };
 
-      // Première requête pour créer l'annonce
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/items${isEditing ? `/${id}` : ""}`,
-        {
-          method: isEditing ? "PUT" : "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify(itemData),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde de l'annonce");
+      // Création ou modification de l'annonce via apiClient
+      let data;
+      if (isEditing) {
+        const response = await apiClient.put(`/items/${id}`, itemData, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        data = response.data;
+      } else {
+        const response = await apiClient.post("/items", itemData, {
+          headers: { Authorization: `Bearer ${getToken()}` },
+        });
+        data = response.data;
       }
-
-      const data = await response.json();
 
       // Si des images ont été sélectionnées
       if (images.length > 0) {
-        // Ajout des images au FormData
         const formData = new FormData();
         images.forEach((image) => {
           formData.append("pictures[]", image.file);
         });
 
-        // Deuxième requête pour uploader les images
-        const imageResponse = await fetch(
-          `${import.meta.env.VITE_API_URL}/items/${data.id}/upload-pictures`,
+        await apiClient.post(
+          `/items/${data.id}/upload-pictures`,
+          formData,
           {
-            method: "POST",
             headers: {
-              Authorization: `Bearer ${getToken()}`,
+              "Content-Type": "multipart/form-data",
             },
-            body: formData,
           }
         );
-
-        if (!imageResponse.ok) {
-          throw new Error("Erreur lors de l'upload des images");
-        }
       }
 
       toast({
@@ -310,7 +282,6 @@ const ItemPage = () => {
         variant: "success",
       });
 
-      // Redirection vers la page home
       navigate("/");
     } catch (error) {
       console.error("Erreur:", error);
@@ -326,23 +297,12 @@ const ItemPage = () => {
 
   const removeExistingImage = async (imageId: number) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/item-picture/${imageId}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
-        toast({
-          title: "Image supprimée",
-          variant: "success",
-        });
-      }
+      await apiClient.delete(`/item-picture/${imageId}`);
+      setExistingImages((prev) => prev.filter((img) => img.id !== imageId));
+      toast({
+        title: "Image supprimée",
+        variant: "success",
+      });
     } catch (error) {
       console.error("Erreur lors de la suppression de l'image:", error);
       toast({

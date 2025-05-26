@@ -2,8 +2,6 @@ import EmptyConversations from "@/components/MessagesComponents/EmptyConversatio
 import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getToken } from "@/const/func";
-import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Flag, Trash } from "lucide-react";
 import { format, setDefaultOptions } from "date-fns";
@@ -15,6 +13,8 @@ import { useWebSocket } from "@/components/context/WebSocketContext";
 import DeleteConversationModal from "@/components/MessagesComponents/DeleteConversationModal";
 import { Conversation, Message } from "@/types/MessageTypes";
 import PopupSignalement from "@/components/PopupSignalement";
+import apiClient from "@/service/api/apiClient";
+import { useAuth } from "@/components/context/AuthContext";
 
 setDefaultOptions({ locale: fr });
 
@@ -28,30 +28,12 @@ function MessagePage() {
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
   const { socket } = useWebSocket();
   const [activeView, setActiveView] = useState('conversations');
-
-  // Récupération de l'identifiant de l'utilisateur
-  // ! todo : Voir pour stocker l'identifiant de l'utilisateur dans le contexte (comme pour le token)
-  const getUserId = async() => {
-    const token = getToken();
-    const userResponse = await axios.get(`${import.meta.env.VITE_API_URL}/users/personal-data`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const userData = userResponse.data;
-    return userData.id;
-  }
+  const { user } = useAuth();
 
   // Récupération des conversations
   const fetchConversations = async () => {
     try {
-      const token = getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/messages/conversations`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get('/messages/conversations')
       setConversations(response.data);
     } catch (err) {
       console.error("Failed to fetch conversations", err);
@@ -63,17 +45,7 @@ function MessagePage() {
   const fetchMessages = useCallback(async () => {
     if (!selectedConversation) return;
     try {
-      const token = getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/messages/conversation/${
-          selectedConversation.user_id
-        }`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get(`/messages/conversation/${selectedConversation.user_id}`);
       setMessages(response.data);
     } catch (err) {
       console.error("Failed to fetch messages:", err);
@@ -84,18 +56,11 @@ function MessagePage() {
     if (!selectedConversation) return;
 
     try {
-      const token = getToken();
-      await axios.post(
-        `${import.meta.env.VITE_API_URL}/messages/send`,
+      await apiClient.post(`/messages/send`,
         {
           content: content,
           receiver_id: selectedConversation.user_id,
         },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
       );
       fetchMessages();
       fetchConversations();
@@ -115,8 +80,7 @@ function MessagePage() {
     if (!socket) return;
 
     const registerUser = async () => {
-      const userId = await getUserId();
-      socket.emit('register', userId);
+      socket.emit('register', user?.id);
     };
 
     registerUser();
@@ -153,10 +117,7 @@ function MessagePage() {
     if (!conversationToDelete) return;
 
     try {
-      const token = getToken();
-      await axios.delete(`${import.meta.env.VITE_API_URL}/messages/conversations/${conversationToDelete.user_id}/delete`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await apiClient.delete(`/messages/conversations/${conversationToDelete.user_id}/delete`);
       fetchConversations();
     } catch (err) {
       console.error("Failed to delete conversation", err);

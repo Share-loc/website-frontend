@@ -1,31 +1,19 @@
 import Logo from "/Logo-share-loc.svg";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import AuthContext from "./context/AuthContext";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarHeader, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ArrowDownAZ, ChevronUp, Flag, Gauge, LogOut, Scroll, Settings, Star, User, Users } from "lucide-react";
 import { useAdmin } from "./context/AdminContext";
 import { Badge } from "./ui/badge";
+import { useAuth } from "./context/AuthContext";
 
 const AdminMenu = () => {
-  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const { pendingItems, pendingReports } = useAdmin();
 
-  const { setUserState } = useContext(AuthContext)
-
   const handleLogout = () => {
-    // set user state to logged out
-    setUserState(
-      {
-        isLogged: false,
-      }
-    )
-    // delete token from local storage
-    localStorage.removeItem("token")
-    navigate("/")
+    logout();
   }
 
   const links = [

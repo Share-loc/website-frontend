@@ -19,6 +19,7 @@ import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { getToken } from "@/const/func";
+import apiClient from "@/service/api/apiClient";
 
 interface ReservationFormProps {
   item: any;
@@ -55,52 +56,32 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
       return;
     }
 
-    const formattedStartDate = format(dateRange.from, "yyyy-MM-dd")
-    const formattedEndDate = dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : formattedStartDate
+    const formattedStartDate = format(dateRange.from, "yyyy-MM-dd");
+    const formattedEndDate = dateRange.to ? format(dateRange.to, "yyyy-MM-dd") : formattedStartDate;
 
     setIsLoadingSendReservation(true);
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reservations`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({
-            item: item.id,
-            start_at: formattedStartDate,
-            end_at: formattedEndDate,
-          }),
-        }
-      );
+      const response = await apiClient.post("/reservations", {
+        item: item.id,
+        start_at: formattedStartDate,
+        end_at: formattedEndDate,
+      });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        toast({
-          title: "Erreur",
-          description:
-            errorData.message ||
-            "Une erreur est survenue lors de la réservtion",
-          variant: "destructive",
-        });
-      }
       toast({
         title: "Réservation confirmée",
-        description:
-          "Votre demande de réservation a été envoyée au propriétaire",
+        description: "Votre demande de réservation a été envoyée au propriétaire",
         variant: "success",
       });
       setMessage("");
       setDateRange({ from: undefined, to: undefined });
-      onNewReservation()
-    } catch (error) {
-      console.log(error);
+      onNewReservation();
+    } catch (error: any) {
+      const errorMessage =
+        error?.response?.data?.message ||
+        "Une erreur est survenue lors de la demande de réservation";
       toast({
         title: "Erreur",
-        description:
-          "Une erreur est survenue lors de la demande de réservation",
+        description: errorMessage,
         variant: "destructive",
       });
     }

@@ -8,8 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Category } from "@/types/admin/category-types";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -25,29 +25,19 @@ function CategoryDeleteDialog({
 }: CategoryDeleteDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const handleDelete = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/categories/${category.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de la suppression de la catégorie : ",
-            response.status
-          );
-        } else {
-            onCategoryDeleted();
-            toast({title: "Catégorie supprimée avec succès", content: "La catégorie a été supprimée avec succès", variant: "success"});
-            setOpen(false);
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la suppression de la catégorie : ", error)
-      );
+  const handleDelete = async () => {
+    try {
+      await apiClient.delete(`/categories/${category.id}`);
+      onCategoryDeleted();
+      toast({
+        title: "Catégorie supprimée avec succès",
+        description: "La catégorie a été supprimée avec succès",
+        variant: "success",
+      });
+      setOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la catégorie : ", error);
+    }
   };
 
   return (

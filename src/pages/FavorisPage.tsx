@@ -1,23 +1,14 @@
 import { useEffect, useState } from "react";
 import AllCardsItems from "../components/ItemsComponents/allCardsItems";
+import apiClient from "@/service/api/apiClient";
 
 const FavorisPage = () => {
     const [items, setItems] = useState<any>([]);
-    const token = localStorage.getItem("token");
 
     const favorisItems = async () => {
       try {
-        const responseFavorites = await fetch(
-          `${import.meta.env.VITE_API_URL}/items/favorites`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const favorites = await responseFavorites.json();
-        setItems(favorites);
+        const responseFavorites = await apiClient.get(`/items/favorites`);
+        setItems(responseFavorites.data);
       } catch (error) {
         console.error("Erreur lors de l'appel API:", error);
       }

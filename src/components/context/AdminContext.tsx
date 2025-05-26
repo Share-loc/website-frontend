@@ -1,4 +1,4 @@
-import { getToken } from "@/const/func";
+import apiClient from "@/service/api/apiClient";
 import { createContext, useContext, useEffect, useState } from "react";
 
 interface AdminContextType {
@@ -16,18 +16,10 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   const fetchPendingItems = async () => {
     try {
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/items/admin/all?status=waiting_for_approval`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+      const response = await apiClient.get(
+        "/items/admin/all?status=waiting_for_approval"
       );
-      const data = await response.json();
-      setPendingItems(data.total);
+      setPendingItems(response.data.total);
     } catch (error) {
       console.error(
         "Erreur lors de la récupération des annonces en attente:",
@@ -38,16 +30,10 @@ export function AdminProvider({ children }: { children: React.ReactNode }) {
 
   const fetchPendingReports = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/report?status=waiting_to_be_reviewed`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
+      const response = await apiClient.get(
+        "/report?status=waiting_to_be_reviewed"
       );
-      const data = await response.json();
-      setPendingReports(data.total);
+      setPendingReports(response.data.total);
     } catch (error) {
       console.error(
         "Erreur lors de la récupération des signalements en attente:",

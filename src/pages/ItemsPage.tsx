@@ -5,6 +5,7 @@ import SortItems from "../components/ItemsComponents/sortItems";
 import { useSearchParams } from "react-router-dom";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
+import apiClient from "@/service/api/apiClient";
 
 const ItemsPage = () => {
   const [items, setItems] = useState<any>([]);
@@ -145,14 +146,8 @@ const ItemsPage = () => {
   const fetchCategory = async () => {
     try {
       setError(null);
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/categories`,
-        {
-          method: "GET",
-        }
-      );
-      const data = await response.json();
-      setCategories(data);
+      const response = await apiClient.get("/categories");
+      setCategories(response.data);
     } catch (error) {
       setError(
         "Erreur lors de la récupération des catégories. Veuillez réessayer plus tard."
@@ -166,7 +161,7 @@ const ItemsPage = () => {
       setError(null);
       setLoading(true);
       // Création des paramètres de recherche
-      const params = new URLSearchParams({
+      const params = {
         title_like: titleSearch,
         category: categorieSearch,
         priceMin: priceMin,
@@ -174,34 +169,18 @@ const ItemsPage = () => {
         type: selectedType,
         location_like: villeRecherche,
         orderBy: selectedOrder,
-      });
-
-      const token = localStorage.getItem("token");
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
+        page: currentPage,
+        limit: 9,
       };
-  
-      if (token) {
-        headers["Authorization"] = `Bearer ${token}`;
-      }
 
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/items/filterItems?${params.toString()}&page=${currentPage}&limit=9`,
-        {
-          method: "GET",
-          headers,
-        }
-      );
+      const response = await apiClient.get("/items/filterItems", { params });
 
       if (response.status === 401) {
-        localStorage.removeItem("token");
         setLoading(false);
         return;
       }
-      
-      const data = await response.json();
+
+      const data = response.data;
       setTotalPages(Math.ceil(data.totalItems / 9));
       setNumberItems(data.totalItems);
       setItems(data.items);

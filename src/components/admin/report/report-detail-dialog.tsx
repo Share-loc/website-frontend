@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Report } from "@/types/admin/report-types";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -145,34 +146,19 @@ function ReportDetailDialog({
   };
 
   const handleStatusChange = async () => {
-    fetch(`${import.meta.env.VITE_API_URL}/report/validate/${report.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de la validation du signalement : ",
-            response.status
-          );
-        } else {
-          setOpen(false);
-          onStatusChanged();
-          refreshReportsCounter();
-          toast({
-            title: "Signalement traité",
-            content: "Le signalement a été traité avec succès.",
-            variant: "success",
-          });
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la validation du signalement : ", error)
-      );
+    try {
+      await apiClient.put(`/report/validate/${report.id}`);
+      setOpen(false);
+      onStatusChanged();
+      refreshReportsCounter();
+      toast({
+        title: "Signalement traité",
+        description: "Le signalement a été traité avec succès.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la validation du signalement : ", error);
+    }
   };
 
   const detailContent = (

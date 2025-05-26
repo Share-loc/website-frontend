@@ -21,6 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "../ui/textarea";
+import apiClient from "@/service/api/apiClient";
 
 interface ExistingReservationsCardProps {
   reservations: any;
@@ -94,40 +95,34 @@ function ExistingReservationsCard({
 
   const confirmModify = async () => {
     if (!selectedReservation) return;
-    if (!modifyDateRange.from) return
+    if (!modifyDateRange.from) return;
 
     const formattedStartDate = format(modifyDateRange.from, "yyyy-MM-dd");
-    const formattedEndDate = modifyDateRange.to ? format(modifyDateRange.to, "yyyy-MM-dd") : formattedStartDate
+    const formattedEndDate = modifyDateRange.to
+      ? format(modifyDateRange.to, "yyyy-MM-dd")
+      : formattedStartDate;
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reservations/${
-          selectedReservation.id
-        }`,
+      const response = await apiClient.put(
+        `/reservations/${selectedReservation.id}`,
         {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({
-            item: item.id,
-            start_at: formattedStartDate,
-            end_at: formattedEndDate,
-          }),
+          item: item.id,
+          start_at: formattedStartDate,
+          end_at: formattedEndDate,
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      if (response.status !== 200) {
         toast({
           title: "Erreur",
           description:
-            errorData.message ||
+            response.data?.message ||
             "Une erreur est survenue lors de la modification de la réservation",
           variant: "destructive",
         });
+        return;
       }
+
       toast({
         title: "Modification confirmée",
         description:
@@ -139,11 +134,11 @@ function ExistingReservationsCard({
       onChange();
       setSelectedReservation(null);
       setShowModifyDialog(false);
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
       toast({
         title: "Erreur",
         description:
+          error?.response?.data?.message ||
           "Une erreur est survenue lors de la demande de modification",
         variant: "destructive",
       });
@@ -159,19 +154,11 @@ function ExistingReservationsCard({
     if (!reservationToCancel) return;
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reservations/${
-          reservationToCancel.id
-        }`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({ state: "canceled" }),
-        }
+      const response = await apiClient.put(
+        `/reservations/${reservationToCancel.id}`,
+        { state: "canceled" }
       );
-      if (!response.ok) {
+      if (response.status !== 200) {
         console.error(
           "An error occurred while changing reservation state",
           response.status
@@ -179,7 +166,7 @@ function ExistingReservationsCard({
       }
       toast({
         title: "Réservation annulée",
-        content: "La réservation a bien été annulée",
+        description: "La réservation a bien été annulée",
         variant: "success",
       });
 

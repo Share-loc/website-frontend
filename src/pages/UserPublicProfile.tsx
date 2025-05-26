@@ -9,6 +9,7 @@ import { Cuboid } from 'lucide-react';
 import { CircularProgress } from "@mui/material";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import apiClient from "@/service/api/apiClient";
 
 const UserPublicProfile = () => {
   const { userId } = useParams();
@@ -25,17 +26,8 @@ const UserPublicProfile = () => {
   //Récupération des données de l'utilisateur
   const fetchUser = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await response.json();
-      setUser(data);
+      const response = await apiClient.get(`/users/${userId}`);
+      setUser(response.data);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
@@ -45,22 +37,10 @@ const UserPublicProfile = () => {
   const FetchReviews = async (limit: number) => {
     try {
       setIsLoadingReviews(true); // Début du chargement
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reviews/user/${userId}?limit=${limit}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await apiClient.get(
+        `/reviews/user/${userId}?limit=${limit}`
       );
-      console.log(response);
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur lors de l'appel API");
-      }
-      const data = await response.json();
-      console.log(data);
+      const data = response.data;
       setReviews(data.reviews);
       setTotalReviews(data.totalReviews);
       setRating(data.averageRate);
@@ -75,20 +55,8 @@ const UserPublicProfile = () => {
   const FetchItemsDataForUser = async () => {
     try {
       setIsLoadingItems(true); // Début du chargement
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/items/user/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur lors de l'appel API");
-      }
-      const data = await response.json();
+      const response = await apiClient.get(`/items/user/${userId}`);
+      const data = response.data;
       setItemsForUser(data.items);
       setTotalItemsUser(data.totalItems);
     } catch (error) {

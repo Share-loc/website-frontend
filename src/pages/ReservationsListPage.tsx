@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getToken } from "@/const/func";
+import apiClient from "@/service/api/apiClient";
 import {  
   addDays,
   addMonths,
@@ -75,16 +75,8 @@ function ReservationsListPage() {
 
   const fetchReservations = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/reservations`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setReservations(data);
+      const response = await apiClient.get(`/users/reservations`);
+      setReservations(response.data);
     } catch (error) {
       console.error("An error occurred while fetching reservations data", error);
     }
