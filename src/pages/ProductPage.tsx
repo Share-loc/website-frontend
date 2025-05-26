@@ -29,7 +29,7 @@ const ProductPage = () => {
 
   const [userReservations, setUserReservations] = useState<any>();
   const reservationsList = userReservations?.asRenter?.filter((reservation: any) => reservation.item.id === Number(id)) || null;
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth();
 
   // Récupération des données de l'item
   const FetchItemDataInfo = async () => {
@@ -113,8 +113,10 @@ const ProductPage = () => {
 
   useEffect(() => {
     FetchItemDataInfo();
+
+    if (!isAuthenticated) return;
     FetchReservations();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   useEffect(() => {
     if (items?.user?.id) {

@@ -47,11 +47,7 @@ const AdminItemsPage = () => {
     }
 
     try {
-      const response = await apiClient.get(`/items/admin/all?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      });
+      const response = await apiClient.get(`/items/admin/all?${params.toString()}`);
       setItems(response.data.data);
       setTotalPages(response.data.totalPages);
       setTotalItems(response.data.total);

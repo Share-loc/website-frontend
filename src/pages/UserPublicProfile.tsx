@@ -7,7 +7,7 @@ import AllCardsItems from "@/components/ItemsComponents/allCardsItems";
 import { Badge } from "@/components/ui/badge";
 import { Cuboid } from 'lucide-react';
 import { CircularProgress } from "@mui/material";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import apiClient from "@/service/api/apiClient";
 
@@ -108,7 +108,7 @@ const UserPublicProfile = () => {
             <CalendarIcon className="text-yellow-400 mr-2 w-6 h-6" />
             <span>
               Membre depuis{" "}
-              {format(user.created_at, "MMMM yyyy", { locale: fr})}
+                {user.created_at && format(parseISO(user.created_at), "MMMM yyyy", { locale: fr })}
             </span>
           </div>
         </div>

@@ -45,11 +45,7 @@ const AdminReportsPage = () => {
     if (currentPage > 1) params.append("page", currentPage.toString());
 
     apiClient
-      .get(`/report?${params.toString()}`, {
-        headers: {
-          Authorization: `Bearer ${getToken()}`,
-        },
-      })
+      .get(`/report?${params.toString()}`)
       .then((response) => {
         setReports(response.data.data);
         setTotalPages(response.data.totalPages);

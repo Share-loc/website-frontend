@@ -58,8 +58,9 @@ const AppBar = () => {
   }, []);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchUnreadMessages();
-  }, [fetchUnreadMessages]);
+  }, [fetchUnreadMessages, isAuthenticated]);
 
   // Connexion au serveur temps réel
   useEffect(() => {

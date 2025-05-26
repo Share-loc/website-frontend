@@ -243,14 +243,10 @@ const ItemPage = () => {
       // Création ou modification de l'annonce via apiClient
       let data;
       if (isEditing) {
-        const response = await apiClient.put(`/items/${id}`, itemData, {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        });
+        const response = await apiClient.put(`/items/${id}`, itemData);
         data = response.data;
       } else {
-        const response = await apiClient.post("/items", itemData, {
-          headers: { Authorization: `Bearer ${getToken()}` },
-        });
+        const response = await apiClient.post("/items", itemData);
         data = response.data;
       }
 
