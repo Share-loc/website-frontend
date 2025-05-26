@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
 import apiClient from "@/service/api/apiClient";
 import { Report } from "@/types/admin/report-types";

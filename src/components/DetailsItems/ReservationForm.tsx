@@ -18,7 +18,6 @@ import { Separator } from "../ui/separator";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
-import { getToken } from "@/const/func";
 import apiClient from "@/service/api/apiClient";
 
 interface ReservationFormProps {
