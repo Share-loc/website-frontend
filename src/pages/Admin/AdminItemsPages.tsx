@@ -18,6 +18,7 @@ import ItemDetailDialog from "@/components/admin/item/item-detail-dialog";
 import ItemDeleteDialog from "@/components/admin/item/item-delete-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import apiClient from "@/service/api/apiClient";
 
 const AdminItemsPage = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -28,7 +29,7 @@ const AdminItemsPage = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(20);
 
-  const fetchItems = useCallback(() => {
+  const fetchItems = useCallback(async () => {
     const params = new URLSearchParams();
 
     if (searchTerm) {
@@ -45,22 +46,14 @@ const AdminItemsPage = () => {
       params.append("page", currentPage.toString());
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/items/admin/all?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setItems(response.data)
-        setTotalPages(response.totalPages)
-        setTotalItems(response.total)
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la récupération des annonces : ", error)
-      );
+    try {
+      const response = await apiClient.get(`/items/admin/all?${params.toString()}`);
+      setItems(response.data.data);
+      setTotalPages(response.data.totalPages);
+      setTotalItems(response.data.total);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des annonces : ", error);
+    }
   }, [searchTerm, filter, itemsPerPage, currentPage]);
 
   useEffect(() => {

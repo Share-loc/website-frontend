@@ -9,8 +9,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { User } from "@/types/admin/user-types";
 import { UserPen } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -45,34 +45,27 @@ export function UserEditDialog({ user, onUserEdited }: UserEditDialogProps) {
     e.preventDefault();
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/${user.id}`,
+      const response = await apiClient.patch(
+        `/users/${user.id}`,
         {
-          method: "PATCH",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({
-            username: username,
-            last_name: last_name,
-            first_name: first_name,
-            email: email,
-            is_pro: is_pro,
-            roles: roles,
-            is_banned: is_banned,
-          }),
+          username,
+          last_name,
+          first_name,
+          email,
+          is_pro,
+          roles,
+          is_banned,
         }
       );
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         console.error(
           "Erreur lors de la soumission de l'utilisateur : ",
           response.status
         );
         toast({
           title: "Erreur lors de la modification de l'utilisateur",
-          content: "Une erreur est survenue lors de la modification de l'utilisateur",
+          description: "Une erreur est survenue lors de la modification de l'utilisateur",
           variant: "destructive",
         });
         return;
@@ -81,7 +74,7 @@ export function UserEditDialog({ user, onUserEdited }: UserEditDialogProps) {
         setOpen(false);
         toast({
           title: "Utilisateur modifié avec succès",
-          content: "L'utilisateur a été modifié avec succès",
+          description: "L'utilisateur a été modifié avec succès",
           variant: "success",
         });
       }

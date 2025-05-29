@@ -9,8 +9,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Item } from "@/types/admin/item-types";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -25,34 +25,20 @@ function ItemDeleteDialog({ item, onDeleted }: ItemDeleteDialogProps) {
   
   const { refreshItemsCounter } = useAdmin();
 
-  const handleDelete = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de la suppression de l'annonce : ",
-            response.status
-          );
-        } else {
-          onDeleted();
-          setOpen(false);
-          refreshItemsCounter();
-          toast({
-            title: "L'annonce a été supprimée avec succès",
-            content: "L'annonce a été supprimée avec succès",
-            variant: "success",
-          });
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la suppression de l'annonce : ", error)
-      );
+  const handleDelete = async () => {
+    try {
+      await apiClient.delete(`/items/${item.id}`);
+      onDeleted();
+      setOpen(false);
+      refreshItemsCounter();
+      toast({
+        title: "L'annonce a été supprimée avec succès",
+        description: "L'annonce a été supprimée avec succès",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'annonce : ", error);
+    }
   };
 
   return (

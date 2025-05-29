@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 
 export default function ResetPasswordPage() {
   const [searchParams] = useSearchParams();
@@ -50,18 +51,12 @@ export default function ResetPasswordPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/password/reset/${token}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password }),
-        }
+      const response = await apiClient.post(
+        `/password/reset/${token}`,
+        { password }
       );
 
-      if (response.ok) {
+      if (response.status === 200) {
         toast({
           title: "Mot de passe réinitialisé",
           description: "Votre mot de passe a été réinitialisé avec succès",
@@ -72,19 +67,19 @@ export default function ResetPasswordPage() {
           navigate("/login");
         }, 2000);
       } else {
-        const errorData = await response.json();
         toast({
           title: "Erreur",
           description:
-            errorData.message ||
+            response.data?.message ||
             "Une erreur est survenue lors de la réinitialisation",
           variant: "destructive",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Erreur",
         description:
+          error?.response?.data?.message ||
           "Une erreur est survenue lors de la réinitialisation du mot de passe",
         variant: "destructive",
       });

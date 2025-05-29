@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Slider from "@mui/material/Slider";
 import Alert from "@mui/material/Alert";
+import apiClient from "@/service/api/apiClient";
 
 const HelpPage = () => {
   const [impact, setImpact] = useState(1);
@@ -48,33 +49,26 @@ const HelpPage = () => {
     };
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/contactForm`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await apiClient.post("/contactForm", data);
 
-      const jsonResponse = await response.json();
-
-      if (response.ok) {
-        setResponseMessage(jsonResponse.message);
-        // Réinitialiser les champs du formulaire
-        setNom("");
-        setPrenom("");
-        setAdresseMail("");
-        setUrl("");
-        setMessage("");
-        setImpact(1); // Réinitialiser l'impact à sa valeur par défaut
+      if (response.data && response.data.message) {
+      setResponseMessage(response.data.message);
+      // Réinitialiser les champs du formulaire
+      setNom("");
+      setPrenom("");
+      setAdresseMail("");
+      setUrl("");
+      setMessage("");
+      setImpact(1); // Réinitialiser l'impact à sa valeur par défaut
       } else {
-        setResponseMessage(jsonResponse.error);
+      setResponseMessage(response.data?.error || "Erreur inconnue.");
       }
-    } catch (error) {
-      setResponseMessage("Erreur lors de l'envoi de l'email: " + error.message);
+    } catch (error: unknown) {
+      if (error && typeof error === "object" && "message" in error) {
+      setResponseMessage("Erreur lors de l'envoi de l'email: " + (error as any).message);
+      } else {
+      setResponseMessage("Erreur lors de l'envoi de l'email.");
+      }
     }
   };
   useEffect(() => {

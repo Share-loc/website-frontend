@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { getToken } from "@/const/func";
+import apiClient from "@/service/api/apiClient";
 import {
   AlertTriangle,
   Calendar,
@@ -192,20 +192,12 @@ const AdminDashboardPage = () => {
   const [data, setData] = useState<DashboardData | null>(null);
 
   const fetchData = async () => {
-    fetch(`${import.meta.env.VITE_API_URL}/admin/dashboard`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        setData(response);
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la récupération des donn&es : ", error)
-      );
+    try {
+      const response = await apiClient.get("/admin/dashboard");
+      setData(response.data);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données : ", error);
+    }
   };
 
   useEffect(() => {

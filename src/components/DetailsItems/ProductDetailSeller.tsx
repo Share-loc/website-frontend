@@ -18,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import apiClient from "@/service/api/apiClient";
 
 interface SellerCardProps {
   userInfo: any;
@@ -48,24 +49,13 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
     }
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/messages/send`,
+      await apiClient.post(
+        "/messages/send",
         {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            receiver_id: userInfo.id,
-            content: message,
-          }),
+          receiver_id: userInfo.id,
+          content: message,
         }
       );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
-      }
 
       setIsSendMessageModalOpen(false);
       toast({
@@ -81,6 +71,7 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
       });
     }
   };
+
   const handleCopyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({

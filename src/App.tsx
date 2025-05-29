@@ -1,6 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
-import { useState, useEffect } from 'react'
-import AuthContext from './components/context/AuthContext'
+import { Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './components/context/AuthContext'
 import AppBarLayout from './components/layouts/AppBarLayout'
 import ContentLayout from './components/layouts/ContentLayout'
 import HomePage from './pages/HomePage'
@@ -18,7 +17,6 @@ import SecurityPage from './pages/SecurityPage.tsx'
 import ReservationPage from './pages/ReservationPage.tsx'
 import NotFoundPage from './pages/NotFoundPage.tsx'
 import ItemsPage from './pages/ItemsPage.tsx'
-import axios from 'axios'
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage.tsx'
 import AdminLayout from './components/layouts/AdminLayout.tsx'
 import AdminUsersPape from './pages/Admin/AdminUsersPage.tsx'
@@ -26,7 +24,6 @@ import AdminItemsPage from './pages/Admin/AdminItemsPages.tsx'
 import AdminCategoriesPage from './pages/Admin/AdminCategoriesPage.tsx'
 import AdminReviewsPage from './pages/Admin/AdminReviewsPage.tsx'
 import AdminReportsPage from './pages/Admin/AdminReportsPage.tsx'
-import { getToken } from './const/func.ts'
 import FavorisPage from './pages/FavorisPage.tsx'
 import MessagePage from './pages/MessagePage.tsx'
 import { WebSocketProvider } from './components/context/WebSocketContext.tsx'
@@ -38,68 +35,11 @@ import ReservationsListPage from './pages/ReservationsListPage.tsx'
 import EditProfilePage from './pages/EditProfilePage.tsx'
 import ScrollToTop from "./components/ScrollToTop";
 import ResetPasswordPage from './pages/ResetPasswordPage.tsx'
+import { ProtectedRoute } from './components/auth/ProtectedRoute.tsx'
 
 function App() {
-
-  // Check if we are in development mode
-  const devMode = (import.meta.env.VITE_DEVELOPEMENT_MODE === "development");
-  
-  // Initialize user state
-  const [userState, setUserState] = useState(() => {
-    if (devMode) {
-      return {
-        isLogged: true,
-      }
-    }
-    const storedToken = getToken();
-    if (storedToken) {
-      return {
-        isLogged: true,
-      }
-    }
-    return {
-      isLogged: false,
-    }
-  })
-
-  // Check if token is valid
-  useEffect(() => {
-    const token = getToken();
-    if (!token || devMode) {
-      // set user state to logged out
-      setUserState(
-        {
-          isLogged: false,
-        }
-      )      
-      return;
-    }
-    axios.get(`${import.meta.env.VITE_API_URL}/token/validate`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(response => {
-      if (response.status === 200) {
-        // set user state to logged in
-        setUserState(
-          {
-            isLogged: true,
-          }
-        )
-      }
-    })
-    .catch(error => {
-      console.error(error);
-      // set user state to logged out
-      setUserState(
-        {
-          isLogged: false,
-        }
-      )
-    })
-  }, [])
-
   return (
-    <AuthContext.Provider value={{ userState, setUserState }}>
+    <AuthProvider>
       <WebSocketProvider>
         <Toaster />
         <ScrollToTop />
@@ -127,28 +67,28 @@ function App() {
 
               {/* Protected routes */}
               <Route path='/profile' element={
-                userState.isLogged ? <ProfilePage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><ProfilePage /></ProtectedRoute>
               } />
               <Route path='/profile/edit' element={
-                userState.isLogged ? <EditProfilePage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><EditProfilePage /></ProtectedRoute>
               } />
               <Route path='/create-item' element={
-                userState.isLogged ? <ItemPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><ItemPage /></ProtectedRoute>
               } />
               <Route path='/edit-item/:id' element={
-                userState.isLogged ? <ItemPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><ItemPage /></ProtectedRoute>
               } />
               <Route path='/favoris' element={
-                userState.isLogged ? <FavorisPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><FavorisPage /></ProtectedRoute>
               } />
               <Route path='/messages' element={
-                userState.isLogged ? <MessagePage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><MessagePage /></ProtectedRoute>
               } />
               <Route path='/settings' element={
-                userState.isLogged ? <SettingsPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><SettingsPage /></ProtectedRoute>
               } />
               <Route path='/reservations' element={
-                userState.isLogged ? <ReservationsListPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_USER'><ReservationsListPage /></ProtectedRoute>
               } />
 
               {/* 404 route */}
@@ -162,28 +102,28 @@ function App() {
           <Route element={<AdminLayout />}>
               {/* ADMIN routes */}
               <Route path='/admin' element={
-                  userState.isLogged ? <AdminDashboardPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminDashboardPage /></ProtectedRoute>
                 } />
               <Route path='/admin/users' element={
-                  userState.isLogged ? <AdminUsersPape /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminUsersPape /></ProtectedRoute>
                 } />
               <Route path='/admin/items' element={
-                  userState.isLogged ? <AdminItemsPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminItemsPage /></ProtectedRoute>
                 } />
               <Route path='/admin/categories' element={
-                  userState.isLogged ? <AdminCategoriesPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminCategoriesPage /></ProtectedRoute>
                 } />
               <Route path='/admin/reviews' element={
-                  userState.isLogged ? <AdminReviewsPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminReviewsPage /></ProtectedRoute>
                 } />
               <Route path='/admin/reports' element={
-                  userState.isLogged ? <AdminReportsPage /> : <Navigate to="/login" />
+                <ProtectedRoute requiredRole='ROLE_ADMIN'><AdminReportsPage /></ProtectedRoute>
                 } />
           </Route>
 
         </Routes>
       </WebSocketProvider>
-    </AuthContext.Provider>
+    </AuthProvider>
   )
 }
 

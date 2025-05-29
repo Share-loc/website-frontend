@@ -10,8 +10,9 @@ import AllCardsItems from "@/components/ItemsComponents/allCardsItems";
 import { CircularProgress } from "@mui/material";
 import { Button } from "@/components/ui/button";
 import { ThumbsDown } from "lucide-react";
-import { getToken } from "@/const/func";
 import ExistingReservationsCard from "@/components/DetailsItems/ExistingReservationsCard";
+import { useAuth } from "@/components/context/AuthContext";
+import apiClient from "@/service/api/apiClient";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -25,44 +26,16 @@ const ProductPage = () => {
   const [rating, setRating] = useState<number>(0);
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [totalItemsUser, setTotalItemsUser] = useState<number>(0);
-  const [user, setUser] = useState<any>()
 
   const [userReservations, setUserReservations] = useState<any>();
   const reservationsList = userReservations?.asRenter?.filter((reservation: any) => reservation.item.id === Number(id)) || null;
-
-  //Récupération de l'utilisateur connecté
-  const FetchUser = async () => {
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/users/personal-data`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setUser(data)
-    } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
-    }
-  };
+  const { user, isAuthenticated } = useAuth();
 
   // Récupération des données de l'item
   const FetchItemDataInfo = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/items/${id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      const data = await response.json();
+      const response = await apiClient.get(`/items/${id}`);
+      const data = response.data;
       setItems(data);
       setItemPictures(data.itemPictures || []);
       setUserInfo(data.user);
@@ -76,20 +49,10 @@ const ProductPage = () => {
   // Récupération des avis de l'utilisateur de l'item
   const FetchReviewsUser = async (userId: number) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reviews/user/${userId}?limit=3`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur lors de l'appel API");
-      }
-      const data = await response.json();
+      const response = await apiClient.get(`/reviews/user/${userId}`, {
+        params: { limit: 3 },
+      });
+      const data = response.data;
       setReviews(data.reviews);
       setRating(data.averageRate);
       setTotalReviews(data.totalReviews);
@@ -101,23 +64,11 @@ const ProductPage = () => {
   // Récupération des items de l'utilisateur de l'item
   const FetchItemsDataForUser = async (userId: number) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/items/user/${userId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur lors de l'appel API");
-      }
-      const data = await response.json();
+      const response = await apiClient.get(`/items/user/${userId}`);
+      const data = response.data;
       const currentItemId = items.id;
       const filteredItems = data.items.filter(
-        (items) => items.id !== currentItemId
+        (item: any) => item.id !== currentItemId
       );
       setItemsUser(filteredItems);
       setTotalItemsUser(data.totalItems);
@@ -129,25 +80,16 @@ const ProductPage = () => {
   // Récupération des items pour en afficher 4 aléatoirement
   const FetchAllItems = async () => {
     try {
-      const response = await fetch(
-        `${
-          import.meta.env.VITE_API_URL
-        }/items/itemsProductDetailsPage?&categoryId=${
-          items.category.id
-        }&excludedUserId=${userInfo.id}`,
+      const response = await apiClient.get(
+        `/items/itemsProductDetailsPage`,
         {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
+          params: {
+            categoryId: items.category.id,
+            excludedUserId: userInfo.id,
           },
         }
       );
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erreur lors de l'appel API");
-      }
-      const data = await response.json();
-      setAllItems(data);
+      setAllItems(response.data);
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
     }
@@ -156,26 +98,10 @@ const ProductPage = () => {
     // Récupération des réservations
     const FetchReservations = async () => {
       try {
-        const response = await fetch(
-          `${
-            import.meta.env.VITE_API_URL
-          }/users/reservations`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${getToken()}`,
-            },
-          }
-        );
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "Erreur lors de l'appel API");
-        }
-        const data = await response.json();
-        setUserReservations(data)
-      } catch (error) {
-        console.error("Erreur lors de l'appel API:", error);
+      const response = await apiClient.get("/users/reservations");
+      setUserReservations(response.data);
+      } catch (error: any) {
+      console.error("Erreur lors de l'appel API:", error);
       }
     };
 
@@ -187,9 +113,10 @@ const ProductPage = () => {
 
   useEffect(() => {
     FetchItemDataInfo();
+
+    if (!isAuthenticated) return;
     FetchReservations();
-    FetchUser();
-  }, [id]);
+  }, [id, isAuthenticated]);
 
   useEffect(() => {
     if (items?.user?.id) {

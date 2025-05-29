@@ -23,6 +23,7 @@ import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
 import ReportDetailDialog from "@/components/admin/report/report-detail-dialog";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import apiClient from "@/service/api/apiClient";
 
 const AdminReportsPage = () => {
   const [reports, setReports] = useState<Report[]>([]);
@@ -43,18 +44,12 @@ const AdminReportsPage = () => {
 
     if (currentPage > 1) params.append("page", currentPage.toString());
 
-    fetch(`${import.meta.env.VITE_API_URL}/report?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
+    apiClient
+      .get(`/report?${params.toString()}`)
       .then((response) => {
-        setReports(response.data)
-        setTotalPages(response.totalPages)
-        setTotalItems(response.total)
+        setReports(response.data.data);
+        setTotalPages(response.data.totalPages);
+        setTotalItems(response.data.total);
       })
       .catch((error) =>
         console.error(

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import apiClient from "@/service/api/apiClient";
 
 const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -33,25 +34,18 @@ const RegisterPage = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/users`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-      if (response.ok) {
-        setResponseMessage("Registration successful!");
-        toast({title: "Inscription réussie, Vous pouvez maintenant vous connecter", variant: "success"});
-        Navigate("/login");
+      await apiClient.post("/users", formData);
+      setResponseMessage("Registration successful!");
+      toast({ title: "Inscription réussie, Vous pouvez maintenant vous connecter", variant: "success" });
+      Navigate("/login");
+    } catch (error: any) {
+      if (error.response && error.response.data && error.response.data.message) {
+        setResponseMessage("Registration failed: " + error.response.data.message);
+        console.error("Error:", error.response.data);
       } else {
-        const errorData = await response.json();
-        setResponseMessage("Registration failed: " + errorData.message);
-        console.error("Error:", errorData);
+        setResponseMessage("An error occurred: " + error.message);
+        console.error("Error:", error);
       }
-    } catch (error) {
-      setResponseMessage("An error occurred: " + error);
-      console.error("Error:", error);
     }
     setIsLoading(false);
   };

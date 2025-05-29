@@ -9,9 +9,9 @@ import {
   DialogTrigger,
 } from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import apiClient from "@/service/api/apiClient";
 import { ReactNode, useState } from "react";
 
 function ReviewModal({ children, reservationId, userReviewedId, onReviewSubmitted} : { children: ReactNode, reservationId: number, userReviewedId: number, onReviewSubmitted: () => void }) {
@@ -22,38 +22,25 @@ function ReviewModal({ children, reservationId, userReviewedId, onReviewSubmitte
 
   const handleSendReview = async () => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reviews`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({
-            reviewed: userReviewedId,
-            rate: rating,
-            content: message,
-            reservation: reservationId,
-          }),
-        }
-      );
+      await apiClient.post("/reviews", {
+        reviewed: userReviewedId,
+        rate: rating,
+        content: message,
+        reservation: reservationId,
+      });
       setIsOpen(false);
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi de l'évaluation");
-      }
       toast({
         title: "Message envoyé",
-        description: "Votre évaluation a été envoyé avec succès",
+        description: "Votre évaluation a été envoyée avec succès",
         variant: "success",
       });
       onReviewSubmitted();
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
       toast({
-        title: "Erreur lors de l'envoie",
-        description: "Votre évaluation n'a pas pu être envoyé",
+        title: "Erreur lors de l'envoi",
+        description: "Votre évaluation n'a pas pu être envoyée",
         variant: "destructive",
       });
     }

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { getToken } from "../../const/func";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Search, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -19,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ReviewDetailDialog from "@/components/admin/review/review-detail-dialog";
 import ReviewDeleteDialog from "@/components/admin/review/review-delete-dialog";
 import { AdminPagination } from "@/components/admin/admin-pagination";
+import apiClient from "@/service/api/apiClient";
 
 const AdminReviewsPage = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -41,18 +41,12 @@ const AdminReviewsPage = () => {
       params.append("page", currentPage.toString());
     }
 
-    fetch(`${import.meta.env.VITE_API_URL}/reviews?${params.toString()}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
+    apiClient
+      .get(`/reviews?${params.toString()}`)
       .then((response) => {
-        setReviews(response.data)
-        setTotalPages(response.totalPages)
-        setTotalItems(response.total)
+        setReviews(response.data.data);
+        setTotalPages(response.data.totalPages);
+        setTotalItems(response.data.total);
       })
       .catch((error) =>
         console.error(

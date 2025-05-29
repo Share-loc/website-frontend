@@ -10,8 +10,6 @@ import {
 // import { Switch } from "./ui/switch";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { getToken } from "@/const/func";
 import Spinner from "./Spinner";
 import {
   AlertDialog,
@@ -24,6 +22,8 @@ import {
   AlertDialogTitle,
 } from "./ui/alert-dialog";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
+import { useAuth } from "./context/AuthContext";
 
 interface Item {
   id: number;
@@ -44,28 +44,12 @@ interface Item {
 function UserItems() {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   const fetchItems = async () => {
     setIsLoading(true);
     try {
-        const userData = await axios.get(
-            `${import.meta.env.VITE_API_URL}/users/personal-data`,
-            {
-              headers: {
-                Authorization: `Bearer ${getToken()}`,
-              },
-            }
-          );
-
-
-      const response = await axios.get<Item[]>(
-        `${import.meta.env.VITE_API_URL}/users/${userData.data.id}/items`,
-        {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        }
-      );
+      const response = await apiClient.get<Item[]>(`/users/${user?.id}/items`);
       setItems(response.data);
     } catch (error) {
       console.error("An error occurred while fetching items", error);
@@ -79,31 +63,23 @@ function UserItems() {
 
   const [openAlertId, setOpenAlertId] = useState<number | null>(null);
 
-  const handleDelete = (id: number) => {
-    fetch(`${import.meta.env.VITE_API_URL}/items/${id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de la suppression de l'annonce : ",
-            response.status
-          );
-        }
-        toast({
-          title: "Annonce supprimée",
-          description: "L'annonce a bien été supprimée.",
-          variant: "success",
-        });
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la suppression de l'annonce : ", error)
-      );
-    setItems(items.filter((item) => item.id !== id));
+  const handleDelete = async (id: number) => {
+    try {
+      await apiClient.delete(`/items/${id}`);
+      setItems(items.filter((item) => item.id !== id));
+      toast({
+        title: "Annonce supprimée",
+        description: "L'annonce a bien été supprimée.",
+        variant: "success",
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'annonce : ", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer l'annonce.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {

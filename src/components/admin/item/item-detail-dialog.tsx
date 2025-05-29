@@ -11,8 +11,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Item } from "@/types/admin/item-types";
 import { CheckCircle, ExternalLink, Eye, Trash } from "lucide-react";
 import { useState } from "react";
@@ -29,60 +29,44 @@ function ItemDetailDialog({ item, onItemValidated }: ItemDetailDialogProps) {
 
   const { refreshItemsCounter } = useAdmin();
 
-  const handleValidation = (item: Item) => {
-    fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}/validate`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de l'approbation de l'annonce : ",
-            response.status
-          );
-        } else {
-          setOpen(false);
-          setIsConfirmingValidation(false);
-          toast({title: "Annonce approuvée", content: "L'annonce a bien été approuvée" , variant: "success"});
-          onItemValidated();
-          refreshItemsCounter();
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors de l'approbation de l'annonce : ", error)
-      );
+  const handleValidation = async (item: Item) => {
+    try {
+      const response = await apiClient.put(`/items/${item.id}/validate`);
+      if (response.status !== 200) {
+        console.error(
+          "Erreur lors de l'approbation de l'annonce : ",
+          response.status
+        );
+      } else {
+        setOpen(false);
+        setIsConfirmingValidation(false);
+        toast({title: "Annonce approuvée", description: "L'annonce a bien été approuvée" , variant: "success"});
+        onItemValidated();
+        refreshItemsCounter();
+      }
+    } catch (error) {
+      console.error("Erreur lors de l'approbation de l'annonce : ", error);
+    }
   };
 
-  const handleReject = (item: Item) => {
-    fetch(`${import.meta.env.VITE_API_URL}/items/${item.id}/reject`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors du rejet de l'annonce : ",
-            response.status
-          );
-        } else {
-          setOpen(false);
-          setIsConfirmingReject(false);
-          toast({title: "Annonce rejeté", content: "L'annonce a bien été rejetée" , variant: "success"});
-          onItemValidated();
-          refreshItemsCounter();
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error("Erreur lors du rejet de l'annonce : ", error)
-      );
+  const handleReject = async (item: Item) => {
+    try {
+      const response = await apiClient.put(`/items/${item.id}/reject`);
+      if (response.status !== 200) {
+        console.error(
+          "Erreur lors du rejet de l'annonce : ",
+          response.status
+        );
+      } else {
+        setOpen(false);
+        setIsConfirmingReject(false);
+        toast({title: "Annonce rejetée", description: "L'annonce a bien été rejetée", variant: "success"});
+        onItemValidated();
+        refreshItemsCounter();
+      }
+    } catch (error) {
+      console.error("Erreur lors du rejet de l'annonce : ", error);
+    }
   };
 
   const detailContent = (

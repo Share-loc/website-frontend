@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dialog";
 import { User } from "@/types/admin/user-types";
 import { Trash2 } from "lucide-react";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 
 interface UserDeleteDialogProps {
   user: User;
@@ -24,31 +24,14 @@ interface UserDeleteDialogProps {
 export function UserDeleteDialog({ user, onUserDeleted }: UserDeleteDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const handleDelete = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/users/${user.id}`, {
-      method: "DELETE",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error(
-            "Erreur lors de la suppression de l'utilisateur : ",
-            response.status
-          );
-        } else {
-            onUserDeleted();
-            toast({title: "Utilisateur supprimé avec succès", content: "L'utilisateur a été supprimé avec succès"});
-        }
-        return response;
-      })
-      .catch((error) =>
-        console.error(
-          "Erreur lors de la suppression de l'utilisateur : ",
-          error
-        )
-      );
+  const handleDelete = async () => {
+    try {
+      await apiClient.delete(`/users/${user.id}`);
+      onUserDeleted();
+      toast({ title: "Utilisateur supprimé avec succès", description: "L'utilisateur a été supprimé avec succès" });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'utilisateur : ", error);
+    }
     setOpen(false);
   };
 

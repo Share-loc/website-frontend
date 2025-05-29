@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useCallback, useContext, useEffect, useState } from "react";
-import AuthContext from "./context/AuthContext";
+import { useCallback, useEffect, useState } from "react";
 import Logo from "/Logo-share-loc.svg";
 import { Input } from "./ui/input";
 import {
@@ -9,6 +8,7 @@ import {
   Heart,
   HelpCircle,
   LayoutList,
+  Lock,
   LogOut,
   Menu,
   MessageCircle,
@@ -32,15 +32,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Sheet, SheetClose, SheetContent, SheetTrigger } from "./ui/sheet";
 import { Badge } from "./ui/badge";
 import { useWebSocket } from "./context/WebSocketContext";
-import { getToken } from "@/const/func";
-import axios from "axios";
+import { useAuth } from "./context/AuthContext";
+import apiClient from "@/service/api/apiClient";
 
 const AppBar = () => {
   const navigate = useNavigate();
   const { socket } = useWebSocket();
-  const { userState, setUserState } = useContext(AuthContext);
   const [unreadMessages, setUnreadMessages] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const { logout, isAuthenticated, user } = useAuth();
 
   const handleSearch = () => {
     if(!searchQuery.trim()) return
@@ -50,15 +50,7 @@ const AppBar = () => {
 
   const fetchUnreadMessages = useCallback(async () => {
     try {
-      const token = getToken();
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/messages/unread`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiClient.get('/messages/unread')
       setUnreadMessages(response.data.unread_count);
     } catch (err) {
       console.error("Failed to fetch unread message count", err);
@@ -66,30 +58,16 @@ const AppBar = () => {
   }, []);
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     fetchUnreadMessages();
-  }, [fetchUnreadMessages]);
-
-  // Récupération de l'identifiant de l'utilisateur
-  // ! todo : Voir pour stocker l'identifiant de l'utilisateur dans le contexte (comme pour le token)
-  const getUserId = async () => {
-    const token = getToken();
-    const userResponse = await axios.get(
-      `${import.meta.env.VITE_API_URL}/users/personal-data`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-    const userData = userResponse.data;
-    return userData.id;
-  };
+  }, [fetchUnreadMessages, isAuthenticated]);
 
   // Connexion au serveur temps réel
   useEffect(() => {
     if (!socket) return;
 
     const registerUser = async () => {
-      const userId = await getUserId();
-      socket.emit("register", userId);
+      socket.emit("register", user?.id);
     };
 
     registerUser();
@@ -104,7 +82,7 @@ const AppBar = () => {
     return () => {
       socket.off("newMessage");
     };
-  }, [socket, fetchUnreadMessages]);
+  }, [socket, fetchUnreadMessages, user]);
 
   const getUnreadMessages = (): number | string => {
     if (unreadMessages === 0) {
@@ -117,12 +95,7 @@ const AppBar = () => {
   };
 
   const handleLogout = () => {
-    // set user state to logged out
-    setUserState({
-      isLogged: false,
-    });
-    // delete token from local storage
-    localStorage.removeItem("token");
+    logout();
   };
 
   return (
@@ -147,9 +120,9 @@ const AppBar = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
-                  if(e.key === 'Enter'){
+                  if (e.key === "Enter") {
                     e.preventDefault();
-                    handleSearch()
+                    handleSearch();
                   }
                 }}
               />
@@ -186,15 +159,15 @@ const AppBar = () => {
               )}
               <span className="mt-1 text-xs">Messagerie</span>
             </Link>
-            {userState.isLogged ? (
+            {isAuthenticated ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="relative cursor-pointer">
                     <Avatar>
                       {/* todo : replace with user avatar */}
-                      <AvatarImage src={userState.avatar} alt="Avatar" />
+                      <AvatarImage src={user?.avatar} alt="Avatar" className="object-cover" />
                       <AvatarFallback>
-                        {userState.username?.slice(0, 2)}
+                        {user?.username?.slice(0, 2)}
                       </AvatarFallback>
                     </Avatar>
                     <ChevronDown
@@ -208,10 +181,10 @@ const AppBar = () => {
                     <div className="flex flex-col space-y-1">
                       {/* todo : replace with user data */}
                       <p className="text-sm font-medium leading-none">
-                        Jean Dupont
+                        {`${user?.first_name} ${user?.last_name}`}
                       </p>
                       <p className="text-xs leading-none text-muted-foreground">
-                        jean.dupont@example.com
+                        {user?.email}
                       </p>
                     </div>
                   </DropdownMenuLabel>
@@ -241,6 +214,15 @@ const AppBar = () => {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
+                    {user?.roles.includes("ROLE_ADMIN") && (
+                      <DropdownMenuItem
+                        onClick={() => navigate("/admin")}
+                        className="text-orange-500"
+                      >
+                        <Lock className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => navigate("/settings")}>
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Paramètres</span>
@@ -251,7 +233,10 @@ const AppBar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-red-500 focus:text-red-500" onClick={handleLogout}>
+                  <DropdownMenuItem
+                    className="text-red-500 focus:text-red-500"
+                    onClick={handleLogout}
+                  >
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Se déconnecter</span>
                   </DropdownMenuItem>
@@ -331,14 +316,14 @@ const AppBar = () => {
                 </SheetClose>
                 <SheetClose asChild>
                   <Link
-                    to="/messagerie"
+                    to="/messages"
                     className="flex items-center p-2 space-x-2 text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100"
                   >
                     <MessageCircle size={24} />
                     <span>Messagerie</span>
                   </Link>
                 </SheetClose>
-                {userState.isLogged ? (
+                {isAuthenticated ? (
                   <>
                     <SheetClose asChild>
                       <Link
@@ -346,7 +331,7 @@ const AppBar = () => {
                         className="flex items-center p-2 space-x-2 text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100"
                       >
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src="/placeholder.svg" alt="Avatar" />
+                          <AvatarImage src={user?.avatar} alt="Avatar" />
                           <AvatarFallback>U</AvatarFallback>
                         </Avatar>
                         <span>Mon profil</span>

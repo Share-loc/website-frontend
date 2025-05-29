@@ -8,8 +8,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
+import apiClient from "@/service/api/apiClient";
 import { Review } from "@/types/admin/review-types";
 import { Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -25,30 +25,26 @@ function ReviewDeleteDialog({
 }: ReviewDeleteDialogProps) {
   const [open, setOpen] = useState(false);
 
-  const handleDelete = () => {
-    fetch(`${import.meta.env.VITE_API_URL}/reviews/${review.id}`, {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((response) => {
-        if (response.error) {
-          console.error(
-            "Erreur lors de la suppression de l'évaluation : ",
-            response.error
-          );
-        } else {
-            onReviewDeleted();
-            setOpen(false);
-            toast({title: "Évaluation supprimée avec succès", content: "L'évaluation a été supprimée avec succès", variant: "success"});
-        }
-      })
-      .catch((error) =>
-        console.error("Erreur lors de la suppression de l'évaluation : ", error)
-      );
+  const handleDelete = async () => {
+    try {
+      const response = await apiClient.delete(`/reviews/${review.id}`);
+      if (response.data?.error) {
+        console.error(
+          "Erreur lors de la suppression de l'évaluation : ",
+          response.data.error
+        );
+      } else {
+        onReviewDeleted();
+        setOpen(false);
+        toast({
+          title: "Évaluation supprimée avec succès",
+          description: "L'évaluation a été supprimée avec succès",
+          variant: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suppression de l'évaluation : ", error);
+    }
   };
 
   return (

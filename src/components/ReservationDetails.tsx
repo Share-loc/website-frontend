@@ -2,11 +2,11 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Button } from "./ui/button";
 import { MessageSquare, Star } from "lucide-react";
-import { getToken } from "@/const/func";
 import { toast } from "@/hooks/use-toast";
 import SendMessageModal from "./MessagesComponents/SendMessageModal";
 import { useState } from "react";
 import ReviewModal from "./ReviewModal";
+import apiClient from "@/service/api/apiClient";
 
 interface Reservation {
   id: number;
@@ -77,26 +77,14 @@ function ReservationDetails({
     state: "accepted" | "refused" | "canceled"
   ) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/reservations/${reservation.id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({ state }),
-        }
+      const response = await apiClient.put(
+        `/reservations/${reservation.id}`,
+        { state }
       );
-      if (!response.ok) {
-        console.error(
-          "An error occurred while changing reservation state",
-          response.status
-        );
-      }
       onChangeState();
       toast({
         title: "Etat de la réservation modifié avec succès",
-        content: "L'état de la réservation a été modifié avec succès",
+        description: "L'état de la réservation a été modifié avec succès",
         variant: "success",
       });
     } catch (error) {
@@ -114,26 +102,12 @@ function ReservationDetails({
 
   const handleSendMessage = async (message: string) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/messages/send`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${getToken()}`,
-          },
-          body: JSON.stringify({
-            receiver_id: isOwner
-              ? reservation.tenant.id
-              : reservation.item.user.id,
-            content: message,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'envoi du message");
-      }
+      await apiClient.post("/messages/send", {
+        receiver_id: isOwner
+          ? reservation.tenant.id
+          : reservation.item.user.id,
+        content: message,
+      });
 
       setIsSendMessageModalOpen(false);
       toast({
@@ -144,7 +118,7 @@ function ReservationDetails({
     } catch (error) {
       console.error("Erreur lors de l'appel API:", error);
       toast({
-        title: "Erreur lors de l'envoie",
+        title: "Erreur lors de l'envoi",
         description: "Votre message n'a pas pu être envoyé",
         variant: "destructive",
       });

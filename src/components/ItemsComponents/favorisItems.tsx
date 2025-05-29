@@ -1,40 +1,19 @@
+import apiClient from "@/service/api/apiClient";
 import { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
 
 const FavorisItems = ({ item }) => {
-  const navigate = useNavigate();
   const [isFavorite, setIsFavorite] = useState(item.isFavorite || false);
   const handleFavoriteToggle = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        navigate("/profile");
-        return;
-      }
-
-      const method = isFavorite ? "DELETE" : "POST";
-      const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/favorites/${item.id}`,
-        {
-          method,
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        setIsFavorite(!isFavorite);
+      if (isFavorite) {
+        await apiClient.delete(`/favorites/${item.id}`);
       } else {
-        console.error(
-          "Erreur lors de la modification des favoris:",
-          await response.text()
-        );
+        await apiClient.post(`/favorites/${item.id}`);
       }
+      setIsFavorite(!isFavorite);
     } catch (error) {
-      console.error("Erreur lors de l'appel API:", error);
+      console.error("Erreur lors de la modification des favoris:", error);
     }
   };
 

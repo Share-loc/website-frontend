@@ -1,13 +1,14 @@
-import { useState, useContext } from 'react'
-import AuthContext from '../components/context/AuthContext'
+import { useEffect, useState } from 'react'
+import { useAuth } from '../components/context/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Navigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
+import apiClient from '@/service/api/apiClient'
 
 const LoginPage = () => {
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
@@ -15,103 +16,63 @@ const LoginPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast(); // Initialisation du toast
 
-    const { userState, setUserState } = useContext(AuthContext)
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    })
-    const [responseMessage, setResponseMessage] = useState('')
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError]= useState('');
 
-    // Si l'utilisateur est déjà connecté, rediriger vers la page d'accueil
-    if (userState.isLogged) {
-        return <Navigate to="/" replace />;
+  const { login, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Récupérer l'URL de redirection si elle existe
+  const from = location.state?.from?.pathname || '/';
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(from, { replace: true });
     }
+  }, [isAuthenticated, navigate, from]);
 
-    const handleResetPassword = async (e: any) => {
-        e.preventDefault();
-        setIsLoading(true);
-        try {
-          const response = await fetch(`${import.meta.env.VITE_API_URL}/password/request`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: resetEmail }),
-          });
-    
-          if (response.ok) {
-            toast({
-              title: 'Succès',
-              description: 'Un lien de réinitialisation a été envoyé à votre adresse email.',
-              variant: 'success',
-            });
-            setIsResetDialogOpen(false); // Masquer la popup
-          } else {
-            const errorData = await response.json();
-            toast({
-              title: 'Erreur',
-              description: errorData.message || 'Une erreur est survenue.',
-              variant: 'destructive',
-            });
-          }
-        } catch (error) {
-          toast({
-            title: 'Erreur',
-            description: 'Impossible de traiter votre demande. Veuillez réessayer plus tard.',
-            variant: 'destructive',
-          });
-        } finally {
-          setIsLoading(false);
+    const handleResetPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setIsLoading(true);
+      try {
+        const response = await apiClient.post('/password/request', { email: resetEmail });
+
+        if (response.status === 200) {
+        toast({
+          title: 'Succès',
+          description: 'Un lien de réinitialisation a été envoyé à votre adresse email.',
+          variant: 'success',
+        });
+        setIsResetDialogOpen(false);
+        } else {
+        toast({
+          title: 'Erreur',
+          description: response.data?.message || 'Une erreur est survenue.',
+          variant: 'destructive',
+        });
         }
+      } catch (error: any) {
+        toast({
+        title: 'Erreur',
+        description: error?.response?.data?.message || 'Impossible de traiter votre demande. Veuillez réessayer plus tard.',
+        variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    const handleChange = (e: any) => {
-        const { name, value } = e.target;
-        setFormData((prevData) => ({
-            ...prevData,
-            [name]: value,
-        }));
-    }
-    const handleSubmit = async (e: any) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/login_check`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            })
-            if (response.ok) {
-                const data = await response.json();
-                localStorage.setItem('token', data.token);
-                
-                // Fetch user data after successful login
-                try {
-                    const userResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/user/me`, {
-                        headers: {
-                            Authorization: `Bearer ${data.token}`
-                        }
-                    });
-                    const userData = await userResponse.json();
-                    
-                    setUserState({
-                        isLogged: true,
-                        avatar: userData.avatar,
-                        username: userData.username,
-                    });
-                } catch (error) {
-                    console.error('Failed to fetch user data:', error);
-                    setUserState({ isLogged: true });
-                }
-            } else {
-                const errorData = await response.json();
-                setResponseMessage('Login failed: ' + errorData.message);
-            }
+          await login(email, password);
+          navigate(from, {replace: true});
         } catch (error) {
-            setResponseMessage('An error occurred: ' + error);
+          setError('Email ou mot de passe incorrect')
         }
-    }
+    };
 
     return (
       <div className="grid min-h-svh lg:grid-cols-2">
@@ -142,8 +103,8 @@ const LoginPage = () => {
                       type="email"
                       name="email"
                       placeholder="m@exemple.com"
-                      value={formData.email}
-                      onChange={handleChange}
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       autoComplete="email"
                       required
                     />
@@ -164,13 +125,13 @@ const LoginPage = () => {
                       id="password"
                       type="password"
                       name="password"
-                      value={formData.password}
-                      onChange={handleChange}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       autoComplete="current-password"
                       required
                     />
                   </div>
-                  {responseMessage && (<p className="text-xs italic text-red-500">{responseMessage}</p>)}
+                  {error && (<p className="text-xs italic text-red-500">{error}</p>)}
                   <Button type="submit" className="w-full">
                     Se connecter
                   </Button>
