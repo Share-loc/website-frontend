@@ -316,7 +316,7 @@ const AppBar = () => {
                 </SheetClose>
                 <SheetClose asChild>
                   <Link
-                    to="/messagerie"
+                    to="/messages"
                     className="flex items-center p-2 space-x-2 text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100"
                   >
                     <MessageCircle size={24} />
@@ -331,7 +331,7 @@ const AppBar = () => {
                         className="flex items-center p-2 space-x-2 text-gray-600 rounded-md hover:text-gray-900 hover:bg-gray-100"
                       >
                         <Avatar className="w-8 h-8">
-                          <AvatarImage src="/placeholder.svg" alt="Avatar" />
+                          <AvatarImage src={user?.avatar} alt="Avatar" />
                           <AvatarFallback>U</AvatarFallback>
                         </Avatar>
                         <span>Mon profil</span>
