@@ -47,17 +47,86 @@ const ItemsPage = () => {
   const [tempVilleRecherche, setTempVilleRecherche] = useState(villeRecherche);
   const [tempSelectedType, setTempSelectedType] = useState(selectedType);
 
+  const [searchRadius, setSearchRadius] = useState(searchParams.get("radius") || "")
+  const [tempSearchRadius, setTempSearchRadius] = useState(searchRadius);
+  const [isValidCity, setIsValidCity] = useState(false);
+  const [cityCoordinates, setCityCoordinates] = useState<
+    [number, number] | null
+  >(() => {
+    const lat = searchParams.get("latitude");
+    const lng = searchParams.get("longitude");
+    if (lat && lng) {
+      return [parseFloat(lng), parseFloat(lat)];
+    }
+    return null;
+  });
+  const [isCheckingCity, setIsCheckingCity] = useState(false);
+
+  useEffect(() => {
+    if (villeRecherche && cityCoordinates) {
+      setIsValidCity(true);
+    }
+  }, [villeRecherche, cityCoordinates]);
+
+  const validateCityWithAPI = async (cityText: string) => {
+  if (!cityText.trim() || cityText.length < 3) {
+    setIsValidCity(false);
+    setCityCoordinates(null);
+    return false;
+  }
+
+  setIsCheckingCity(true);
+  try {
+    const response = await fetch(
+      `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(cityText)}&type=municipality&autocomplete=1&limit=10`
+    );
+    const data = await response.json();
+    
+    // Chercher une correspondance exacte avec le nouveau format (sans parenthèses)
+    const exactMatch = data.features
+      .filter((feature: any) => feature.properties.score >= 0.8)
+      .find((feature: any) => {
+        const apiLabel = `${feature.properties.city} ${feature.properties.postcode}`;
+        return apiLabel.toLowerCase() === cityText.toLowerCase();
+      });
+
+    if (exactMatch) {
+      setCityCoordinates(exactMatch.geometry.coordinates as [number, number]);
+      setIsValidCity(true);
+      return true;
+    } else {
+      setIsValidCity(false);
+      setCityCoordinates(null);
+      return false;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la validation de la ville:", error);
+    setIsValidCity(false);
+    setCityCoordinates(null);
+    return false;
+  } finally {
+    setIsCheckingCity(false);
+  }
+};
+
   // Fonction pour mettre à jour les paramètres de recherche Url
   const updateSearchParams = () => {
     const params: any = {
       title: titleSearch,
       category: categorieSearch,
       location: villeRecherche,
+      radius: searchRadius,
       priceMin,
       priceMax,
       type: selectedType,
       page,
     };
+
+    // Ajouter les coordonnées si une ville valide est sélectionnée
+    if (villeRecherche && isValidCity && cityCoordinates) {
+      params.latitude = cityCoordinates[1].toString();
+      params.longitude = cityCoordinates[0].toString();
+    }
 
     // Supprime les paramètres vides pour garder une URL propre
     Object.keys(params).forEach((key) => {
@@ -95,6 +164,9 @@ const ItemsPage = () => {
   ) => {
     const value = e.target.value;
     setTempVilleRecherche(value);
+    setIsValidCity(false);
+    setCityCoordinates(null);
+    setTempSearchRadius("");
     if (value.length > 2) {
       try {
         const response = await fetch(
@@ -104,12 +176,19 @@ const ItemsPage = () => {
         const filteredSuggestions = data.features
           .filter((feature: any) => feature.properties.score >= 0.5) // Filtrer les résultats par score
           .map((feature: any) => ({
-            label: `${feature.properties.city} (${feature.properties.postcode})`,
+            label: `${feature.properties.city} ${feature.properties.postcode}`,
             city: feature.properties.city,
             postcode: feature.properties.postcode,
+            coordinates: feature.geometry.coordinates,
           }));
         filteredSuggestions;
         setSuggestions(filteredSuggestions);
+
+        // Validation automatique si correspondance exacte
+        clearTimeout((window as any).cityValidationTimeout);
+        (window as any).cityValidationTimeout = setTimeout(() => {
+          validateCityWithAPI(value);
+        }, 1000);
       } catch (error) {
         console.error("Erreur lors de la récupération des suggestions de ville :", error);
         setError(
@@ -126,9 +205,18 @@ const ItemsPage = () => {
     label: string;
     city: string;
     postcode: string;
+    coordinates: [number, number];
   }) => {
-    setTempVilleRecherche(`${suggestion.city} (${suggestion.postcode})`);
+    setTempVilleRecherche(suggestion.label);
+    setCityCoordinates(suggestion.coordinates);
+    setIsValidCity(true);
     setSuggestions([]);
+  };
+
+   // Fonction pour gérer le changement de rayon
+  const handleRadiusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setTempSearchRadius(value);
   };
 
   const handleSelectChangeOrder = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -161,17 +249,25 @@ const ItemsPage = () => {
       setError(null);
       setLoading(true);
       // Création des paramètres de recherche
-      const params = {
+      const params: any = {
         title_like: titleSearch,
         category: categorieSearch,
         priceMin: priceMin,
         priceMax: priceMax,
         type: selectedType,
-        location_like: villeRecherche,
         orderBy: selectedOrder,
         page: currentPage,
         limit: 9,
       };
+
+      if (villeRecherche && isValidCity && cityCoordinates && searchRadius) {
+        params.latitude = cityCoordinates[1];
+        params.longitude = cityCoordinates[0];
+        params.radius = searchRadius;
+      } else if (villeRecherche) {
+        // Recherche textuelle classique
+        params.location_like = villeRecherche;
+      }
 
       const response = await apiClient.get("/items/filterItems", { params });
 
@@ -195,11 +291,18 @@ const ItemsPage = () => {
 
   // Fonction pour appliquer les filtres de recherche
   const applyFilters = async () => {
+     // Validation de la ville si un rayon est sélectionné
+    if (tempSearchRadius && !isValidCity) {
+      setError("Veuillez sélectionner une ville valide pour utiliser la recherche par rayon.");
+      return;
+    }
+
     setTitleSearch(tempTitleSearch);
     setCategorieSearch(tempCategorieSearch);
     setPriceMin(tempPriceMin);
     setPriceMax(tempPriceMax);
     setVilleRecherche(tempVilleRecherche);
+    setSearchRadius(tempSearchRadius);
     setSelectedType(tempSelectedType);
     setSuggestions([]);
     setPage(1);
@@ -207,12 +310,13 @@ const ItemsPage = () => {
   };
 
   // Fonction pour réinitialiser les filtres
-  const resetInfo = async () => {
+   const resetInfo = async () => {
     setTitleSearch("");
     setCategorieSearch("");
     setPriceMin("");
     setPriceMax("");
     setVilleRecherche("");
+    setSearchRadius("");
     setSelectedType("all");
     setSelectedOrder("recentItems");
     setTempTitleSearch("");
@@ -220,7 +324,10 @@ const ItemsPage = () => {
     setTempPriceMin("");
     setTempPriceMax("");
     setTempVilleRecherche("");
+    setTempSearchRadius("");
     setTempSelectedType("all");
+    setIsValidCity(false);
+    setCityCoordinates(null);
     setSuggestions([]);
     setPage(1);
     setIsResetFilter(true);
@@ -252,6 +359,7 @@ const ItemsPage = () => {
     titleSearch,
     categorieSearch,
     villeRecherche,
+    searchRadius,
     priceMin,
     priceMax,
     selectedType,
@@ -296,6 +404,10 @@ const ItemsPage = () => {
         priceMin={tempPriceMin}
         priceMax={tempPriceMax}
         isDisplayed={false}
+        searchRadius={tempSearchRadius}
+        handleRadiusChange={handleRadiusChange}
+        isValidCity={isValidCity}
+        isCheckingCity={isCheckingCity}
       />
       <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
         <SortItems
