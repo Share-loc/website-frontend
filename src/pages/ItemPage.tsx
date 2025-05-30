@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { getToken } from "../const/func";
 import { useNavigate, useParams } from "react-router-dom";
 import { Category } from "@/types/CategoryTypes";
 import { Label } from "@/components/ui/label";
@@ -67,6 +66,16 @@ const ItemPage = () => {
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
+  const [locationCoordinates, setLocationCoordinates] = useState<[number, number] | null>(null);
+  const [citySuggestions, setCitySuggestions] = useState<Array<{
+    label: string;
+    city: string;
+    postcode:string;
+    coordinates: [number, number];
+  }>>([])
+  const [showSuggestions, setShowSuggestions] = useState(false); 
+  const [isValidLocation, setIsValidLocation] = useState(false);
+  const [isCheckingLocation, setIsCheckingLocation] = useState(false);
   const [phone, setPhone] = useState("");
   const [showPhone, setShowPhone] = useState(false);
   const [categoryId, setCategoryId] = useState("");
@@ -85,6 +94,126 @@ const ItemPage = () => {
     })
   );
 
+  // Fonction pour vérifier si la saisie manuelle correspond exactement à un résultat API
+  const validateLocationWithAPI = async (locationText: string) => {
+    if (!locationText.trim() || locationText.length < 3) {
+      return false;
+    }
+
+    setIsCheckingLocation(true);
+    try {
+      const response = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(locationText)}&type=municipality&autocomplete=1&limit=10`
+      );
+      const data = await response.json();
+      
+      const exactMatch = data.features
+        .filter((feature: any) => feature.properties.score >= 0.8) // Score plus élevé pour correspondance exacte
+        .find((feature: any) => {
+          const apiLabel = `${feature.properties.city} ${feature.properties.postcode}`;
+          return apiLabel.toLowerCase() === locationText.toLowerCase();
+        });
+
+      if (exactMatch) {
+        setLocationCoordinates(exactMatch.geometry.coordinates as [number, number]);
+        setIsValidLocation(true);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error("Erreur lors de la validation de la ville:", error);
+      return false;
+    } finally {
+      setIsCheckingLocation(false);
+    }
+  };
+
+   const fetchCities = async (search: string) => {
+    if (search.length < 3) {
+      setCitySuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(search)}&type=municipality&autocomplete=1&limit=5`
+      );
+      const data = await response.json();
+      
+      const filteredSuggestions = data.features
+        .filter((feature: any) => feature.properties.score >= 0.5)
+        .map((feature: any) => ({
+          label: `${feature.properties.city} ${feature.properties.postcode}`,
+          city: feature.properties.city,
+          postcode: feature.properties.postcode,
+          coordinates: feature.geometry.coordinates as [number, number]
+        }));
+      
+      setCitySuggestions(filteredSuggestions);
+      setShowSuggestions(true);
+    } catch (error) {
+      console.error("Erreur lors de la recherche des villes:", error);
+      setCitySuggestions([]);
+    }
+  };
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLocation(value);
+    setIsValidLocation(false);
+    setLocationCoordinates(null);
+    
+    // Debounce la recherche
+    clearTimeout((window as any).citySearchTimeout);
+    (window as any).citySearchTimeout = setTimeout(() => {
+      fetchCities(value);
+    }, 300);
+
+    // Debounce la validation API pour la saisie manuelle
+    clearTimeout((window as any).cityValidationTimeout);
+    (window as any).cityValidationTimeout = setTimeout(() => {
+      validateLocationWithAPI(value);
+    }, 1000); // Plus long délai pour éviter trop de requêtes de validation
+  };
+
+  const handleCitySelect = (suggestion: any) => {
+    setLocation(suggestion.label);
+    setLocationCoordinates(suggestion.coordinates);
+    setIsValidLocation(true);
+    setShowSuggestions(false);
+    validateField("location", suggestion.label);
+  };
+
+  // Fonction pour vérifier si la ville est valide
+  const isLocationValid = () => {
+    if (!location.trim()) return false;
+    return isValidLocation && locationCoordinates !== null;
+  };
+
+  // Validation lors de la perte de focus
+  const handleLocationBlur = async () => {
+    if (hasAttemptedSubmit) {
+      // Si pas encore validé, on force une vérification
+      if (!isValidLocation && location.trim().length >= 3) {
+        const isValid = await validateLocationWithAPI(location);
+        if (!isValid) {
+          setErrors(prev => ({ 
+            ...prev, 
+            location: "Ville non trouvée. Veuillez sélectionner une ville dans la liste ou vérifier l'orthographe." 
+          }));
+        } else {
+          setErrors(prev => ({ ...prev, location: undefined }));
+        }
+      }
+      validateField("location", location);
+    }
+    
+    // Délai pour permettre le clic sur une suggestion
+    setTimeout(() => setShowSuggestions(false), 200);
+  };
+
   const validateForm = (): boolean => {
     try{
       itemSchema.parse({
@@ -96,6 +225,16 @@ const ItemPage = () => {
         show_phone: showPhone,
         category_id: categoryId
       });
+
+      // Validation pour le lieu
+      if (!isLocationValid()) {
+        setErrors(prev => ({ 
+          ...prev, 
+          location: "Veuillez sélectionner une ville dans la liste" 
+        }));
+        return false;
+      }
+
       setErrors({});
       return true;
     } catch (err) {
@@ -106,6 +245,10 @@ const ItemPage = () => {
             newErrors[error.path[0] as keyof ItemFormData] = error.message;
           }
         });
+        // Ajouter l'erreur de lieu si nécessaire
+        if (!isLocationValid()) {
+          newErrors.location = "Veuillez sélectionner une ville dans la liste";
+        }
         setErrors(newErrors);
       }
       return false;
@@ -117,6 +260,18 @@ const ItemPage = () => {
     if (!hasAttemptedSubmit) return;
   
     try {
+      // Validation spéciale pour le lieu
+      if (name === "location") {
+        if (!value || typeof value !== "string" || !value.trim()) {
+          setErrors(prev => ({ ...prev, location: "Veuillez saisir un lieu" }));
+          return;
+        }
+        if (!isLocationValid()) {
+          setErrors(prev => ({ ...prev, location: "Veuillez sélectionner une ville dans la liste" }));
+          return;
+        }
+      }
+
       itemSchema.pick({ [name]: true } as Record<keyof ItemFormData, true>).parse({ [name]: value });
       setErrors(prev => ({ ...prev, [name]: undefined }));
     } catch (err) {
@@ -166,17 +321,15 @@ const ItemPage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
+   // Fonction pour charger les données lors de l'édition
+  const loadItemForEdit = async () => {
+    if (!isEditing) return;
 
-    const fetchItem = async () => {
-      if (!isEditing) return;
-
-      setIsLoading(true);
-      try {
+    setIsLoading(true);
+    try {
       const response = await apiClient.get(`/items/${id}`);
-
       const data = response.data;
+      
       setTitle(data.title);
       setDescription(data.body);
       setPrice(data.price.toString());
@@ -185,19 +338,29 @@ const ItemPage = () => {
       setShowPhone(data.show_phone);
       setCategoryId(data.category.id.toString());
       setExistingImages(data.activeItemPictures || []);
-      } catch (error) {
+
+      // Valider la ville existante
+      if (data.location) {
+        const isValid = await validateLocationWithAPI(data.location);
+        if (isValid) {
+          setIsValidLocation(true);
+        }
+      }
+    } catch (error) {
       console.error("Erreur lors du chargement de l'annonce:", error);
       toast({
         title: "Erreur",
         description: "Impossible de charger l'annonce",
         variant: "destructive",
       });
-      } finally {
+    } finally {
       setIsLoading(false);
-      }
-    };
+    }
+  };
 
-    fetchItem();
+  useEffect(() => {
+    fetchCategories();
+    loadItemForEdit();
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -238,6 +401,10 @@ const ItemPage = () => {
         phone_number: phone,
         show_phone: showPhone,
         category_id: parseInt(categoryId),
+        ...(locationCoordinates && {
+        latitude: locationCoordinates[1],
+        longitude: locationCoordinates[0]
+  })
       };
 
       // Création ou modification de l'annonce via apiClient
@@ -410,17 +577,67 @@ const ItemPage = () => {
 
               <div>
                 <Label htmlFor="location">Lieu</Label>
-                <Input
-                  id="location"
-                  placeholder="Ex: Paris 75011"
-                  required
-                  value={location}
-                  onChange={(e) => {
-                    setLocation(e.target.value);
-                    validateField("location", e.target.value);
-                  }}
-                  className={errors.location ? "border-red-500" : ""}
-                />
+                <div className="relative">
+                  <Input
+                    id="location"
+                    placeholder="Ex: Paris 75011"
+                    required
+                    value={location}
+                    onChange={handleLocationChange}
+                    onBlur={handleLocationBlur}
+                    onFocus={() => {
+                      if (citySuggestions.length > 0) {
+                        setShowSuggestions(true);
+                      }
+                    }}
+                    className={errors.location ? "border-red-500" : ""}
+                  />
+                  {/* Indicateur de vérification en cours */}
+      {isCheckingLocation && (
+        <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+          <svg className="animate-spin h-4 w-4 text-yellow-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </div>
+      )}
+                  {showSuggestions && citySuggestions.length > 0 && (
+                    <ul className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto">
+                      {citySuggestions.map((suggestion) => (
+                        <li
+                          key={`${suggestion.city}-${suggestion.postcode}`}
+                          className="px-3 py-2 cursor-pointer text-sm hover:bg-gray-100 flex justify-between items-center"
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleCitySelect(suggestion);
+                          }}
+                        >
+                          <span className="font-medium">{suggestion.city}</span>
+                          <span className="text-gray-500 text-xs">
+                            {suggestion.postcode}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {/* Message d'aide si il y a des suggestions non sélectionnées */}
+                  {location.length >= 3 &&
+                    citySuggestions.length > 0 &&
+                    !isValidLocation && (
+                      <p className="text-xs text-orange-500 mt-1">
+                        Veuillez sélectionner une ville dans la liste ci-dessus
+                      </p>
+                    )}
+
+                  {/* Message si aucune ville trouvée */}
+                  {location.length >= 3 &&
+                    citySuggestions.length === 0 &&
+                    showSuggestions && (
+                      <p className="text-xs text-red-500 mt-1">
+                        Aucune ville trouvée. Vérifiez l'orthographe.
+                      </p>
+                    )}
+                </div>
                 {errors.location && (
                   <p className="text-sm text-red-500 mt-1">{errors.location}</p>
                 )}
