@@ -145,6 +145,7 @@ const AdminItemsPage = () => {
                       variant={
                         item.status != "approved" ? "default" : "secondary"
                       }
+                      className="text-center"
                     >
                       {item.status === "approved" ? "Approuvé" : "En attente"}
                     </Badge>
