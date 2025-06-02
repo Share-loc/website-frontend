@@ -26,7 +26,6 @@ const FilterItems = ({
   searchRadius,
   handleRadiusChange,
   isValidCity,
-  isCheckingCity,
 }: any) => {
   return (
     <div
@@ -52,7 +51,6 @@ const FilterItems = ({
           searchRadius={searchRadius}
           handleRadiusChange={handleRadiusChange}
           isValidCity={isValidCity}
-          isCheckingCity={isCheckingCity}
         />
         <SearchPrice
           handlePriceMinimumChange={handlePriceMinimumChange}

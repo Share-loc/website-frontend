@@ -60,54 +60,12 @@ const ItemsPage = () => {
     }
     return null;
   });
-  const [isCheckingCity, setIsCheckingCity] = useState(false);
 
   useEffect(() => {
     if (villeRecherche && cityCoordinates) {
       setIsValidCity(true);
     }
   }, [villeRecherche, cityCoordinates]);
-
-  const validateCityWithAPI = async (cityText: string) => {
-  if (!cityText.trim() || cityText.length < 3) {
-    setIsValidCity(false);
-    setCityCoordinates(null);
-    return false;
-  }
-
-  setIsCheckingCity(true);
-  try {
-    const response = await fetch(
-      `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(cityText)}&type=municipality&autocomplete=1&limit=10`
-    );
-    const data = await response.json();
-    
-    // Chercher une correspondance exacte avec le nouveau format (sans parenthèses)
-    const exactMatch = data.features
-      .filter((feature: any) => feature.properties.score >= 0.8)
-      .find((feature: any) => {
-        const apiLabel = `${feature.properties.city} ${feature.properties.postcode}`;
-        return apiLabel.toLowerCase() === cityText.toLowerCase();
-      });
-
-    if (exactMatch) {
-      setCityCoordinates(exactMatch.geometry.coordinates as [number, number]);
-      setIsValidCity(true);
-      return true;
-    } else {
-      setIsValidCity(false);
-      setCityCoordinates(null);
-      return false;
-    }
-  } catch (error) {
-    console.error("Erreur lors de la validation de la ville:", error);
-    setIsValidCity(false);
-    setCityCoordinates(null);
-    return false;
-  } finally {
-    setIsCheckingCity(false);
-  }
-};
 
   // Fonction pour mettre à jour les paramètres de recherche Url
   const updateSearchParams = () => {
@@ -181,14 +139,16 @@ const ItemsPage = () => {
             postcode: feature.properties.postcode,
             coordinates: feature.geometry.coordinates,
           }));
-        filteredSuggestions;
+
         setSuggestions(filteredSuggestions);
 
-        // Validation automatique si correspondance exacte
-        clearTimeout((window as any).cityValidationTimeout);
-        (window as any).cityValidationTimeout = setTimeout(() => {
-          validateCityWithAPI(value);
-        }, 1000);
+        // Vérifier si on a une seule suggestion qui correspond parfaitement au texte saisi
+        if (filteredSuggestions.length === 1 && filteredSuggestions[0].label == value) {
+          setIsValidCity(true);
+          setCityCoordinates(filteredSuggestions[0].coordinates);
+          setSuggestions([]);
+        }
+
       } catch (error) {
         console.error("Erreur lors de la récupération des suggestions de ville :", error);
         setError(
@@ -407,7 +367,6 @@ const ItemsPage = () => {
         searchRadius={tempSearchRadius}
         handleRadiusChange={handleRadiusChange}
         isValidCity={isValidCity}
-        isCheckingCity={isCheckingCity}
       />
       <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
         <SortItems
