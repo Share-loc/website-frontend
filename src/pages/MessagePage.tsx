@@ -146,7 +146,7 @@ function MessagePage() {
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold">Conversations</h2>
             </div>
-            <ScrollArea className="h-[calc(100vh-5rem)]">
+            <ScrollArea className="h-[calc(100%-73px)]">
               {conversations
                 .sort((a, b) => b.last_message_created_at.localeCompare(a.last_message_created_at))
                 .map((conversation) => (
