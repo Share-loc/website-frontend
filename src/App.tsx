@@ -59,7 +59,7 @@ function App() {
               <Route path='/cgv' element={<CGVPage />} />
               <Route path='/gdpr' element={<GDPRPage />} />
               <Route path='/help' element={<HelpPage />} />
-              <Route path='/stripe' element={<StripePage />} />
+              <Route path='/legals' element={<StripePage />} />
               <Route path='/security' element={<SecurityPage />} />
               <Route path='/reservation' element={<ReservationPage />} />
               <Route path='/product/:id' element={<ProductPage />} />

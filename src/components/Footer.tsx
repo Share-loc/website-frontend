@@ -23,11 +23,6 @@ const Footer = () => {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="hover:text-gray-900">
-                  Qui sommes-nous ?
-                </Link>
-              </li>
-              <li>
                 <Link to="/cgu" className="hover:text-gray-900">
                   Conditions générales d'utilisation
                 </Link>
@@ -65,7 +60,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/stripe" className="hover:text-gray-900">
+                <Link to="/legals" className="hover:text-gray-900">
                   Mentions Légales
                 </Link>
               </li>
