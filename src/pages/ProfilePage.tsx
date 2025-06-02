@@ -51,18 +51,18 @@ const ProfilePage = () => {
               </div>
 
               <div className="space-y-2 text-sm">
-                <div className="flex items-center justify-center gap-2">
+                {/* <div className="flex items-center justify-center gap-2">
                   <MapPin className="h-4 w-4 text-muted-foreground" />
                   <span>Paris, France</span>
-                </div>
+                </div> */}
                 <div className="flex items-center justify-center gap-2">
                   <Mail className="h-4 w-4 text-muted-foreground" />
                   <span>{user?.email}</span>
                 </div>
-                <div className="flex items-center justify-center gap-2">
+                {/* <div className="flex items-center justify-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
                   <span>+33 6 12 34 56 78</span>
-                </div>
+                </div> */}
               </div>
 
               {/* <div className="mt-6 pt-6 border-t">
