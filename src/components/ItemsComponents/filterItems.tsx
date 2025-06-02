@@ -23,6 +23,10 @@ const FilterItems = ({
   priceMax,
   resetInfo,
   isDisplayed,
+  searchRadius,
+  handleRadiusChange,
+  isValidCity,
+  isCheckingCity,
 }: any) => {
   return (
     <div
@@ -45,6 +49,10 @@ const FilterItems = ({
           handleCitySearchChangeMap={handleCitySearchChangeMap}
           suggestions={suggestions}
           selectSuggestionMap={selectSuggestionMap}
+          searchRadius={searchRadius}
+          handleRadiusChange={handleRadiusChange}
+          isValidCity={isValidCity}
+          isCheckingCity={isCheckingCity}
         />
         <SearchPrice
           handlePriceMinimumChange={handlePriceMinimumChange}
