@@ -55,11 +55,6 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/stripe" className="hover:text-gray-900">
-                  Le service de paiement
-                </Link>
-              </li>
-              <li>
                 <Link to="/security" className="hover:text-gray-900">
                   Connexion et sécurité
                 </Link>
@@ -67,6 +62,11 @@ const Footer = () => {
               <li>
                 <Link to="/reservation" className="hover:text-gray-900">
                   Le service de réservation
+                </Link>
+              </li>
+              <li>
+                <Link to="/stripe" className="hover:text-gray-900">
+                  Mentions Légales
                 </Link>
               </li>
             </ul>
