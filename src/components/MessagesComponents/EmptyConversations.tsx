@@ -1,6 +1,7 @@
 import { Button } from "../ui/button";
 import PaperAirplane from "../../../public/paper_airplane_blue.jpg";
 import { RiMapPinAddFill } from "react-icons/ri";
+import { Link } from "react-router-dom";
 
 function EmptyConversations() {
   return (
@@ -18,10 +19,12 @@ function EmptyConversations() {
         Share'Loc. Pour commencer une conversation, rendez vous sur l'annonce de
         votre choix puis cliquez sur "Envoyer un message".
       </p>
-      <Button>
-        <RiMapPinAddFill size={20} />
-        Déposer une annonce
-      </Button>
+      <Link to={"/create-item"}>
+        <Button>
+          <RiMapPinAddFill size={20} />
+          Déposer une annonce
+        </Button>
+      </Link>
     </div>
   );
 }

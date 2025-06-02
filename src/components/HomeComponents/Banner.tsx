@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Input } from "../ui/input";
 import { FaSearch } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const MainBanner = () => {
     const navigate = useNavigate();
@@ -23,9 +24,11 @@ const MainBanner = () => {
             <p className="text-lg md:text-xl text-white mb-6">
               La plateforme qui vous permet de louer des objets près de chez vous et de rentabiliser vos biens inutilisés.
             </p>
-            <button className="bg-white text-[#3AAFAF] font-bold py-3 px-6 text-md rounded-lg shadow-lg hover:bg-gray-50 transition duration-300">
-              Déposer une annonce
-            </button>
+            <Link to={"/create-item"} >
+              <button className="bg-white text-[#3AAFAF] font-bold py-3 px-6 text-md rounded-lg shadow-lg hover:bg-gray-50 transition duration-300">
+                Déposer une annonce
+              </button>
+            </Link>
           </div>
           <div className="md:w-1/2 max-w-md">
             <div className="shadow-lg">

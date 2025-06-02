@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import CardItems from "../ItemsComponents/cardItems";
 import { AiFillProduct } from "react-icons/ai";
+import { Link } from "react-router-dom";
 
 // Composant pour le carrousel d'items
 const ItemsCarousel = ({ items }) => {
@@ -83,9 +84,11 @@ const ItemsCarousel = ({ items }) => {
         </div>
 
         <div className="mt-6 text-center">
-          <button className="bg-[#F8B24E] text-white font-semibold py-3 px-6 rounded-lg shadow text-md hover:bg-[#F8B24E]/90 transition duration-300">
-            Consulter d'autres annonces
-          </button>
+          <Link to={"/annonces"}>
+            <button className="bg-[#F8B24E] text-white font-semibold py-3 px-6 rounded-lg shadow text-md hover:bg-[#F8B24E]/90 transition duration-300">
+              Consulter d'autres annonces
+            </button>
+          </Link>
         </div>
       </div>
     </div>

@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 const ServicesBanner = () => {
     return (
       <div className="bg-gray-50 pb-12">
@@ -13,9 +15,11 @@ const ServicesBanner = () => {
                 </p>
               </div>
               <div className="md:w-1/3 text-center">
-                <button className="bg-[#F8B24E] text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-[#F8B24E]/90 transition duration-300 text-md">
-                  Déposer une annonce
-                </button>
+                <Link to={"/create-item"}>
+                  <button className="bg-[#F8B24E] text-white font-bold py-4 px-8 rounded-lg shadow-lg hover:bg-[#F8B24E]/90 transition duration-300 text-md">
+                    Déposer une annonce
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
