@@ -6,6 +6,7 @@ import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import apiClient from "@/service/api/apiClient";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -131,6 +132,12 @@ const RegisterPage = () => {
                     onChange={handleChange}
                     disabled={isLoading}
                   />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3">
+                    <Checkbox id="terms" required />
+                    <Label htmlFor="terms">Accepter les <Link className="underline" to={"/cgy"}>conditions d'utilisation</Link></Label>
+                  </div>
                 </div>
                 {responseMessage && (
                   <div className="text-red-600 text-sm">{responseMessage}</div>
