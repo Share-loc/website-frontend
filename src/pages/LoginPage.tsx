@@ -19,6 +19,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError]= useState('');
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -66,11 +67,15 @@ const LoginPage = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        setIsLoginLoading(true);
+        setError('');
         try {
           await login(email, password);
           navigate(from, {replace: true});
-        } catch (error) {
-          setError('Email ou mot de passe incorrect')
+        } catch (error: any) {
+          setError(error.message)
+        } finally {
+          setIsLoginLoading(false);
         }
     };
 
@@ -133,7 +138,14 @@ const LoginPage = () => {
                   </div>
                   {error && (<p className="text-xs italic text-red-500">{error}</p>)}
                   <Button type="submit" className="w-full">
-                    Se connecter
+                    {isLoginLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Connexion en cours...
+                      </>
+                    ) : (
+                      "Se connecter"
+                    )}
                   </Button>
                 </div>
                 <div className="text-sm text-center">
