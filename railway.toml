@@ -1,0 +1,10 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "npx serve -s dist"
+numReplicas = 1
+healthcheckPath = "/"
+
+[variables]
+VITE_API_URL = "https://ton-back.railway.app/api"
