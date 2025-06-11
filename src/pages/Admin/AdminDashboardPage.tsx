@@ -332,7 +332,7 @@ const AdminDashboardPage = () => {
                   dataKey="itemCount"
                   onMouseEnter={onPieEnter}
                 >
-                  {data?.categories.map((entry, index) => (
+                  {data?.categories.map((_entry, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}

@@ -2,7 +2,7 @@ import apiClient from "@/service/api/apiClient";
 import { useState } from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 
-const FavorisItems = ({ item }) => {
+const FavorisItems = ({ item }: any) => {
   const [isFavorite, setIsFavorite] = useState(item.isFavorite || false);
   const handleFavoriteToggle = async () => {
     try {

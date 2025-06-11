@@ -1,7 +1,6 @@
 import { IoMdPerson } from "react-icons/io";
 import FavorisItems from "./favorisItems";
 import { FiMapPin } from "react-icons/fi";
-import { Link } from "react-router-dom";
 import { MdOutlineCategory } from "react-icons/md";
 
 
@@ -11,6 +10,7 @@ interface CardItemsProps {
     title: string;
     location: string;
     price: number;
+    category: any;
     user: {
       is_pro: boolean;
     };

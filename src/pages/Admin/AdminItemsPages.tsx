@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from "react";
-import { getToken } from "../../const/func";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Filter, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";

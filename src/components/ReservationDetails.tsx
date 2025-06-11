@@ -36,16 +36,14 @@ interface Reservation {
   state: "pending" | "accepted" | "canceled" | "refused";
   created_at: string;
   canceled_at: string | null;
-  reviews: [
-    {
-      reviewer: {
-        id: number;
-      };
-      reviewed: {
-        id: number;
-      };
-    }
-  ];
+  reviews: Array<{
+    reviewer: {
+      id: number;
+    };
+    reviewed: {
+      id: number;
+    };
+  }>;
 }
 
 function ReservationDetails({
@@ -77,7 +75,7 @@ function ReservationDetails({
     state: "accepted" | "refused" | "canceled"
   ) => {
     try {
-      const response = await apiClient.put(
+      await apiClient.put(
         `/reservations/${reservation.id}`,
         { state }
       );

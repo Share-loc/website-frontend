@@ -5,7 +5,7 @@ import { AiFillProduct } from "react-icons/ai";
 import { Link } from "react-router-dom";
 
 // Composant pour le carrousel d'items
-const ItemsCarousel = ({ items }) => {
+const ItemsCarousel = ({ items }: any) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [itemsPerSlide, setItemsPerSlide] = useState(4);
     
@@ -75,7 +75,7 @@ const ItemsCarousel = ({ items }) => {
               <div
                 key={slideIndex}
                 className="min-w-full grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-5">
-                {items.slice(slideIndex * itemsPerSlide, slideIndex * itemsPerSlide + itemsPerSlide).map((item) => (
+                {items.slice(slideIndex * itemsPerSlide, slideIndex * itemsPerSlide + itemsPerSlide).map((item : any) => (
                   <CardItems key={item.id} item={item} />
                 ))}
               </div>

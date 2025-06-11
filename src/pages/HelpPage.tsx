@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Slider from "@mui/material/Slider";
 import Alert from "@mui/material/Alert";
 import apiClient from "@/service/api/apiClient";
@@ -12,7 +12,7 @@ const HelpPage = () => {
   const [url, setUrl] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
 
-  const handleChange = (e, newValue) => {
+  const handleChange = (e: any, newValue : any) => {
     e.preventDefault();
     setImpact(newValue);
   };
@@ -24,7 +24,7 @@ const HelpPage = () => {
     return "bg-red-500";
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
     if (nom.length < 2 || prenom.length < 2) {

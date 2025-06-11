@@ -60,7 +60,7 @@ function ReservationForm({ item, onNewReservation }: ReservationFormProps) {
 
     setIsLoadingSendReservation(true);
     try {
-      const response = await apiClient.post("/reservations", {
+      await apiClient.post("/reservations", {
         item: item.id,
         start_at: formattedStartDate,
         end_at: formattedEndDate,

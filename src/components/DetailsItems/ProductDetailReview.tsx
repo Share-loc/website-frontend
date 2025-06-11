@@ -11,7 +11,7 @@ export default function RecentReviews({ reviews }: RecentReviewsProps) {
       {Object.keys(reviews).length === 0 ? (
         <p>Vous n'avez pas encore d'annonces.</p>
       ) : (
-        reviews.map((review) => (
+        reviews.map((review: any) => (
           <div key={review.id} className="border rounded-lg p-4">
             <div className="flex items-center space-x-4 mb-2">
               <Avatar>

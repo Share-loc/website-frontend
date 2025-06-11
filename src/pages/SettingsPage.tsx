@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
-import { ArrowLeft, Bell, CreditCard, Globe, Lock, User } from "lucide-react";
+import { ArrowLeft, Bell, Globe, Lock, User } from "lucide-react";
 import { Link } from "react-router-dom";
 
 function SettingsPage() {
