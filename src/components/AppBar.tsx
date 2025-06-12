@@ -214,7 +214,7 @@ const AppBar = () => {
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                    {user?.roles.includes("ROLE_ADMIN") && (
+                    {user?.roles?.includes("ROLE_ADMIN") && (
                       <DropdownMenuItem
                         onClick={() => navigate("/admin")}
                         className="text-orange-500"
