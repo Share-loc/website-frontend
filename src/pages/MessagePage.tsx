@@ -1,7 +1,6 @@
 import EmptyConversations from "@/components/MessagesComponents/EmptyConversations";
 import Spinner from "@/components/Spinner";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCallback, useEffect, useState } from "react";
 import { ArrowLeft, Flag, Trash } from "lucide-react";
 import { format, setDefaultOptions } from "date-fns";
@@ -139,14 +138,14 @@ function MessagePage() {
         <div className="flex h-[calc(100vh-120px)] bg-gray-100 shadow">
           {/* Left column - Conversation list */}
           <div
-            className={`w-full lg:w-1/3 bg-white border-r border-gray-200 ${
+            className={`w-full lg:w-1/3 bg-white border-r border-gray-200 overflow-hidden ${
               activeView === "messages" ? "hidden lg:block" : ""
             }`}
           >
             <div className="p-4 border-b border-gray-200">
               <h2 className="text-xl font-semibold">Conversations</h2>
             </div>
-            <ScrollArea className="h-[calc(100%-73px)]">
+            <div className="h-[calc(100%-73px)] overflow-y-scroll">
               {conversations
                 .sort((a, b) => b.last_message_created_at.localeCompare(a.last_message_created_at))
                 .map((conversation) => (
@@ -159,41 +158,48 @@ function MessagePage() {
                   } cursor-pointer`}
                   onClick={() => handleConversationClick(conversation)}
                 >
+
                   {conversation.new_messages && (
-                    <span className="mr-2 bg-blue-500 rounded-full size-2"></span>
+                    <span className="mr-2 bg-blue-500 rounded-full size-2 flex-shrink-0"></span>
                   )}
-                  <Avatar className="w-10 h-10 mr-3 rounded-full">
+
+                  <Avatar className="w-10 h-10 mr-3 rounded-full flex-shrink-0">
                     <AvatarImage src={conversation.user_avatar ?? ""} />
                     <AvatarFallback>
                       {conversation.user_username.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1 min-w-0">
+                  <div className="flex-1 min-w-0 overflow-hidden">
                     <h3 className="text-sm font-medium text-gray-900 truncate">
                       {conversation.user_username}
                     </h3>
-                    <p className="text-sm text-gray-500 truncate">
-                      {conversation.last_message}
+                    <p className="text-sm text-gray-500 truncate min-w-0">
+                      {conversation.last_message?.length > 30 
+                        ? `${conversation.last_message.substring(0, 30)}...` 
+                        : conversation.last_message}
                     </p>
                   </div>
-                  <span className="text-xs text-gray-400 truncate">
-                    {format(
-                      new Date(conversation.last_message_created_at),
-                      "dd/MM"
-                    )}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="ml-3"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(conversation);
-                    }}
-                  >
-                    <Trash className="size-4" />
-                  </Button>
+
+                  <div className="flex items-center ml-3 flex-shrink-0 gap-2">
+                    <span className="text-xs text-gray-400 whitespace-nowrap">
+                      {format(
+                        new Date(conversation.last_message_created_at),
+                        "dd/MM"
+                      )}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className=""
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(conversation);
+                      }}
+                    >
+                      <Trash className="size-4" />
+                    </Button>
+                  </div>
                 </div>
               ))}
               <DeleteConversationModal
@@ -202,7 +208,7 @@ function MessagePage() {
                 onConfirm={handleConfirmDelete}
                 conversationUserName={conversationToDelete?.user_username ?? ""}
               />
-            </ScrollArea>
+            </div>
           </div>
 
           {/* Right column - Chat interface */}
