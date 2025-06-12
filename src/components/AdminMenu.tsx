@@ -64,7 +64,7 @@ const AdminMenu = () => {
                     <span>{link.name}</span>
                   </a>
                 </SidebarMenuButton>
-                {link.to_do && link.to_do > 0 && (
+                {!!(link.to_do && link.to_do > 0) && (
                   <SidebarMenuBadge>
                     <Badge variant={"outline"}>{link.to_do}</Badge>
                   </SidebarMenuBadge>
