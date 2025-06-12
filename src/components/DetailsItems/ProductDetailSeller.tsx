@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import apiClient from "@/service/api/apiClient";
+import { useAuth } from "../context/AuthContext";
 
 interface SellerCardProps {
   userInfo: any;
@@ -31,10 +32,10 @@ interface SellerCardProps {
 export default function SellerCard({ userInfo, items, rating, totalReviews, totalItemsUser }: SellerCardProps) {
   const [isSendMessageModalOpen, setIsSendMessageModalOpen] = useState(false);
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth()
 
   const handleSendMessage = async (message: string) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
+    if (!isAuthenticated) {
       toast({
         title: "Connectez-vous",
         description: "Vous devez être connecté pour envoyé un message !",
@@ -173,8 +174,7 @@ export default function SellerCard({ userInfo, items, rating, totalReviews, tota
           onOpenChange={(open) => {
             if (open) {
               // Vérification du token au moment de l'ouverture
-              const token = localStorage.getItem("token");
-              if (!token) {
+              if (!isAuthenticated) {
                 toast({
                   title: "Connectez-vous",
                   description:
