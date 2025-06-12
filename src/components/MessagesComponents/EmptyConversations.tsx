@@ -1,5 +1,5 @@
 import { Button } from "../ui/button";
-import PaperAirplane from "../../../public/paper_airplane_blue.jpg";
+import PaperAirplane from "/paper_airplane_blue.jpg";
 import { RiMapPinAddFill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 

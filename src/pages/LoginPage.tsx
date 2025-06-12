@@ -91,7 +91,7 @@ const LoginPage = () => {
               >
                 <div className="flex flex-col items-center gap-2 text-center">
                   <img
-                    src="/public/Logo-share-loc.svg"
+                    src="/Logo-share-loc.svg"
                     alt="Logo de l'application"
                     className="mx-auto mb-3"
                   />
@@ -160,7 +160,7 @@ const LoginPage = () => {
         </div>
         <div className="relative hidden bg-muted lg:block">
           <img
-            src="../../public/login_picture.jpg"
+            src="/login_picture.jpg"
             alt="Image d'une femme entourée de cartons"
             className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
           />

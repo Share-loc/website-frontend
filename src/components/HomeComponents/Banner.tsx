@@ -15,7 +15,7 @@ const MainBanner = () => {
     }
 
     return (
-      <div className="bg-cover bg-center py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundImage: "url('public/pexel-hero.jpg')" }}>
+      <div className="bg-cover bg-center py-16 px-4 sm:px-6 lg:px-8" style={{ backgroundImage: "url('/pexel-hero.jpg')" }}>
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between md:gap-10">
           <div className="md:w-1/2 mb-8 md:mb-0">
             <h1 className="text-xl md:text-2xl font-bold text-white mb-4">
