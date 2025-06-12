@@ -17,7 +17,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {
-    const newSocket = io("http://localhost:3000", {
+    const websocketUrl = import.meta.env.VITE_WEBSOCKET_URL || "http://localhost:3000";
+    const newSocket = io(websocketUrl, {
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
     });
