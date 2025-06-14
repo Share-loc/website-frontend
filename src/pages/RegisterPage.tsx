@@ -22,10 +22,9 @@ const RegisterPage = () => {
     last_name: "",
     terms: false,
   });
-  const [responseMessage, setResponseMessage] = useState("");
 
   const handleChange = (e: any) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
@@ -62,10 +61,15 @@ const RegisterPage = () => {
       const validatedData = registerSchema.parse(formData);
       
       // Enlever le champ terms avant l'envoi à l'API
-      const { terms, ...dataToSend } = validatedData;
+      const dataToSend = {
+        email: validatedData.email,
+        plainPassword: validatedData.plainPassword,
+        username: validatedData.username,
+        first_name: validatedData.first_name,
+        last_name: validatedData.last_name
+      };
 
-      await apiClient.post("/users", formData);
-      setResponseMessage("Registration successful!");
+      await apiClient.post("/users", dataToSend);
       toast({ title: "Inscription réussie, Vous pouvez maintenant vous connecter", variant: "success" });
       Navigate("/login");
     } catch (error) {
