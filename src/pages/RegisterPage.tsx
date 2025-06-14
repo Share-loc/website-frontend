@@ -7,9 +7,12 @@ import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import apiClient from "@/service/api/apiClient";
 import { Checkbox } from "@/components/ui/checkbox";
+import { registerSchema } from "@/types/zodSchema/RegisterSchema";
+import { z } from "zod";
 
 const RegisterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
+    const [errors, setErrors] = useState<Record<string, string>>({});
 
   const [formData, setFormData] = useState({
     email: "",
@@ -17,6 +20,7 @@ const RegisterPage = () => {
     username: "",
     first_name: "",
     last_name: "",
+    terms: false,
   });
   const [responseMessage, setResponseMessage] = useState("");
 
@@ -26,29 +30,82 @@ const RegisterPage = () => {
       ...prevData,
       [name]: value,
     }));
+
+    // Validation en temps réel pour le champ modifié
+    if (errors[name]) {
+      try {
+        const fieldSchema = registerSchema.pick({ [name]: true } as any);
+        fieldSchema.parse({ [name]: type === 'checkbox' ? checked : value });
+        setErrors(prev => ({ ...prev, [name]: "" }));
+      } catch (error) {
+        // Garde l'erreur existante jusqu'à ce que la validation passe
+      }
+    }
+  };
+
+  const handleTermsChange = (checked: boolean) => {
+    setFormData(prev => ({ ...prev, terms: checked }));
+    if (errors.terms && checked) {
+      setErrors(prev => ({ ...prev, terms: "" }));
+    }
   };
 
   const Navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-
     setIsLoading(true);
+    setErrors({});
+    
     try {
+      // Validation avec Zod
+      const validatedData = registerSchema.parse(formData);
+      
+      // Enlever le champ terms avant l'envoi à l'API
+      const { terms, ...dataToSend } = validatedData;
+
       await apiClient.post("/users", formData);
       setResponseMessage("Registration successful!");
       toast({ title: "Inscription réussie, Vous pouvez maintenant vous connecter", variant: "success" });
       Navigate("/login");
-    } catch (error: any) {
-      if (error.response && error.response.data && error.response.data.message) {
-        setResponseMessage("Registration failed: " + error.response.data.message);
-        console.error("Error:", error.response.data);
-      } else {
-        setResponseMessage("An error occurred: " + error.message);
-        console.error("Error:", error);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Erreurs de validation Zod
+        const fieldErrors: Record<string, string> = {};
+        error.errors.forEach((err) => {
+          if (err.path[0]) {
+            fieldErrors[err.path[0] as string] = err.message;
+          }
+        });
+        setErrors(fieldErrors);
+        toast({
+          title: "Erreur de validation",
+          description: "Veuillez corriger les erreurs dans le formulaire",
+          variant: "destructive"
+        });
+      } else if (error instanceof Error && 'response' in error) {
+        // Erreurs API
+        const apiError = error as any;
+        if (apiError.response?.data?.message) {
+          if (apiError.response.data.message.includes('email')) {
+            setErrors({ email: "Cette adresse email est déjà utilisée" });
+          } else if (apiError.response.data.message.includes('username')) {
+            setErrors({ username: "Ce nom d'utilisateur est déjà pris" });
+          } else {
+            setErrors({ general: apiError.response.data.message });
+          }
+        } else {
+          setErrors({ general: "Une erreur est survenue lors de l'inscription" });
+        }
+        toast({
+          title: "Erreur d'inscription",
+          description: "Veuillez vérifier vos informations",
+          variant: "destructive"
+        });
       }
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
@@ -80,7 +137,11 @@ const RegisterPage = () => {
                     placeholder="exemple@email.com"
                     required
                     disabled={isLoading}
+                    className={errors.email ? "border-red-500" : ""}
                   />
+                  {errors.email && (
+                    <p className="text-red-500 text-sm">{errors.email}</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -93,7 +154,13 @@ const RegisterPage = () => {
                       value={formData.first_name}
                       onChange={handleChange}
                       disabled={isLoading}
+                      className={errors.first_name ? "border-red-500" : ""}
                     />
+                    {errors.first_name && (
+                      <p className="text-red-500 text-sm">
+                        {errors.first_name}
+                      </p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Nom</Label>
@@ -105,7 +172,11 @@ const RegisterPage = () => {
                       value={formData.last_name}
                       onChange={handleChange}
                       disabled={isLoading}
+                      className={errors.last_name ? "border-red-500" : ""}
                     />
+                    {errors.last_name && (
+                      <p className="text-red-500 text-sm">{errors.last_name}</p>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -118,7 +189,11 @@ const RegisterPage = () => {
                     value={formData.username}
                     onChange={handleChange}
                     disabled={isLoading}
+                    className={errors.username ? "border-red-500" : ""}
                   />
+                  {errors.username && (
+                    <p className="text-red-500 text-sm">{errors.username}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Mot de passe</Label>
@@ -131,16 +206,41 @@ const RegisterPage = () => {
                     value={formData.plainPassword}
                     onChange={handleChange}
                     disabled={isLoading}
+                    className={errors.plainPassword ? "border-red-500" : ""}
                   />
+                  {errors.plainPassword && (
+                    <p className="text-red-500 text-sm">
+                      {errors.plainPassword}
+                    </p>
+                  )}
+                  <p className="text-xs text-gray-500">
+                    Le mot de passe doit contenir au moins 12 caractères avec
+                    une minuscule, une majuscule et un chiffre
+                  </p>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-3">
-                    <Checkbox id="terms" required />
-                    <Label htmlFor="terms">Accepter les <Link className="underline" to={"/cgy"}>conditions d'utilisation</Link></Label>
+                    <Checkbox
+                      id="terms"
+                      checked={formData.terms}
+                      onCheckedChange={handleTermsChange}
+                      disabled={isLoading}
+                    />
+                    <Label htmlFor="terms">
+                      Accepter les{" "}
+                      <Link className="underline" to={"/cgy"}>
+                        conditions d'utilisation
+                      </Link>
+                    </Label>
                   </div>
+                  {errors.terms && (
+                    <p className="text-red-500 text-sm">{errors.terms}</p>
+                  )}
                 </div>
-                {responseMessage && (
-                  <div className="text-red-600 text-sm">{responseMessage}</div>
+                {errors.general && (
+                  <div className="text-red-600 text-sm bg-red-50 p-2 rounded">
+                    {errors.general}
+                  </div>
                 )}
 
                 <Button type="submit" className="w-full" disabled={isLoading}>
