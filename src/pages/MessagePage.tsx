@@ -14,6 +14,7 @@ import { Conversation, Message } from "@/types/MessageTypes";
 import PopupSignalement from "@/components/PopupSignalement";
 import apiClient from "@/service/api/apiClient";
 import { useAuth } from "@/components/context/AuthContext";
+import SEO from "@/components/SEO/SEO";
 
 setDefaultOptions({ locale: fr });
 
@@ -132,6 +133,12 @@ function MessagePage() {
 
   return (
     <>
+      <SEO 
+        title="Messagerie"
+        description="Gérez vos conversations et échangez avec les autres utilisateurs de ShareLoc"
+        keywords="messagerie, messages, conversation, ShareLoc"
+        canonicalUrl="/messages"
+      />
       {conversations.length === 0 ? (
         <EmptyConversations />
       ) : (
@@ -160,28 +167,28 @@ function MessagePage() {
                 >
 
                   {conversation.new_messages && (
-                    <span className="mr-2 bg-blue-500 rounded-full size-2 flex-shrink-0"></span>
+                    <span className="flex-shrink-0 mr-2 bg-blue-500 rounded-full size-2"></span>
                   )}
 
-                  <Avatar className="w-10 h-10 mr-3 rounded-full flex-shrink-0">
+                  <Avatar className="flex-shrink-0 mr-3 w-10 h-10 rounded-full">
                     <AvatarImage src={conversation.user_avatar ?? ""} />
                     <AvatarFallback>
                       {conversation.user_username.substring(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1 min-w-0 overflow-hidden">
+                  <div className="overflow-hidden flex-1 min-w-0">
                     <h3 className="text-sm font-medium text-gray-900 truncate">
                       {conversation.user_username}
                     </h3>
-                    <p className="text-sm text-gray-500 truncate min-w-0">
+                    <p className="min-w-0 text-sm text-gray-500 truncate">
                       {conversation.last_message?.length > 30 
                         ? `${conversation.last_message.substring(0, 30)}...` 
                         : conversation.last_message}
                     </p>
                   </div>
 
-                  <div className="flex items-center ml-3 flex-shrink-0 gap-2">
+                  <div className="flex flex-shrink-0 gap-2 items-center ml-3">
                     <span className="text-xs text-gray-400 whitespace-nowrap">
                       {format(
                         new Date(conversation.last_message_created_at),
@@ -220,7 +227,7 @@ function MessagePage() {
             {selectedConversation ? (
               <>
                 {/* Chat header */}
-                <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+                <div className="flex justify-between items-center p-4 bg-white border-b border-gray-200">
                   <div className="flex items-center">
                     <Button
                       variant="ghost"
@@ -231,7 +238,7 @@ function MessagePage() {
                       <ArrowLeft className="size-4" />
                       <span>Retour</span>
                     </Button>
-                    <Avatar className="hidden sm:block w-10 h-10 mr-3 rounded-full">
+                    <Avatar className="hidden mr-3 w-10 h-10 rounded-full sm:block">
                       <AvatarImage
                         src={selectedConversation.user_avatar ?? ""}
                       />
@@ -249,7 +256,7 @@ function MessagePage() {
                   <PopupSignalement
                     trigger={
                       <Button variant={"ghost"}>
-                        <Flag className="w-4 h-4 mr-2" />
+                        <Flag className="mr-2 w-4 h-4" />
                         <span className="hidden sm:block">Signaler</span>
                       </Button>
                     }
@@ -267,7 +274,7 @@ function MessagePage() {
                 <FormMessageSend onSendMessage={handleSendMessage} />
               </>
             ) : (
-              <div className="flex items-center justify-center h-full p-4 text-center text-gray-500">
+              <div className="flex justify-center items-center p-4 h-full text-center text-gray-500">
                 Sélectionnez une conversation
               </div>
             )}

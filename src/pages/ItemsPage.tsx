@@ -6,6 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { CircularProgress } from "@mui/material";
 import apiClient from "@/service/api/apiClient";
+import SEO from "@/components/SEO/SEO";
 
 const ItemsPage = () => {
   const [items, setItems] = useState<any>([]);
@@ -344,34 +345,15 @@ const ItemsPage = () => {
   }, [isSearchValid, isResetFilter]);
 
   return (
-    <div className="w-full flex gap-5">
-      <FilterItems
-        handleTitleSearchChange={handleTitleSearchChange}
-        categorieSearch={tempCategorieSearch}
-        handleSelectChangeCategory={handleSelectChangeCategory}
-        categories={categories}
-        handleCitySearchChangeMap={handleCitySearchChangeMap}
-        suggestions={suggestions}
-        selectSuggestionMap={selectSuggestionMap}
-        handlePriceMinimumChange={handlePriceMinimumChange}
-        handlePriceMaximumChange={handlePriceMaximumChange}
-        selectedType={tempSelectedType}
-        handleTypeItem={handleTypeItem}
-        applyFilters={applyFilters}
-        villeRecherche={tempVilleRecherche}
-        resetInfo={resetInfo}
-        titleSearch={tempTitleSearch}
-        priceMin={tempPriceMin}
-        priceMax={tempPriceMax}
-        isDisplayed={false}
-        searchRadius={tempSearchRadius}
-        handleRadiusChange={handleRadiusChange}
-        isValidCity={isValidCity}
+    <>
+      <SEO 
+        title="Annonces"
+        description="Découvrez toutes les annonces de location sur ShareLoc"
+        keywords="annonces, location, biens, ShareLoc"
+        canonicalUrl="/annonces"
       />
-      <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
-        <SortItems
-          selectedOrder={selectedOrder}
-          handleSelectChangeOrder={handleSelectChangeOrder}
+      <div className="flex gap-5 w-full">
+        <FilterItems
           handleTitleSearchChange={handleTitleSearchChange}
           categorieSearch={tempCategorieSearch}
           handleSelectChangeCategory={handleSelectChangeCategory}
@@ -383,42 +365,69 @@ const ItemsPage = () => {
           handlePriceMaximumChange={handlePriceMaximumChange}
           selectedType={tempSelectedType}
           handleTypeItem={handleTypeItem}
-          fetchApiData={fetchApiData}
+          applyFilters={applyFilters}
           villeRecherche={tempVilleRecherche}
           resetInfo={resetInfo}
-          numberItems={numberItems}
+          titleSearch={tempTitleSearch}
+          priceMin={tempPriceMin}
+          priceMax={tempPriceMax}
+          isDisplayed={false}
+          searchRadius={tempSearchRadius}
+          handleRadiusChange={handleRadiusChange}
+          isValidCity={isValidCity}
         />
-        {loading ? (
-            <div className="flex items-center justify-center h-full">
-              <CircularProgress color="inherit"/>
-            </div>
-        ) : error ? (
-          <div className="text-red-500 text-center">{error}</div>
-        ) : (
-          <AllCardsItems
-            filter={true}
-            items={items}
+        <div className="xl:w-[75%] lg:w-[100%] md:w-[100%] sm:w-[100%] xs:w-[100%]">
+          <SortItems
+            selectedOrder={selectedOrder}
+            handleSelectChangeOrder={handleSelectChangeOrder}
+            handleTitleSearchChange={handleTitleSearchChange}
+            categorieSearch={tempCategorieSearch}
+            handleSelectChangeCategory={handleSelectChangeCategory}
+            categories={categories}
+            handleCitySearchChangeMap={handleCitySearchChangeMap}
+            suggestions={suggestions}
+            selectSuggestionMap={selectSuggestionMap}
+            handlePriceMinimumChange={handlePriceMinimumChange}
+            handlePriceMaximumChange={handlePriceMaximumChange}
+            selectedType={tempSelectedType}
+            handleTypeItem={handleTypeItem}
+            fetchApiData={fetchApiData}
+            villeRecherche={tempVilleRecherche}
+            resetInfo={resetInfo}
+            numberItems={numberItems}
           />
-        )}
-        <div className="flex justify-evenly items-center mt-10">
-          <button
-            className="text-2xl"
-            onClick={handlePreviousPage}
-            disabled={page === 1}>
-            <FaArrowLeft />
-          </button>
-          <span className="text-lg">
-            {page} sur {totalPages}
-          </span>
-          <button
-            className="text-2xl"
-            onClick={handleNextPage}
-            disabled={page === totalPages}>
-            <FaArrowRight />
-          </button>
+          {loading ? (
+              <div className="flex justify-center items-center h-full">
+                <CircularProgress color="inherit"/>
+              </div>
+          ) : error ? (
+            <div className="text-center text-red-500">{error}</div>
+          ) : (
+            <AllCardsItems
+              filter={true}
+              items={items}
+            />
+          )}
+          <div className="flex justify-evenly items-center mt-10">
+            <button
+              className="text-2xl"
+              onClick={handlePreviousPage}
+              disabled={page === 1}>
+              <FaArrowLeft />
+            </button>
+            <span className="text-lg">
+              {page} sur {totalPages}
+            </span>
+            <button
+              className="text-2xl"
+              onClick={handleNextPage}
+              disabled={page === totalPages}>
+              <FaArrowRight />
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

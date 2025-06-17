@@ -13,6 +13,7 @@ import { ThumbsDown } from "lucide-react";
 import ExistingReservationsCard from "@/components/DetailsItems/ExistingReservationsCard";
 import { useAuth } from "@/components/context/AuthContext";
 import apiClient from "@/service/api/apiClient";
+import SEO from "@/components/SEO/SEO";
 
 const ProductPage = () => {
   const { id } = useParams();
@@ -128,21 +129,28 @@ const ProductPage = () => {
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-5 grid-rows-1 xl:gap-10">
+      <SEO 
+        title={items?.title || "Produit"}
+        description={items?.body || "Découvrez ce produit sur ShareLoc"}
+        keywords={`location, ${items?.title}, ${items?.category?.name}, ShareLoc`}
+        canonicalUrl={`/product/${id}`}
+        ogType="article"
+      />
+      <div className="grid grid-cols-1 grid-rows-1 sm:grid-cols-5 xl:gap-10">
         <div className="col-span-4 lg:col-span-4 xl:col-span-3 3xl:col-span-2 4xl:col-span-2">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex justify-center items-center h-full">
               <CircularProgress color="inherit" />
             </div>
           ) : itemPictures.length > 0 ? (
             <ProductGallery images={itemPictures} />
           ) : (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex justify-center items-center h-full">
               <ThumbsDown />
             </div>
           )}
         </div>
-        <div className="hidden xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex gap-5 flex-col">
+        <div className="hidden flex-col gap-5 xl:block xl:col-span-2 2xl:col-span-2 3xl:col-span-2 4xl:col-span-1 xl:flex">
           <div>
             <SellerCard
               userInfo={userInfo}
@@ -170,15 +178,15 @@ const ProductPage = () => {
         </div>
       </div>
       <div className="flex flex-col mt-8">
-        <h1 className="text-xl md:text-3xl font-bold mb-4">{items.title}</h1>
-        <p className="text-gray-600 mb-4">{items.body}</p>
+        <h1 className="mb-4 text-xl font-bold md:text-3xl">{items.title}</h1>
+        <p className="mb-4 text-gray-600">{items.body}</p>
         <div className="flex items-center mb-4">
-          <FiMapPin className="w-5 h-5 mr-2 text-gray-500" />
+          <FiMapPin className="mr-2 w-5 h-5 text-gray-500" />
           <span>{items.location}</span>
         </div>
-        <p className="text-xl md:text-2xl font-bold">{items.price}€ / Jour</p>
+        <p className="text-xl font-bold md:text-2xl">{items.price}€ / Jour</p>
       </div>
-      <div className="xl:hidden flex gap-8 mt-8 flex-col lg:flex-row">
+      <div className="flex flex-col gap-8 mt-8 xl:hidden lg:flex-row">
         <div className="w-6/6 h-fit">
           <SellerCard
             userInfo={userInfo}
@@ -188,7 +196,7 @@ const ProductPage = () => {
             totalItemsUser={totalItemsUser}
           />
         </div>
-        <div className="w-6/6 flex flex-col gap-8">
+        <div className="flex flex-col gap-8 w-6/6">
           {reservationsList && reservationsList.length > 0 && (
             <ExistingReservationsCard
               reservations={reservationsList}
@@ -208,25 +216,25 @@ const ProductPage = () => {
       </div>
       {reviews.length > 0 ? (
         <div className="mt-8">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+          <h2 className="mb-4 text-xl font-bold md:text-2xl">
             Récent avis de{" "}
             <span className="text-[#FEB24D]">{userInfo.username}</span>
           </h2>
           <RecentReviews reviews={reviews} />
           <a href={`/userProfile/${userInfo.id}`}>
-            <Button variant="outline" className="mt-4 flex mx-auto">
+            <Button variant="outline" className="flex mx-auto mt-4">
               Voir tous les avis
             </Button>
           </a>
         </div>
       ) : (
         <div className="mt-8">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+          <h2 className="mb-4 text-xl font-bold md:text-2xl">
             Récent avis de{" "}
             <span className="text-[#FEB24D]">{userInfo.username}</span>
           </h2>
-          <div className="border rounded-lg p-4">
-            <div className="flex items-center space-x-4 mb-2">
+          <div className="p-4 rounded-lg border">
+            <div className="flex items-center mb-2 space-x-4">
               Aucun avis pour le moment
             </div>
           </div>
@@ -234,14 +242,14 @@ const ProductPage = () => {
       )}
       {itemsUser.length > 0 ? (
         <div className="mt-8">
-          <h2 className="text-xl md:text-2xl font-bold mb-4">
+          <h2 className="mb-4 text-xl font-bold md:text-2xl">
             Parcourez les annonces du loueur
           </h2>
           <AllCardsItems filter={false} items={itemsUser} />
         </div>
       ) : null}
       <div className="mt-8">
-        <h2 className="text-xl md:text-2xl font-bold mb-4">
+        <h2 className="mb-4 text-xl font-bold md:text-2xl">
           D'autres annonces sélectionnées pour vous
         </h2>
         <AllCardsItems filter={false} items={allItems} />

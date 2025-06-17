@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { RiMapPinAddFill } from "react-icons/ri";
 import NoDataImage from "/no-data.jpg";
+import SEO from "@/components/SEO/SEO";
 
 const FavorisPage = () => {
     const [items, setItems] = useState<any>([]);
@@ -27,7 +28,7 @@ const FavorisPage = () => {
 
     //Composant pour liste vide
     const EmptyFavorites = () => (
-      <div className="flex flex-col items-center justify-center gap-6 my-10">
+      <div className="flex flex-col gap-6 justify-center items-center my-10">
         <img
           src={NoDataImage}
           alt="Illustration favoris vides"
@@ -56,11 +57,17 @@ const FavorisPage = () => {
   
     return (
         <>
+          <SEO 
+            title="Favoris"
+            description="Retrouvez tous vos produits favoris sur ShareLoc"
+            keywords="favoris, produits favoris, location, ShareLoc"
+            canonicalUrl="/favoris"
+          />
           {items.length === 0 ? (
             <EmptyFavorites />
           ) : (
             <div>
-              <h1 className="text-black text-lg font-bold mb-3 uppercase">Vos annonces favorites</h1>
+              <h1 className="mb-3 text-lg font-bold text-black uppercase">Vos annonces favorites</h1>
               <div className="w-3/6 h-0.5 bg-blue mb-10"></div>
               <AllCardsItems filter={false} items={items} />
             </div>

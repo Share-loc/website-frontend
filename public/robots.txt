@@ -1,0 +1,17 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and private pages
+Disallow: /admin/
+Disallow: /settings/
+Disallow: /profile/
+Disallow: /messages/
+Disallow: /favoris/
+Disallow: /reservations/
+
+# Sitemap location
+Sitemap: https://shareloc.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10 

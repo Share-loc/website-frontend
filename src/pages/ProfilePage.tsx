@@ -7,21 +7,28 @@ import UserItems from "@/components/UserItems";
 import { format } from "date-fns";
 import UserReviews from "@/components/UserReviews";
 import { useAuth } from "@/components/context/AuthContext";
+import SEO from "@/components/SEO/SEO";
 
 const ProfilePage = () => {
   const { user } = useAuth();
 
   return (
     <>
+      <SEO 
+        title="Profil"
+        description="Gérez votre profil et vos annonces sur ShareLoc"
+        keywords="profil, compte, annonces, ShareLoc"
+        canonicalUrl="/profile"
+      />
       <Link
         to="/"
-        className="inline-flex items-center text-sm mb-6 hover:text-primary"
+        className="inline-flex items-center mb-6 text-sm hover:text-primary"
       >
-        <ArrowLeft className="mr-2 h-4 w-4" />
+        <ArrowLeft className="mr-2 w-4 h-4" />
         Retour à l'accueil
       </Link>
 
-      <div className="grid md:grid-cols-3 gap-8 mb-10">
+      <div className="grid gap-8 mb-10 md:grid-cols-3">
         <div>
           <Card>
             <CardHeader className="relative pb-0">
@@ -36,12 +43,12 @@ const ProfilePage = () => {
             </CardHeader>
             <CardContent className="pt-16 text-center">
               <h2 className="text-xl font-bold">{user?.username}</h2>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="mb-4 text-sm text-muted-foreground">
                 Membre depuis{" "}
                 {user ? format(user.created_at, "MMMM yyyy") : "-"}
               </p>
 
-              <div className="flex justify-center gap-4 mb-6">
+              <div className="flex gap-4 justify-center mb-6">
                 <Button variant="outline" size="sm" asChild>
                   <Link to="/profile/edit">Modifier le profil</Link>
                 </Button>
@@ -51,22 +58,22 @@ const ProfilePage = () => {
               </div>
 
               <div className="space-y-2 text-sm">
-                {/* <div className="flex items-center justify-center gap-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                {/* <div className="flex gap-2 justify-center items-center">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
                   <span>Paris, France</span>
                 </div> */}
-                <div className="flex items-center justify-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
+                <div className="flex gap-2 justify-center items-center">
+                  <Mail className="w-4 h-4 text-muted-foreground" />
                   <span>{user?.email}</span>
                 </div>
-                {/* <div className="flex items-center justify-center gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
+                {/* <div className="flex gap-2 justify-center items-center">
+                  <Phone className="w-4 h-4 text-muted-foreground" />
                   <span>+33 6 12 34 56 78</span>
                 </div> */}
               </div>
 
-              {/* <div className="mt-6 pt-6 border-t">
-                <h3 className="font-medium mb-2">À propos</h3>
+              {/* <div className="pt-6 mt-6 border-t">
+                <h3 className="mb-2 font-medium">À propos</h3>
                 <p className="text-sm text-muted-foreground">
                   Passionné de bricolage et de jardinage. J'aime partager mes
                   outils et découvrir de nouvelles personnes dans mon quartier.

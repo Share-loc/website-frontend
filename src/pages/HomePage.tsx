@@ -6,6 +6,7 @@ import About from "@/components/HomeComponents/About"
 import TestimonialsCarousel from "@/components/HomeComponents/Testimonial"
 import { CircularProgress } from "@mui/material"
 import apiClient from "@/service/api/apiClient"
+import SEO from "@/components/SEO/SEO"
 
 const HomePage = () => {
   const [items, setItems] = useState([])
@@ -25,8 +26,15 @@ const HomePage = () => {
   useEffect(() => {
     itemsHome();
   }, []);
+
   return (
     <>  
+      <SEO 
+        title="Accueil"
+        description="ShareLoc est la plateforme de location de biens entre particuliers. Trouvez ou proposez des locations de qualité près de chez vous. Location simple, sécurisée et économique."
+        keywords="location, partage, biens, particuliers, ShareLoc, location entre particuliers, location économique"
+        canonicalUrl="/"
+      />
       <MainBanner />
       {loader ? (
         <div className="flex justify-center items-center h-64">
