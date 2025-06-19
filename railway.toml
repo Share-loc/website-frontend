@@ -8,3 +8,4 @@ healthcheckPath = "/"
 
 [variables]
 VITE_API_URL = "https://ton-back.railway.app/api"
+
